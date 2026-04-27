@@ -1,6 +1,6 @@
 {
-  "name": "Email Template Pro",
-  "description": "A powerful React-based email template creator and previewer using react-email components.",
+  "name": "Email.Studio",
+  "description": "A high-fidelity code-first design environment for React-powered email templates with real-time rendering and campaign analytics.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

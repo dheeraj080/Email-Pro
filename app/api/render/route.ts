@@ -21,6 +21,11 @@ export async function POST(req: NextRequest) {
     // Normalize code for better cache hits (trim whitespace)
     const normalizedCode = code.trim();
 
+    // Handle plain HTML early
+    if (normalizedCode.toLowerCase().startsWith('<!doctype') || normalizedCode.toLowerCase().startsWith('<html')) {
+      return NextResponse.json({ html: normalizedCode });
+    }
+
     // Check cache
     if (serverRenderCache.has(normalizedCode)) {
       return NextResponse.json({ html: serverRenderCache.get(normalizedCode) });

@@ -15,17 +15,18 @@ import {
 import { cn } from '@/lib/utils';
 import { TEMPLATES } from '@/lib/templates';
 import { exportToHTML } from '@/lib/render-email';
+import { Template } from '@/lib/types';
 
 interface TemplateShowcaseProps {
-  onSelect: (template: typeof TEMPLATES[0]) => void;
+  onSelect: (template: Template) => void;
   onClose: () => void;
   activeTemplateId?: string;
 }
 
 interface TemplateCardProps {
-  template: typeof TEMPLATES[0];
+  template: Template;
   isActive: boolean;
-  onSelect: (template: typeof TEMPLATES[0]) => void;
+  onSelect: (template: Template) => void;
   preview: string | undefined;
   isLoading: boolean;
   onLoadPreview: (id: string, code: string) => void;

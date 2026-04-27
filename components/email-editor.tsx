@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-jsx';
-import 'prismjs/components/prism-tsx';
+import Editor from '@monaco-editor/react';
+// Remove prism imports as Monaco handles its own highlighting
+// import { highlight, languages } from 'prismjs';
+// import 'prismjs/components/prism-clike';
+// import 'prismjs/components/prism-javascript';
+// import 'prismjs/components/prism-typescript';
+// import 'prismjs/components/prism-jsx';
+// import 'prismjs/components/prism-tsx';
 import { renderEmailToReact, exportToHTML } from '@/lib/render-email';
 import { TEMPLATES } from '@/lib/templates';
 import { 
@@ -42,11 +43,12 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import TemplateShowcase from '@/components/template-showcase';
 import AnalyticsDashboard from '@/components/analytics-dashboard';
 import { analyzeEmail, EmailMetrics } from '@/lib/analytics-utils';
+import { Template } from '@/lib/types';
 
-export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () => void, initialTemplate?: typeof TEMPLATES[0] }) {
+export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () => void, initialTemplate?: Template }) {
   const [mounted, setMounted] = useState(false);
-  const [templates, setTemplates] = useState(TEMPLATES);
-  const [activeTemplate, setActiveTemplate] = useState(initialTemplate || TEMPLATES[0]);
+  const [templates, setTemplates] = useState<Template[]>(TEMPLATES);
+  const [activeTemplate, setActiveTemplate] = useState<Template>(initialTemplate || TEMPLATES[0]);
   const [searchQuery, setSearchQuery] = useState('');
   const [code, setCode] = useState(activeTemplate.code);
   const [history, setHistory] = useState<Record<string, { id: string; timestamp: number; code: string }[]>>({});
@@ -54,6 +56,8 @@ export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () =
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [customDimensions, setCustomDimensions] = useState<{ width: number; height: number } | null>(null);
   const [view, setView] = useState<'split' | 'editor' | 'preview' | 'analytics'>('split');
+  const [language, setLanguage] = useState<'typescript' | 'javascript' | 'html'>('typescript');
+  const [previewTab, setPreviewTab] = useState<'design' | 'html'>('design');
   const [isRendering, setIsRendering] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [metrics, setMetrics] = useState<EmailMetrics | null>(null);
@@ -115,6 +119,16 @@ export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () =
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   const performRender = async (codeToRender: string) => {
     setIsRendering(true);
     try {
@@ -167,12 +181,17 @@ export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () =
     return () => clearTimeout(timeout);
   }, [code, view === 'analytics', mounted]);
 
-  const handleTemplateChange = (template: typeof TEMPLATES[0]) => {
+  const handleTemplateChange = (template: Template) => {
     // Save current code to templates array before switching
     setTemplates(prev => prev.map(t => t.id === activeTemplate.id ? { ...t, code } : t));
     
     setActiveTemplate(template);
     setCode(template.code);
+    if (template.language) {
+      setLanguage(template.language);
+    }
+    setError(null);
+    setPreviewTab('design');
   };
 
   const handleCreateTemplate = () => {
@@ -190,10 +209,11 @@ export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () =
     setTemplates(prev => prev.map(t => t.id === activeTemplate.id ? { ...t, code } : t));
 
     const id = newTemplateName.toLowerCase().replace(/\s+/g, '-');
-    const newTemplate = {
+    const newTemplate: Template = {
       id: `${id}-${Date.now()}`,
       name: newTemplateName,
-      code: TEMPLATES[0].code // Start with the first template as a base
+      code: language === 'html' ? '<!-- New HTML Template -->' : TEMPLATES[0].code, // Use appropriate starter code
+      language: language
     };
 
     setTemplates(prev => [...prev, newTemplate]);
@@ -757,26 +777,45 @@ export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () =
                   <div className="flex items-center gap-2">
                     <Code2 className="w-3.5 h-3.5 text-slate-500" />
                     <span className="text-[11px] text-slate-400 font-mono tracking-tight">
-                      {activeTemplate.id}.tsx
+                      {activeTemplate.id}.{language === 'html' ? 'html' : 'tsx'}
                     </span>
+                  </div>
+                  <div className="ml-auto flex items-center gap-2">
+                    <select 
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value as any)}
+                      className="bg-[#2d2d2d] border border-[#3c3c3c] rounded text-[10px] text-slate-400 px-2 py-1 outline-none hover:bg-[#333] transition-colors"
+                    >
+                      <option value="typescript">TSX</option>
+                      <option value="javascript">JSX</option>
+                      <option value="html">HTML</option>
+                    </select>
                   </div>
                 </div>
                 <ErrorBoundary name="Editor" onReset={() => setCode(activeTemplate.code)} className="h-full bg-[#1e1e1e] border-none rounded-none">
-                  <div className="flex-1 overflow-auto">
+                  <div className="flex-1 overflow-hidden">
                     <Editor
+                      height="100%"
+                      defaultLanguage={language}
+                      language={language}
                       value={code}
-                      onValueChange={setCode}
-                      highlight={code => highlight(code, languages.tsx, 'tsx')}
-                      padding={24}
-                      tabSize={2}
-                      insertSpaces={true}
-                      style={{
-                        fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                      onChange={(value) => setCode(value || '')}
+                      theme="vs-dark"
+                      options={{
                         fontSize: 13,
-                        minHeight: '100%',
-                        lineHeight: '1.6',
+                        fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                        minimap: { enabled: false },
+                        lineNumbers: 'on',
+                        folding: true,
+                        bracketPairColorization: { enabled: true },
+                        automaticLayout: true,
+                        scrollBeyondLastLine: false,
+                        padding: { top: 24, bottom: 24 },
+                        renderLineHighlight: 'all',
+                        cursorBlinking: 'smooth',
+                        smoothScrolling: true,
+                        wordWrap: 'on',
                       }}
-                      className="npm-editor min-h-full"
                     />
                   </div>
                 </ErrorBoundary>
@@ -790,10 +829,33 @@ export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () =
                 className="w-full h-full bg-slate-100 flex flex-col"
               >
                 <div className="h-9 flex items-center justify-between px-4 bg-slate-50 border-b border-slate-200 shrink-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
                       <Eye className="w-3.5 h-3.5 text-slate-400" />
                       <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Live Preview</span>
                     </div>
+                    <div className="flex bg-slate-200/50 p-0.5 rounded-md h-6">
+                      <button 
+                        onClick={() => setPreviewTab('design')}
+                        className={cn(
+                          "px-2 rounded flex items-center justify-center text-[10px] font-bold uppercase tracking-wider transition-all",
+                          previewTab === 'design' ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                        )}
+                      >
+                        Design
+                      </button>
+                      <button 
+                        onClick={() => setPreviewTab('html')}
+                        className={cn(
+                          "px-2 rounded flex items-center justify-center text-[10px] font-bold uppercase tracking-wider transition-all",
+                          previewTab === 'html' ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                        )}
+                      >
+                        HTML
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
                     {customDimensions && (
                       <button 
                         onClick={() => setCustomDimensions(null)}
@@ -803,6 +865,7 @@ export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () =
                       </button>
                     )}
                   </div>
+                </div>
                 <ErrorBoundary name="Preview" onReset={() => performRender(code)} className="h-full bg-slate-50 border-none rounded-none">
                   <div className="flex-1 flex items-start justify-center p-6 overflow-auto">
                     <div 
@@ -845,7 +908,26 @@ export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () =
                           </div>
                         ) : previewHtml ? (
                           <>
-                            <iframe srcDoc={previewHtml} className="w-full h-full border-none" title="Email Preview" />
+                            {previewTab === 'design' ? (
+                              <iframe srcDoc={previewHtml} className="w-full h-full border-none" title="Email Preview" />
+                            ) : (
+                              <div className="w-full h-full">
+                                <Editor
+                                  height="100%"
+                                  defaultLanguage="html"
+                                  value={previewHtml}
+                                  theme="vs-dark"
+                                  options={{
+                                    readOnly: true,
+                                    fontSize: 12,
+                                    minimap: { enabled: false },
+                                    scrollBeyondLastLine: false,
+                                    automaticLayout: true,
+                                    wordWrap: 'on'
+                                  }}
+                                />
+                              </div>
+                            )}
                             {isRendering && (
                               <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur shadow-sm border border-slate-200 rounded-full text-[10px] font-bold text-slate-500 z-50">
                                 <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
@@ -890,25 +972,44 @@ export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () =
                           <div className="flex items-center gap-2">
                             <Code2 className="w-3.5 h-3.5 text-slate-500" />
                             <span className="text-[11px] text-slate-400 font-mono tracking-tight">
-                              {activeTemplate.id}.tsx
+                              {activeTemplate.id}.{language === 'html' ? 'html' : 'tsx'}
                             </span>
                           </div>
+                          <div className="ml-auto flex items-center gap-2">
+                            <select 
+                              value={language}
+                              onChange={(e) => setLanguage(e.target.value as any)}
+                              className="bg-[#2d2d2d] border border-[#3c3c3c] rounded text-[10px] text-slate-400 px-2 py-1 outline-none hover:bg-[#333] transition-colors font-sans"
+                            >
+                              <option value="typescript">TSX</option>
+                              <option value="javascript">JSX</option>
+                              <option value="html">HTML</option>
+                            </select>
+                          </div>
                         </div>
-                        <div className="flex-1 overflow-auto">
+                        <div className="flex-1 overflow-hidden">
                           <Editor
+                            height="100%"
+                            defaultLanguage={language}
+                            language={language}
                             value={code}
-                            onValueChange={setCode}
-                            highlight={code => highlight(code, languages.tsx, 'tsx')}
-                            padding={24}
-                            tabSize={2}
-                            insertSpaces={true}
-                            style={{
-                              fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                            onChange={(value) => setCode(value || '')}
+                            theme="vs-dark"
+                            options={{
                               fontSize: 13,
-                              minHeight: '100%',
-                              lineHeight: '1.6',
+                              fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                              minimap: { enabled: false },
+                              lineNumbers: 'on',
+                              folding: true,
+                              bracketPairColorization: { enabled: true },
+                              automaticLayout: true,
+                              scrollBeyondLastLine: false,
+                              padding: { top: 24, bottom: 24 },
+                              renderLineHighlight: 'all',
+                              cursorBlinking: 'smooth',
+                              smoothScrolling: true,
+                              wordWrap: 'on',
                             }}
-                            className="npm-editor min-h-full"
                           />
                         </div>
                       </div>
@@ -926,18 +1027,42 @@ export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () =
                     <ErrorBoundary name="Split Preview" onReset={() => performRender(code)} className="h-full bg-slate-50 border-none rounded-none">
                       <div className="w-full h-full bg-slate-100 flex flex-col overflow-hidden">
                         <div className="h-9 flex items-center justify-between px-4 bg-slate-50 border-b border-slate-200 shrink-0">
-                          <div className="flex items-center gap-2">
-                            <Eye className="w-3.5 h-3.5 text-slate-400" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Live Preview</span>
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                              <Eye className="w-3.5 h-3.5 text-slate-400" />
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Live Preview</span>
+                            </div>
+                            <div className="flex bg-slate-200/50 p-0.5 rounded-md h-6">
+                              <button 
+                                onClick={() => setPreviewTab('design')}
+                                className={cn(
+                                  "px-2 rounded flex items-center justify-center text-[10px] font-bold uppercase tracking-wider transition-all",
+                                  previewTab === 'design' ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                                )}
+                              >
+                                Design
+                              </button>
+                              <button 
+                                onClick={() => setPreviewTab('html')}
+                                className={cn(
+                                  "px-2 rounded flex items-center justify-center text-[10px] font-bold uppercase tracking-wider transition-all",
+                                  previewTab === 'html' ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                                )}
+                              >
+                                HTML
+                              </button>
+                            </div>
                           </div>
-                          {customDimensions && (
-                            <button 
-                              onClick={() => setCustomDimensions(null)}
-                              className="text-[10px] bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100 hover:bg-blue-100 transition-colors font-bold uppercase tracking-wider"
-                            >
-                              Reset Size
-                            </button>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {customDimensions && (
+                              <button 
+                                onClick={() => setCustomDimensions(null)}
+                                className="text-[10px] bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100 hover:bg-blue-100 transition-colors font-bold uppercase tracking-wider"
+                              >
+                                Reset Size
+                              </button>
+                            )}
+                          </div>
                         </div>
                         
                         <div className="flex-1 flex items-start justify-center p-6 overflow-auto">
@@ -981,7 +1106,26 @@ export default function EmailEditor({ onBack, initialTemplate }: { onBack?: () =
                                 </div>
                               ) : previewHtml ? (
                                 <>
-                                  <iframe srcDoc={previewHtml} className="w-full h-full border-none" title="Email Preview" />
+                                  {previewTab === 'design' ? (
+                                    <iframe srcDoc={previewHtml} className="w-full h-full border-none" title="Email Preview" />
+                                  ) : (
+                                    <div className="w-full h-full">
+                                      <Editor
+                                        height="100%"
+                                        defaultLanguage="html"
+                                        value={previewHtml}
+                                        theme="vs-dark"
+                                        options={{
+                                          readOnly: true,
+                                          fontSize: 12,
+                                          minimap: { enabled: false },
+                                          scrollBeyondLastLine: false,
+                                          automaticLayout: true,
+                                          wordWrap: 'on'
+                                        }}
+                                      />
+                                    </div>
+                                  )}
                                   {isRendering && (
                                     <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur shadow-sm border border-slate-200 rounded-full text-[10px] font-bold text-slate-500 z-50">
                                       <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />

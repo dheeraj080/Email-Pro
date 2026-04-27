@@ -18,10 +18,11 @@ import {
 import { cn } from '@/lib/utils';
 import TemplateShowcase from './template-showcase';
 import { TEMPLATES } from '@/lib/templates';
+import { Template } from '@/lib/types';
 
 interface LandingPageProps {
   onStart: () => void;
-  onSelectTemplate?: (template: typeof TEMPLATES[0]) => void;
+  onSelectTemplate?: (template: Template) => void;
 }
 
 export default function LandingPage({ onStart, onSelectTemplate }: LandingPageProps) {
