@@ -1,5 +1,50 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-primary: #4f46e5; /* Indigo-600 */
+  --color-brand-bg: #f8fafc;      /* Slate-50 */
+  --color-brand-surface: #ffffff; /* White */
+  --color-brand-text-main: #0f172a; /* Slate-900 */
+  --color-brand-text-secondary: #64748b; /* Slate-500 */
+  --color-brand-border: #e2e8f0;   /* Slate-200 */
+
+  --color-ink-black-50: #f8fafc;
+  --color-ink-black-100: #f1f5f9;
+  --color-ink-black-200: #e2e8f0;
+  --color-ink-black-300: #cbd5e1;
+  --color-ink-black-400: #94a3b8;
+  --color-ink-black-500: #64748b;
+  --color-ink-black-600: #475569;
+  --color-ink-black-700: #334155;
+  --color-ink-black-800: #1e293b;
+  --color-ink-black-900: #0f172a;
+  --color-ink-black-950: #020617;
+
+  --color-powder-blue-50: #eef2ff;
+  --color-powder-blue-100: #e0e7ff;
+  --color-powder-blue-200: #c7d2fe;
+  --color-powder-blue-300: #a5b4fc;
+  --color-powder-blue-400: #818cf8;
+  --color-powder-blue-500: #6366f1;
+  --color-powder-blue-600: #4f46e5;
+  --color-powder-blue-700: #4338ca;
+  --color-powder-blue-800: #3730a3;
+  --color-powder-blue-900: #312e81;
+  --color-powder-blue-950: #1e1b4b;
+
+  --color-alabaster-grey-50: #f8fafc;
+  --color-alabaster-grey-100: #f1f5f9;
+  --color-alabaster-grey-200: #e2e8f0;
+  --color-alabaster-grey-300: #cbd5e1;
+  --color-alabaster-grey-400: #94a3b8;
+  --color-alabaster-grey-500: #64748b;
+  --color-alabaster-grey-600: #475569;
+  --color-alabaster-grey-700: #334155;
+  --color-alabaster-grey-800: #1e293b;
+  --color-alabaster-grey-900: #0f172a;
+  --color-alabaster-grey-950: #020617;
+}
+
 /* Email Editor Custom Styles */
 .npm-editor {
   background-color: transparent !important;

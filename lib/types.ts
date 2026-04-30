@@ -1,6 +1,93 @@
-export interface Template {
+export interface RoleDTO {
+  id?: string;
+  name?: string;
+}
+
+export interface UserDTO {
+  id?: string;
+  name?: string;
+  email?: string;
+  password?: string;
+  image?: string;
+  enabled?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  provider?: 'LOCAL' | 'GOOGLE' | 'GITHUB' | 'FACEBOOK';
+  roles?: RoleDTO[];
+}
+
+export interface EmailTemplate {
   id: string;
   name: string;
-  code: string;
+  subject?: string;
+  content?: string;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Contact {
+  id?: string;
+  name?: string;
+  email: string;
+  phoneNo?: string;
+  description?: string;
+  userId?: string;
+  selected?: boolean;
+  groups?: ContactGroup[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ContactGroup {
+  id?: string;
+  name?: string;
+  description?: string;
+  userId?: string;
+  contacts?: Contact[];
+  createdAt?: string;
+}
+
+export interface EmailRequest {
+  to: string[];
+  cc?: string[];
+  bcc?: string[];
+  replyTo?: string;
+  subject: string;
+  body: string;
+}
+
+export interface LoginRequest {
+  email?: string;
+  password?: string;
+}
+
+export interface TokenResponse {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  tokenType: string;
+  user: UserDTO;
+}
+
+export interface AnalyticsStats {
+  totalSent: number;
+  totalDelivered: number;
+  totalOpened: number;
+  totalClicked: number;
+  totalUnsubscribed: number;
+  totalBounced: number;
+  totalSpamComplaints: number;
+  openRate: number;
+  clickThroughRate: number;
+  clickToOpenRate: number;
+  unsubscribeRate: number;
+  bounceRate: number;
+  deliveryRate: number;
+  spamComplaintRate: number;
+}
+
+export interface Template extends EmailTemplate {
+  code: string; // Alias for content to maintain compatibility with existing frontend
   language?: 'typescript' | 'javascript' | 'html';
 }

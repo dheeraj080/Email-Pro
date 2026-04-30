@@ -1,127 +1,79 @@
+import { NextResponse } from 'next/server';
 import { render } from '@react-email/render';
-import { NextRequest, NextResponse } from 'next/server';
-import React from 'react';
 import * as EmailComponents from '@react-email/components';
+import React from 'react';
 import { transform } from 'sucrase';
 
-const serverRenderCache = new Map<string, string>();
-
-export async function GET() {
-  return NextResponse.json({ status: 'ok', message: 'Email rendering service is active' });
-}
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const { code } = await req.json();
+    const { code, language } = await req.json();
 
     if (!code) {
-      return NextResponse.json({ error: 'No code provided' }, { status: 400 });
+      return NextResponse.json({ error: 'Code is required' }, { status: 400 });
     }
 
-    // Normalize code for better cache hits (trim whitespace)
-    const normalizedCode = code.trim();
-
-    // Handle plain HTML early
-    if (normalizedCode.toLowerCase().startsWith('<!doctype') || normalizedCode.toLowerCase().startsWith('<html')) {
-      return NextResponse.json({ html: normalizedCode });
+    if (language === 'html') {
+      return NextResponse.json({ html: code });
     }
 
-    // Check cache
-    if (serverRenderCache.has(normalizedCode)) {
-      return NextResponse.json({ html: serverRenderCache.get(normalizedCode) });
-    }
-
-    // Transpile the code
-    const transpiledCode = transform(normalizedCode, {
+    // Transpile JSX/TSX
+    const transpiledCode = transform(code, {
       transforms: ['jsx', 'typescript', 'imports'],
       jsxRuntime: 'classic',
     }).code;
 
+    // Evaluate the code to get the component
+    // We wrap it in a function that provides the necessary context
     const wrappedCode = `
+      var React = arguments[0];
+      var EmailComponents = arguments[1];
+      var require = (name) => {
+        if (name === 'react') return React;
+        if (name === '@react-email/components' || name === 'react-email') return EmailComponents;
+        return {};
+      };
       var exports = {};
       var module = { exports: exports };
-      ${transpiledCode}
+      
+      // Wrap in an IIFE to provide clear scope and avoid redeclaration errors
+      // with variables defined in the outer scope.
+      (function(React, EmailComponents, require, exports, module) {
+        ${transpiledCode}
+      })(React, EmailComponents, require, exports, module);
+      
       return module.exports.default || module.exports;
     `;
 
-    // Create a local scope for components
-    const scope = {
-      React,
-      ...EmailComponents,
-      process: {
-        env: {
-          VERCEL_URL: process.env.VERCEL_URL || '',
-        }
-      },
-      require: (name: string) => {
-        if (name === 'react') return React;
-        if (name === '@react-email/components' || name === 'react-email') return EmailComponents;
-        // Mock local imports for the editor
-        if (name.startsWith('./') || name.startsWith('../')) {
-          return {
-            barebonesBoxedTailwindConfig: {},
-            BarebonesFonts: () => null,
-          };
-        }
-        return {};
-      }
-    };
+    const getComponent = new Function('React', 'EmailComponents', wrappedCode);
+    let Component = getComponent(React, EmailComponents);
 
-    const keys = Object.keys(scope);
-    const values = Object.values(scope);
-    const renderFn = new Function(...keys, wrappedCode);
-    
-    let result = renderFn(...values);
-    
-    // The result from wrappedCode is module.exports (or module.exports.default || module.exports)
-    // Let's ensure we get the actual component
-    let Component = result;
-
+    // Handle extraction from exports object if it's not the component itself
     if (Component && typeof Component === 'object' && !React.isValidElement(Component)) {
       if (Component.default) {
         Component = Component.default;
       } else {
-        // Find something that looks like a component
-        const componentKey = Object.keys(Component).find(key => {
-          if (key === '__esModule') return false;
-          const val = Component[key];
-          return typeof val === 'function' || (val && typeof val === 'object' && (val.$$typeof || val.render || val.type));
-        });
-        if (componentKey) {
-          Component = Component[componentKey];
-        }
-      }
-    }
-    
-    // If we still have an object that isn't an element, it might be the exports object with no identifiable component
-    if (Component && typeof Component === 'object' && !React.isValidElement(Component) && Object.keys(Component).length === 0) {
-      throw new Error('No exports found in the code. Make sure to "export default" your component.');
-    }
-
-    if (typeof Component === 'function' || (Component && typeof Component === 'object' && !React.isValidElement(Component))) {
-      try {
-        Component = React.createElement(Component as any);
-      } catch (e) {
-        // Fallback or ignore if it's already an element
+        const potentialKey = Object.keys(Component).find(key => typeof Component[key] === 'function');
+        if (potentialKey) Component = Component[potentialKey];
       }
     }
 
-    if (!Component || (typeof Component === 'object' && !React.isValidElement(Component))) {
-       throw new Error('Could not find a valid React component to render. Ensure you are exporting a component.');
+    // Ensure it's a valid React element for rendering
+    let element;
+    if (React.isValidElement(Component)) {
+      element = Component;
+    } else if (typeof Component === 'function') {
+      element = React.createElement(Component);
+    } else {
+      throw new Error('Could not find a valid React component in the provided code.');
     }
 
-    const html = await render(Component as React.ReactElement);
-
-    // Update cache
-    serverRenderCache.set(normalizedCode, html);
-    if (serverRenderCache.size > 100) {
-      const firstKey = serverRenderCache.keys().next().value;
-      if (firstKey) serverRenderCache.delete(firstKey);
-    }
-
+    const html = await render(element);
     return NextResponse.json({ html });
   } catch (error: any) {
-    console.error('API Render Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Render error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to render email template' },
+      { status: 500 }
+    );
   }
 }

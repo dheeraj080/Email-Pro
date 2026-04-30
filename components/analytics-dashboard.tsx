@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { EmailMetrics } from '@/lib/analytics-utils';
 import { cn } from '@/lib/utils';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface AnalyticsDashboardProps {
   metrics: EmailMetrics | null;
@@ -26,33 +28,24 @@ export default function AnalyticsDashboard({ metrics, isAnalyzing }: AnalyticsDa
   if (isAnalyzing && !metrics) {
     return (
       <div className="flex flex-col items-center justify-center p-20 gap-4 text-center">
-        <div className="w-8 h-8 rounded-full border-2 border-t-slate-900 border-slate-100 animate-spin" />
-        <p className="text-sm font-medium text-slate-500">Calculating insights...</p>
+        <div className="w-8 h-8 rounded-full border-2 border-t-ink-black-900 border-alabaster-grey-100 animate-spin" />
+        <p className="text-xs font-black uppercase tracking-widest text-ink-black-400">Calculating insights...</p>
       </div>
     );
   }
 
   if (!metrics) return null;
 
-  const getSpamRiskColor = (risk: string) => {
-    switch (risk) {
-      case 'low': return 'text-green-500 bg-green-50';
-      case 'medium': return 'text-yellow-500 bg-yellow-50';
-      case 'high': return 'text-red-500 bg-red-50';
-      default: return 'text-slate-500 bg-slate-50';
-    }
-  };
-
   return (
-    <div className="p-8 space-y-10 max-w-5xl mx-auto overflow-y-auto h-full custom-scrollbar pb-24">
+    <div className="space-y-10 pb-24">
       {/* Header */}
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-slate-400">
+        <div className="flex items-center gap-2 text-ink-black-400">
           <BarChart3 className="w-4 h-4" />
-          <span className="text-[10px] font-bold uppercase tracking-widest">Template Analysis</span>
+          <span className="text-[10px] font-black uppercase tracking-widest">Template Analysis</span>
         </div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Campaign Insights</h2>
-        <p className="text-sm text-slate-500">Technical audit and performance predications based on current template design.</p>
+        <h2 className="text-2xl font-bold tracking-tight text-ink-black-900">Campaign Insights</h2>
+        <p className="text-sm text-ink-black-500 font-medium">Technical audit and performance predictions based on current template design.</p>
       </div>
 
       {/* Main Stats Grid */}
@@ -62,31 +55,29 @@ export default function AnalyticsDashboard({ metrics, isAnalyzing }: AnalyticsDa
           label="Estimated Open Rate"
           value={`${metrics.estimatedOpenRate}%`}
           desc="Based on delivery heuristics"
-          trend="primary"
+          variant="primary"
         />
         <StatCard 
           icon={<MousePointer2 className="w-4 h-4" />}
           label="Estimated Click Rate"
           value={`${metrics.estimatedClickRate}%`}
           desc="Optimized for conversion"
-          trend="accent"
         />
         <StatCard 
           icon={<ShieldAlert className="w-4 h-4" />}
           label="Spam Risk Level"
           value={metrics.spamRisk.toUpperCase()}
           desc="Deliverability assessment"
-          trend={metrics.spamRisk === 'low' ? 'success' : metrics.spamRisk === 'medium' ? 'warning' : 'danger'}
+          variant={metrics.spamRisk === 'low' ? 'success' : metrics.spamRisk === 'medium' ? 'warning' : 'danger'}
         />
       </div>
 
       {/* Technical Audit */}
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Left Col: Core Metrics */}
-        <div className="space-y-6">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Technical Audit</h3>
+      <div className="grid lg:grid-cols-2 gap-8">
+        <Card className="space-y-8">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-ink-black-400">Technical Audit</h3>
           
-          <div className="space-y-4">
+          <div className="space-y-6">
             <MetricItem 
               label="Template Weight" 
               value={`${metrics.sizeKb} KB`} 
@@ -102,37 +93,42 @@ export default function AnalyticsDashboard({ metrics, isAnalyzing }: AnalyticsDa
               status={metrics.complexityScore > 70 ? 'danger' : 'success'}
             />
             <MetricItem 
-              label="Readability" 
+              label="Visual Readability" 
               value={`${metrics.readabilityScore}%`} 
               progress={metrics.readabilityScore}
-              info="Estimated visual clarity"
+              info="Estimated structural clarity"
               status="primary"
             />
           </div>
-        </div>
+        </Card>
 
-        {/* Right Col: Inventory */}
         <div className="space-y-6">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Content Inventory</h3>
+          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-ink-black-400">Content Inventory</h3>
           
           <div className="grid grid-cols-2 gap-4">
             <InventoryCard icon={<LinkIcon className="w-4 h-4" />} label="Links" value={metrics.linkCount} />
             <InventoryCard icon={<ImageIcon className="w-4 h-4" />} label="Images" value={metrics.imageCount} />
-            <InventoryCard icon={<FileText className="w-4 h-4" />} label="Lines of Code" value={metrics.linesOfCode} />
-            <InventoryCard icon={<Zap className="w-4 h-4" />} label="Components" value={Math.round(metrics.linesOfCode / 10)} />
+            <InventoryCard icon={<FileText className="w-4 h-4" />} label="Lines" value={metrics.linesOfCode} />
+            <InventoryCard icon={<Zap className="w-4 h-4" />} label="Blocks" value={Math.round(metrics.linesOfCode / 12)} />
           </div>
 
-          <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-             <div className="mt-0.5">
+          <Card className={cn(
+            "p-5 flex items-start gap-4 border-none shadow-none ring-1",
+            metrics.spamRisk === 'low' ? "bg-green-50/50 ring-green-100" : "bg-amber-50/50 ring-amber-100"
+          )}>
+             <div className={cn(
+               "mt-0.5 w-8 h-8 rounded-full flex items-center justify-center shrink-0",
+               metrics.spamRisk === 'low' ? "bg-green-100 text-green-600" : "bg-amber-100 text-amber-600"
+             )}>
                 {metrics.spamRisk === 'low' ? (
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <CheckCircle2 className="w-4 h-4" />
                 ) : (
-                  <AlertTriangle className="w-4 h-4 text-yellow-500" />
+                  <AlertTriangle className="w-4 h-4" />
                 )}
              </div>
              <div>
-                <h4 className="text-xs font-bold text-slate-700">Optimization Tip</h4>
-                <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                <h4 className="text-xs font-bold text-ink-black-900">Optimization Tip</h4>
+                <p className="text-[11px] text-ink-black-600 mt-1.5 leading-relaxed font-medium">
                   {metrics.sizeKb > 102 
                     ? "Your email is large and may be clipped by Gmail. Consider simplifying the structure or reducing nested components."
                     : metrics.spamRisk !== 'low'
@@ -140,58 +136,65 @@ export default function AnalyticsDashboard({ metrics, isAnalyzing }: AnalyticsDa
                     : "Everything looks great! Your template is lightweight and follows best practices for high deliverability."}
                 </p>
              </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>
   );
 }
 
-function StatCard({ icon, label, value, desc, trend }: any) {
-  const colors: any = {
-    primary: 'text-blue-600 bg-blue-50 border-blue-100',
-    accent: 'text-slate-900 bg-white border-slate-200',
-    success: 'text-green-600 bg-green-50 border-green-100',
-    warning: 'text-yellow-600 bg-yellow-50 border-yellow-100',
-    danger: 'text-red-600 bg-red-50 border-red-100',
+function StatCard({ icon, label, value, desc, variant = 'default' }: any) {
+  const variants: any = {
+    default: 'bg-white text-ink-black-900 border-ink-black-100',
+    primary: 'bg-powder-blue-500 text-white border-powder-blue-600',
+    success: 'bg-green-50 text-green-700 border-green-100',
+    warning: 'bg-amber-50 text-amber-700 border-amber-100',
+    danger: 'bg-red-50 text-red-700 border-red-100',
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      className={cn("p-6 rounded-2xl border transition-all hover:shadow-lg", colors[trend] || colors.accent)}
-    >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 rounded-lg bg-white/50 backdrop-blur-sm">
+    <Card className={cn("p-6 hover:translate-y-[-4px] transition-all", variants[variant])}>
+      <div className="flex items-center gap-3 mb-5">
+        <div className={cn(
+          "p-2 rounded-xl backdrop-blur-sm shadow-sm",
+          variant === 'primary' ? "bg-white/20" : "bg-alabaster-grey-50"
+        )}>
           {icon}
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">{label}</span>
+        <span className={cn(
+          "text-[10px] font-black uppercase tracking-widest",
+          variant === 'primary' ? "opacity-90" : "text-ink-black-400"
+        )}>{label}</span>
       </div>
-      <div className="text-3xl font-bold tracking-tighter mb-1">{value}</div>
-      <p className="text-[10px] opacity-60 font-medium">{desc}</p>
-    </motion.div>
+      <div className="text-3xl font-black tracking-tighter mb-1 font-mono">{value}</div>
+      <p className={cn(
+        "text-[10px] font-bold uppercase tracking-wider",
+        variant === 'primary' ? "opacity-70" : "text-ink-black-400"
+      )}>{desc}</p>
+    </Card>
   );
 }
 
 function MetricItem({ label, value, progress, info, status }: any) {
   const colors: any = {
-    success: 'bg-green-500',
-    warning: 'bg-yellow-500',
-    danger: 'bg-red-500',
-    primary: 'bg-slate-900',
+    success: 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]',
+    warning: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]',
+    danger: 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]',
+    primary: 'bg-ink-black-900',
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
+    <div className="space-y-3">
+      <div className="flex items-end justify-between">
         <div className="flex flex-col">
-          <span className="text-xs font-bold text-slate-700">{label}</span>
-          <span className="text-[10px] text-slate-400">{info}</span>
+          <span className="text-[11px] font-bold text-ink-black-900 mb-0.5">{label}</span>
+          <span className="text-[9px] font-bold text-ink-black-400 uppercase tracking-widest">{info}</span>
         </div>
-        <span className="text-xs font-bold font-mono text-slate-900">{value}</span>
+        <Badge variant={status === 'primary' ? 'neutral' : status}>
+          {value}
+        </Badge>
       </div>
-      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+      <div className="h-2 w-full bg-alabaster-grey-100 rounded-full overflow-hidden p-0.5 border border-ink-black-50 shadow-inner">
         <motion.div 
           initial={{ width: 0 }}
           whileInView={{ width: `${progress}%` }}
@@ -204,14 +207,14 @@ function MetricItem({ label, value, progress, info, status }: any) {
 
 function InventoryCard({ icon, label, value }: any) {
   return (
-    <div className="p-4 rounded-xl border border-slate-100 bg-white shadow-sm flex flex-col gap-3">
-      <div className="p-1.5 w-fit rounded bg-slate-50 text-slate-400">
+    <Card className="p-4 flex flex-col gap-3 group hover:border-powder-blue-300">
+      <div className="p-2 w-fit rounded-lg bg-alabaster-grey-50 text-ink-black-400 group-hover:text-powder-blue-500 transition-colors">
         {icon}
       </div>
       <div className="flex flex-col">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</span>
-          <span className="text-lg font-bold text-slate-900">{value}</span>
+          <span className="text-[9px] font-black uppercase tracking-[0.15em] text-ink-black-400">{label}</span>
+          <span className="text-xl font-bold text-ink-black-900 font-mono">{value}</span>
       </div>
-    </div>
+    </Card>
   );
 }

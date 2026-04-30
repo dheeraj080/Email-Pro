@@ -1,71 +1,65 @@
 'use client';
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React from 'react';
 import { AlertCircle, RotateCcw } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
-interface Props {
-  children?: ReactNode;
-  fallback?: ReactNode;
-  onReset?: () => void;
-  className?: string;
-  name?: string;
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
 }
 
-interface State {
+interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null,
-  };
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
 
-  public static getDerivedStateFromError(error: Error): State {
-    // Update state so the next render will show the fallback UI.
+  static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error(`ErrorBoundary [${this.props.name || 'Component'}]:`, error, errorInfo);
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
-  private handleReset = () => {
+  handleReset = () => {
     this.setState({ hasError: false, error: null });
-    if (this.props.onReset) {
-      this.props.onReset();
-    }
   };
 
-  public render() {
+  render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-
       return (
-        <div className={cn(
-          "flex flex-col items-center justify-center p-8 min-h-[200px] w-full bg-slate-50 border border-slate-200 rounded-xl text-center",
-          this.props.className
-        )}>
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-            <AlertCircle className="w-6 h-6 text-red-600" />
-          </div>
-          <h3 className="font-bold text-slate-900 mb-1">
-            {this.props.name ? `${this.props.name} failed` : 'Something went wrong'}
-          </h3>
-          <p className="text-xs text-slate-500 max-w-xs mb-6 font-mono opacity-80 break-all px-2">
-            {this.state.error?.message || 'A catastrophic error occurred'}
-          </p>
-          <button 
-            onClick={this.handleReset}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-slate-800 transition-all shadow-sm active:scale-95"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            RESET COMPONENT
-          </button>
+        <div className="flex items-center justify-center h-full p-8">
+          <Card className="max-w-md w-full p-10 flex flex-col items-center text-center space-y-6 border-red-100 shadow-xl shadow-red-500/5">
+            <div className="w-16 h-16 bg-red-50 rounded-[32px] flex items-center justify-center text-red-500 shadow-inner">
+              <AlertCircle className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-xl font-bold tracking-tight text-ink-black-900">Runtime Exception</h2>
+              <p className="text-xs font-medium text-ink-black-400 leading-relaxed">
+                An unexpected error occurred while rendering the editor component.
+              </p>
+            </div>
+            <div className="w-full p-4 bg-alabaster-grey-50 rounded-2xl border border-ink-black-50 overflow-hidden">
+               <p className="text-[10px] font-mono text-left text-red-600 break-words whitespace-pre-wrap leading-relaxed">
+                 {this.state.error?.message}
+               </p>
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={this.handleReset}
+              className="w-full h-12"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Attempt Reconstruction
+            </Button>
+          </Card>
         </div>
       );
     }

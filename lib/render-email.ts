@@ -98,9 +98,10 @@ export function renderEmailToReact(code: string): React.ReactElement | null {
 
 const renderCache = new Map<string, string>();
 
-export async function exportToHTML(code: string): Promise<string> {
-  if (renderCache.has(code)) {
-    return renderCache.get(code)!;
+export async function exportToHTML(code: string, language?: string): Promise<string> {
+  const cacheKey = `${language || 'typescript'}:${code}`;
+  if (renderCache.has(cacheKey)) {
+    return renderCache.get(cacheKey)!;
   }
 
   try {
@@ -110,7 +111,7 @@ export async function exportToHTML(code: string): Promise<string> {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({ code, language }),
     });
 
     const text = await response.text();

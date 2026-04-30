@@ -12,8 +12,8 @@ export default function Home() {
   const [initialTemplate, setInitialTemplate] = useState<Template | undefined>(undefined);
 
   return (
-    <ErrorBoundary name="Application">
-      <main>
+    <ErrorBoundary>
+      <main className="min-h-screen">
         {!showEditor ? (
           <LandingPage 
             onStart={() => setShowEditor(true)} 
