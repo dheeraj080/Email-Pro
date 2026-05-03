@@ -30,7 +30,7 @@ export default function LandingPage({ onStart, onSelectTemplate }: LandingPagePr
             <span className="font-bold text-lg tracking-tight text-ink-black-900">Email.Studio</span>
           </div>
           
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-4 md:gap-8">
             <button 
               onClick={() => setShowGallery(true)}
               className="text-[10px] font-black uppercase tracking-[0.2em] text-ink-black-400 hover:text-ink-black-900 transition-colors"

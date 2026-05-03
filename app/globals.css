@@ -168,23 +168,17 @@ code[class*="language-"] {
   background: #94a3b8 !important;
 }
 
-/* Specific for the dark code editor */
-.npm-editor *::-webkit-scrollbar-thumb,
-.npm-editor::-webkit-scrollbar-thumb {
-  background: #475569 !important;
+/* Global Cursor Overrides */
+html, body {
+  cursor: auto !important;
 }
 
-.npm-editor *::-webkit-scrollbar-thumb:hover,
-.npm-editor::-webkit-scrollbar-thumb:hover {
-  background: #64748b !important;
+button, a, [role="button"], .cursor-pointer {
+  cursor: pointer !important;
 }
 
 /* Firefox Support */
 * {
   scrollbar-width: thin !important;
   scrollbar-color: #cbd5e1 transparent !important;
-}
-
-.npm-editor {
-  scrollbar-color: #475569 transparent !important;
 }

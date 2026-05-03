@@ -72,7 +72,7 @@ export default function AnalyticsDashboard({ metrics, isAnalyzing }: AnalyticsDa
         />
       </div>
 
-      {/* Technical Audit */}
+      {/* Technical Audit & Accessibility */}
       <div className="grid lg:grid-cols-2 gap-8">
         <Card className="space-y-8">
           <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-ink-black-400">Technical Audit</h3>
@@ -93,34 +93,71 @@ export default function AnalyticsDashboard({ metrics, isAnalyzing }: AnalyticsDa
               status={metrics.complexityScore > 70 ? 'danger' : 'success'}
             />
             <MetricItem 
-              label="Visual Readability" 
-              value={`${metrics.readabilityScore}%`} 
-              progress={metrics.readabilityScore}
-              info="Estimated structural clarity"
-              status="primary"
+              label="Accessibility Score" 
+              value={`${metrics.accessibilityScore}%`} 
+              progress={metrics.accessibilityScore}
+              info="WCAG 2.1 Compliance Check"
+              status={metrics.accessibilityScore < 70 ? 'danger' : metrics.accessibilityScore < 90 ? 'warning' : 'success'}
             />
           </div>
         </Card>
 
-        <div className="space-y-6">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-ink-black-400">Content Inventory</h3>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <InventoryCard icon={<LinkIcon className="w-4 h-4" />} label="Links" value={metrics.linkCount} />
-            <InventoryCard icon={<ImageIcon className="w-4 h-4" />} label="Images" value={metrics.imageCount} />
-            <InventoryCard icon={<FileText className="w-4 h-4" />} label="Lines" value={metrics.linesOfCode} />
-            <InventoryCard icon={<Zap className="w-4 h-4" />} label="Blocks" value={Math.round(metrics.linesOfCode / 12)} />
+        <Card className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-ink-black-400">Accessibility Issues</h3>
+            <Badge variant={metrics.accessibilityIssues.length > 0 ? 'danger' : 'success'}>
+              {metrics.accessibilityIssues.length} found
+            </Badge>
           </div>
+          
+          <div className="space-y-3 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
+            {metrics.accessibilityIssues.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 opacity-30">
+                <CheckCircle2 className="w-10 h-10 text-green-500 mb-2" />
+                <p className="text-[9px] font-black uppercase tracking-widest">No issues detected</p>
+              </div>
+            ) : (
+              metrics.accessibilityIssues.map((issue, idx) => (
+                <div key={idx} className="p-3 bg-alabaster-grey-50 rounded-xl border border-ink-black-50 group hover:border-ink-black-100 transition-all">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={cn(
+                          "w-1.5 h-1.5 rounded-full",
+                          issue.impact === 'critical' || issue.impact === 'serious' ? 'bg-red-500' : 'bg-amber-500'
+                        )} />
+                        <h4 className="text-[11px] font-bold text-ink-black-900">{issue.help}</h4>
+                      </div>
+                      <p className="text-[10px] text-ink-black-500 leading-relaxed font-medium mb-2">{issue.description}</p>
+                      <a 
+                        href={issue.helpUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-[9px] font-black uppercase tracking-widest text-powder-blue-600 hover:text-powder-blue-700 underline"
+                      >
+                        Solutions
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </Card>
+      </div>
 
-          <Card className={cn(
+      <div className="grid lg:grid-cols-2 gap-8">
+        <div className="space-y-6">
+           <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-ink-black-400 font-bold mb-[-16px]">Optimization Recommendations</h3>
+           <Card className={cn(
             "p-5 flex items-start gap-4 border-none shadow-none ring-1",
-            metrics.spamRisk === 'low' ? "bg-green-50/50 ring-green-100" : "bg-amber-50/50 ring-amber-100"
+            metrics.spamRisk === 'low' && metrics.accessibilityScore >= 90 ? "bg-green-50/50 ring-green-100" : "bg-amber-50/50 ring-amber-100"
           )}>
              <div className={cn(
                "mt-0.5 w-8 h-8 rounded-full flex items-center justify-center shrink-0",
-               metrics.spamRisk === 'low' ? "bg-green-100 text-green-600" : "bg-amber-100 text-amber-600"
+               metrics.spamRisk === 'low' && metrics.accessibilityScore >= 90 ? "bg-green-100 text-green-600" : "bg-amber-100 text-amber-600"
              )}>
-                {metrics.spamRisk === 'low' ? (
+                {metrics.spamRisk === 'low' && metrics.accessibilityScore >= 90 ? (
                   <CheckCircle2 className="w-4 h-4" />
                 ) : (
                   <AlertTriangle className="w-4 h-4" />
@@ -130,13 +167,25 @@ export default function AnalyticsDashboard({ metrics, isAnalyzing }: AnalyticsDa
                 <h4 className="text-xs font-bold text-ink-black-900">Optimization Tip</h4>
                 <p className="text-[11px] text-ink-black-600 mt-1.5 leading-relaxed font-medium">
                   {metrics.sizeKb > 102 
-                    ? "Your email is large and may be clipped by Gmail. Consider simplifying the structure or reducing nested components."
+                    ? "Your email is large and may be clipped by Gmail (102KB limit). Consider simplifying structure."
+                    : metrics.accessibilityScore < 70
+                    ? "Significant accessibility barriers detected. Check missing alt text and contrast ratios in the audit above."
                     : metrics.spamRisk !== 'low'
-                    ? "We detected some potential spam triggers in your content. Avoid excessive exclamation marks and aggressive promotional keywords."
-                    : "Everything looks great! Your template is lightweight and follows best practices for high deliverability."}
+                    ? "Potential spam triggers detected. Review subject lines and keyword density to ensure high deliverability."
+                    : "Excellent work! Your template is highly accessible, lightweight, and delivery-optimized."}
                 </p>
              </div>
           </Card>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-ink-black-400">Content Inventory</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <InventoryCard icon={<LinkIcon className="w-4 h-4" />} label="Links" value={metrics.linkCount} />
+            <InventoryCard icon={<ImageIcon className="w-4 h-4" />} label="Images" value={metrics.imageCount} />
+            <InventoryCard icon={<FileText className="w-4 h-4" />} label="Lines" value={metrics.linesOfCode} />
+            <InventoryCard icon={<Zap className="w-4 h-4" />} label="Blocks" value={Math.round(metrics.linesOfCode / 12)} />
+          </div>
         </div>
       </div>
     </div>

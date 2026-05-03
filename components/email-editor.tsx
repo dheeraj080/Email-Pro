@@ -39,6 +39,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
     setCode,
     history,
     previewHtml,
+    previewComponent,
     previewMode,
     setPreviewMode,
     customDimensions,
@@ -159,19 +160,21 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
           </h1>
         </div>
 
-        <EditorToolbar 
-          templateName={activeTemplate.name || 'Untitled'}
-          onSave={handleSaveVersion}
-          onDownload={handleDownload}
-          onCopy={handleCopyHTML}
-          copied={copied}
-          isExporting={isExporting}
-          isRendering={isRendering}
-          activeView={view}
-          onViewChange={setView}
-          onForceRender={handleForceRender}
-          lastSaved={lastSaved}
-        />
+        <div className="flex items-center gap-4">
+          <EditorToolbar 
+            templateName={activeTemplate.name || 'Untitled'}
+            onSave={handleSaveVersion}
+            onDownload={handleDownload}
+            onCopy={handleCopyHTML}
+            copied={copied}
+            isExporting={isExporting}
+            isRendering={isRendering}
+            activeView={view}
+            onViewChange={setView}
+            onForceRender={handleForceRender}
+            lastSaved={lastSaved}
+          />
+        </div>
       </header>
 
       <main className="flex-1 flex min-h-0 relative">
@@ -212,6 +215,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
             ) : view === 'preview' ? (
               <PreviewContent 
                 previewHtml={previewHtml}
+                previewComponent={previewComponent}
                 previewMode={previewMode}
                 setPreviewMode={setPreviewMode}
                 previewTab={previewTab}
@@ -241,6 +245,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
                     <div className="flex-1">
                       <PreviewContent 
                         previewHtml={previewHtml}
+                        previewComponent={previewComponent}
                         previewMode={previewMode}
                         setPreviewMode={setPreviewMode}
                         previewTab={previewTab}
@@ -300,12 +305,11 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
         )}
       </AnimatePresence>
 
-      <div className={cn(
-        "fixed inset-0 z-[1000] pointer-events-none transition-opacity duration-300",
-        isResizing ? "opacity-100" : "opacity-0"
-      )}>
-        <div className="absolute inset-0 bg-powder-blue-500/5 backdrop-blur-[1px]" />
-      </div>
+      {isResizing && (
+        <div className="fixed inset-0 z-[1000] pointer-events-none">
+          <div className="absolute inset-0 bg-powder-blue-500/5 pointer-events-none" />
+        </div>
+      )}
     </div>
   );
 }

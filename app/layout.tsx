@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} scroll-smooth`}>
-      <body suppressHydrationWarning className="font-sans antialiased text-ink-black-900 bg-white">
+      <body className="font-sans antialiased text-ink-black-900 bg-white">
         <AuthProvider>
           <ErrorBoundary>
             {children}

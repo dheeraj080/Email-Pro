@@ -13,6 +13,7 @@ export function useEmailEditor(initialTemplate?: Template) {
   const [code, setCode] = useState(activeTemplate.code);
   const [history, setHistory] = useState<Record<string, { id: string; timestamp: number; code: string }[]>>({});
   const [previewHtml, setPreviewHtml] = useState<string>('');
+  const [previewComponent, setPreviewComponent] = useState<React.ReactNode>(null);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [customDimensions, setCustomDimensions] = useState<{ width: number; height: number } | null>(null);
   const [view, setView] = useState<'split' | 'editor' | 'preview' | 'analytics'>('split');
@@ -75,6 +76,7 @@ export function useEmailEditor(initialTemplate?: Template) {
   }, [code, templates, activeTemplate.id, mounted]);
 
   const performRender = useCallback(async (codeToRender: string, currentLanguage?: string) => {
+    // Only call server-side render if we actually need the HTML
     setIsRendering(true);
     try {
       const html = await exportToHTML(codeToRender, currentLanguage || language);
@@ -88,19 +90,39 @@ export function useEmailEditor(initialTemplate?: Template) {
     }
   }, [language]);
 
+  // Fast local React rendering for visual preview
+  useEffect(() => {
+    if (!mounted) return;
+
+    const timeout = setTimeout(() => {
+      try {
+        const { renderEmailToReact } = require('@/lib/render-email');
+        const Component = renderEmailToReact(code);
+        setPreviewComponent(Component);
+        setError(null);
+      } catch (err: any) {
+        console.warn('Local render error:', err);
+        // Don't set error state yet, as the server-side might handle it better 
+        // or we don't want to flicker errors while typing
+      }
+    }, 100); // Very fast debounce for local render
+
+    return () => clearTimeout(timeout);
+  }, [code, mounted]);
+
+  // Debounced server-side render for HTML tab and export
   useEffect(() => {
     if (!mounted) return;
     
-    if (!previewHtml && !error && !isRendering) {
-      performRender(code);
-      return;
-    }
+    // Only trigger server render faster if we are in HTML tab
+    const delay = previewTab === 'html' ? 300 : 1500; 
 
     const timeout = setTimeout(() => {
       performRender(code, language);
-    }, 300);
+    }, delay);
+
     return () => clearTimeout(timeout);
-  }, [code, language, mounted, performRender, previewHtml, error, isRendering]);
+  }, [code, language, mounted, performRender, previewTab]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -228,6 +250,7 @@ export function useEmailEditor(initialTemplate?: Template) {
     setCode,
     history,
     previewHtml,
+    previewComponent,
     previewMode,
     setPreviewMode,
     customDimensions,

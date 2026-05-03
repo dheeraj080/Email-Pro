@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from 'motion/react';
 
 interface PreviewContentProps {
   previewHtml: string;
+  previewComponent: React.ReactNode;
   previewMode: 'desktop' | 'mobile';
   setPreviewMode: (mode: 'desktop' | 'mobile') => void;
   previewTab: 'design' | 'html';
@@ -40,6 +41,7 @@ const DEVICE_PRESETS = [
 
 export const PreviewContent = React.memo(function PreviewContent({
   previewHtml,
+  previewComponent,
   previewMode,
   setPreviewMode,
   previewTab,
@@ -52,9 +54,11 @@ export const PreviewContent = React.memo(function PreviewContent({
   onResize
 }: PreviewContentProps) {
   const [showPresets, setShowPresets] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false);
   const presetsRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
+    setIsMounted(true);
     const handleClickOutside = (event: MouseEvent) => {
       if (presetsRef.current && !presetsRef.current.contains(event.target as Node)) {
         setShowPresets(false);
@@ -82,10 +86,11 @@ export const PreviewContent = React.memo(function PreviewContent({
     return (
       <div 
         className={cn(
-          "absolute transition-all flex items-center justify-center group/handle z-30",
+          "absolute flex items-center justify-center group/handle z-50 pointer-events-auto",
           positions[direction],
-          "hover:bg-powder-blue-500/10"
+          "hover:bg-powder-blue-500/20 transition-all cursor-inherit"
         )}
+        style={{ cursor: positions[direction].split(' ').find(c => c.startsWith('cursor-'))?.replace('cursor-', '') }}
         onMouseDown={(e) => onResize(e, direction)}
       >
         {isCorner ? (
@@ -235,8 +240,8 @@ export const PreviewContent = React.memo(function PreviewContent({
                 <div 
                   id={isSplit ? 'preview-container-split' : 'preview-container'}
                   className={cn(
-                    "bg-white shadow-2xl transition-all duration-500 relative shrink-0",
-                    !customDimensions && (previewMode === 'mobile' ? "w-[375px] h-[667px] rounded-[32px] ring-8 ring-ink-black-900/5" : "w-full h-full max-h-[1200px] rounded-lg")
+                    "bg-white shadow-2xl relative shrink-0 overflow-auto custom-scrollbar",
+                    !customDimensions && (previewMode === 'mobile' ? "w-[375px] h-[667px] rounded-[32px] ring-8 ring-ink-black-900/5 transition-all duration-500" : "w-full h-full rounded-lg transition-all duration-500")
                   )}
                   style={customDimensions ? {
                     width: `${customDimensions.width}px`,
@@ -244,11 +249,19 @@ export const PreviewContent = React.memo(function PreviewContent({
                     borderRadius: customDimensions.width < 450 ? '32px' : '8px'
                   } : {}}
                 >
-                  <iframe
-                    title="Email Preview"
-                    className="w-full h-full border-0 block rounded-[inherit] bg-white"
-                    srcDoc={previewHtml}
-                  />
+                  <div className="w-full min-h-full p-4 md:p-8 flex justify-center overflow-x-hidden">
+                    <div 
+                      className="w-full max-w-full md:max-w-2xl bg-white origin-top"
+                      suppressHydrationWarning
+                    >
+                      {isMounted && previewComponent ? previewComponent : (
+                        <div className="flex flex-col items-center justify-center h-48 space-y-4 opacity-50">
+                          <div className="w-8 h-8 rounded-full border-2 border-t-powder-blue-500 border-alabaster-grey-200 animate-spin" />
+                          <span className="text-[10px] font-bold uppercase tracking-widest">Warming engine...</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   
                   <ResizeHandle direction="e" />
                   <ResizeHandle direction="w" />
@@ -257,7 +270,7 @@ export const PreviewContent = React.memo(function PreviewContent({
                   <ResizeHandle direction="sw" />
                 </div>
               ) : (
-                <div className="w-full h-full min-h-[500px] bg-white rounded-xl border border-ink-black-100 overflow-hidden shadow-sm flex flex-col">
+                <div className="w-full h-full bg-white rounded-xl border border-ink-black-100 overflow-hidden shadow-sm flex flex-col">
                   <div className="flex-1 p-6 overflow-auto custom-scrollbar">
                     <pre className="text-[10px] font-mono leading-relaxed text-ink-black-600 bg-alabaster-grey-50 p-6 rounded-lg border border-ink-black-50 whitespace-pre-wrap">
                       {previewHtml}

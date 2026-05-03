@@ -27,10 +27,26 @@ export function renderEmailToReact(code: string): React.ReactElement | null {
   try {
     const transpiled = transpileJSX(code);
     
+    const mockedComponents = {
+      ...EmailComponents,
+      Html: ({ children }: any) => React.createElement(React.Fragment, null, children),
+      Head: ({ children }: any) => React.createElement(React.Fragment, null, children),
+      Body: ({ children }: any) => React.createElement('div', { 
+        className: 'email-body-preview',
+        style: { width: '100%', minHeight: '100%', backgroundColor: '#ffffff' }
+      }, children),
+      Preview: () => null,
+      Tailwind: ({ children }: any) => React.createElement(React.Fragment, null, children),
+    };
+
     // Create a local scope for components
     const scope = {
       React,
-      ...EmailComponents,
+      ...mockedComponents,
+      // Handle cases where people might use lowercase tags if transpiler allows
+      html: ({ children }: any) => React.createElement(React.Fragment, null, children),
+      body: ({ children }: any) => React.createElement('div', null, children),
+      head: () => null,
       process: {
         env: {
           VERCEL_URL: '',
@@ -38,7 +54,14 @@ export function renderEmailToReact(code: string): React.ReactElement | null {
       },
       require: (name: string) => {
         if (name === 'react') return React;
-        if (name === '@react-email/components' || name === 'react-email') return EmailComponents;
+        if (name === '@react-email/components' || name === 'react-email') {
+          return new Proxy(mockedComponents, {
+            get: (target, prop) => {
+              if (prop in target) return (target as any)[prop];
+              return (EmailComponents as any)[prop];
+            }
+          });
+        }
         // Mock local imports for the editor
         if (name.startsWith('./') || name.startsWith('../')) {
           console.warn(`Local import "${name}" is not supported in the live editor. Returning empty module.`);
@@ -128,7 +151,7 @@ export async function exportToHTML(code: string, language?: string): Promise<str
     }
 
     const data = JSON.parse(text);
-    renderCache.set(code, data.html);
+    renderCache.set(cacheKey, data.html);
     
     // Simple cache eviction to prevent memory leak
     if (renderCache.size > 50) {
@@ -139,8 +162,8 @@ export async function exportToHTML(code: string, language?: string): Promise<str
     return data.html;
   } catch (error: any) {
     console.error('Export error (detailed):', error);
-    if (error.message === 'Failed to fetch') {
-      throw new Error('Connection refused. Please check if the development server is running.');
+    if (error.message === 'Failed to fetch' || error.message.includes('NetworkError')) {
+      throw new Error('Network error: Could not reach the render API. Please ensure the development server is running and reachable.');
     }
     throw error;
   }
