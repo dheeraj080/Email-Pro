@@ -1,10 +1,10 @@
-# Email.Studio
+# Email.Pro
 
 **Email engineering, simplified.**
 
-Email.Studio is a high-fidelity, code-first email design environment built for engineers and designers who want absolute precision. It bridges the gap between modern React development and the complex, archaic world of HTML email clients.
+Email.Pro is a high-fidelity, code-first email design environment built for engineers and designers who want absolute precision. It bridges the gap between modern React development and the complex, archaic world of HTML email clients.
 
-![Email Studio Preview](https://picsum.photos/seed/email-studio/1200/600)
+![Email Pro Preview](https://picsum.photos/seed/email-pro/1200/600)
 
 ## 🚀 Features
 
@@ -79,4 +79,4 @@ The analytics engine performs a multi-pass audit of your template:
 
 ## 📄 License
 
-MIT © 2026 Email.Studio Lab
+MIT © 2026 Email.Pro Lab

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Code is required' }, { status: 400 });
     }
 
-    if (language === 'html') {
+    if (language === 'html' || code.trim().startsWith('<!DOCTYPE') || code.trim().startsWith('<html')) {
       return NextResponse.json({ html: code });
     }
 

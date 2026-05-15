@@ -212,7 +212,7 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
         {/* Footer */}
         <div className="px-8 py-5 bg-alabaster-grey-50 border-t border-ink-black-100 flex items-center justify-between">
           <p className="text-[10px] font-black text-ink-black-400 uppercase tracking-widest">
-            © 2026 Email.Studio • System Ready
+            © 2026 Email.Pro • System Ready
           </p>
           <div className="flex gap-6 items-center">
              <span className="text-[10px] font-black text-ink-black-300 uppercase tracking-widest">Global Library 1.0</span>

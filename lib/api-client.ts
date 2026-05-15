@@ -29,10 +29,13 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
+    // Handle 401 Unauthorized with Refresh Token logic
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem('refresh_token');
+        if (!refreshToken) throw new Error('No refresh token available');
+
         const response = await axios.post(`${BASE_URL}/api/v1/auth/refresh`, { refreshToken });
         const { accessToken } = response.data;
         
@@ -42,10 +45,12 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        // Optional: window.location.href = '/login';
+        
+        if (typeof window !== 'undefined') window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   }
 );

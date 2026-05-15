@@ -42,6 +42,8 @@ export const EditorContent = memo(function EditorContent({
   const editorRef = useRef<any>(null);
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+
   const handleEditorDidMount = (editor: any) => {
     editorRef.current = editor;
     
@@ -49,14 +51,29 @@ export const EditorContent = memo(function EditorContent({
     if (typeof window !== 'undefined' && 'ResizeObserver' in window) {
       const container = editor.getDomNode()?.parentElement;
       if (container) {
-        const observer = new ResizeObserver(() => {
-          editor.layout();
+        if (resizeObserverRef.current) {
+          resizeObserverRef.current.disconnect();
+        }
+        
+        resizeObserverRef.current = new ResizeObserver(() => {
+          window.requestAnimationFrame(() => {
+            if (editorRef.current) {
+              editor.layout();
+            }
+          });
         });
-        observer.observe(container);
-        return () => observer.disconnect();
+        resizeObserverRef.current.observe(container);
       }
     }
   };
+
+  React.useEffect(() => {
+    return () => {
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+      }
+    };
+  }, []);
 
   const handleEditorChange = useCallback((value: string | undefined) => {
     if (debounceTimer.current) {

@@ -36,7 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
     } catch (error) {
-      console.error('Login failed:', error);
+      // The apiClient will already show a toast if not _silentError, 
+      // but here we can re-throw for specific component-level handling if needed.
       throw error;
     }
   };

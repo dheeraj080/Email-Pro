@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css'; 
 import { ErrorBoundary } from '@/components/error-boundary';
 import { AuthProvider } from '@/context/auth-context';
+import { Toaster } from 'sonner';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -17,7 +18,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: 'Email.Studio | Production-Ready Templates',
+  title: 'Email.Pro | Production-Ready Templates',
   description: 'Precision email engineering environment for responsive, React-powered templates.',
 };
 
@@ -28,6 +29,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         <AuthProvider>
           <ErrorBoundary>
             {children}
+            <Toaster position="top-right" expand={false} richColors />
           </ErrorBoundary>
         </AuthProvider>
       </body>

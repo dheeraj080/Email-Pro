@@ -4,8 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { 
   Home,
   PanelLeftClose,
-  PanelLeftOpen,
-  LayoutGrid
+  PanelLeftOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Panel, Group, Separator } from 'react-resizable-panels';
@@ -272,17 +271,6 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
             )}
           </ErrorBoundary>
         </div>
-
-        <button 
-          onClick={() => setShowShowcase(true)}
-          className="absolute bottom-6 right-6 w-12 h-12 bg-white border border-ink-black-100 rounded-2xl shadow-xl flex items-center justify-center text-ink-black-400 hover:text-powder-blue-600 transition-all hover:scale-110 active:scale-95 group z-50"
-          title="Template Library"
-        >
-          <LayoutGrid className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-          <span className="absolute right-full mr-3 px-2 py-1 bg-ink-black-900 text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-            Template Library
-          </span>
-        </button>
       </main>
 
       <CreateTemplateDialog 

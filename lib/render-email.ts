@@ -25,6 +25,14 @@ export function transpileJSX(code: string): string {
 
 export function renderEmailToReact(code: string): React.ReactElement | null {
   try {
+    // If it looks like raw HTML, don't try to transpile it as React
+    if (code.trim().startsWith('<!DOCTYPE') || code.trim().startsWith('<html')) {
+      return React.createElement('div', { 
+        dangerouslySetInnerHTML: { __html: code },
+        className: 'legacy-html-preview'
+      });
+    }
+
     const transpiled = transpileJSX(code);
     
     const mockedComponents = {

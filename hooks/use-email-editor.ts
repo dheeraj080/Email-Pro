@@ -218,7 +218,7 @@ export function useEmailEditor(initialTemplate?: Template) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error(err);
+      console.error('Copy to Clipboard error:', err);
     }
   };
 
@@ -236,7 +236,7 @@ export function useEmailEditor(initialTemplate?: Template) {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error(err);
+      console.error('Export error:', err);
     } finally {
       setIsExporting(false);
     }

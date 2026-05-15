@@ -415,7 +415,7 @@ export default WelcomeEmail;
   <div class="card">
     <h1>Classic HTML Email</h1>
     <p>This is a raw HTML/CSS email template. No React involved here—just pure web standards.</p>
-    <p>Email.Studio handles both modern React templates and legacy HTML templates seamlessly.</p>
+    <p>Email.Pro handles both modern React templates and legacy HTML templates seamlessly.</p>
     <a href="#" class="btn">Learn More</a>
   </div>
 </body>
