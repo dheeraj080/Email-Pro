@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import Link from 'next/link';
 import { 
   X, 
   Search, 
@@ -92,14 +91,11 @@ function TemplateCard({ template, isActive, onSelect, preview, isLoading, onLoad
               <p className="text-[9px] font-black uppercase tracking-widest text-ink-black-400 mt-0.5">Enterprise Ready</p>
             </div>
             <Button 
-              asChild
               variant="outline" 
               size="icon"
               className="h-8 w-8 rounded-xl"
             >
-              <Link href={`/templates/${template.id}`} target="_blank">
-                <ExternalLink className="w-3.5 h-3.5" />
-              </Link>
+              <ExternalLink className="w-3.5 h-3.5" />
             </Button>
           </div>
           <p className="text-xs text-ink-black-500 line-clamp-2 leading-relaxed mb-6 flex-1 font-medium italic opacity-70">
@@ -129,19 +125,8 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
     t.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const previewsRef = React.useRef(previews);
-  const loadingPreviewsRef = React.useRef(loadingPreviews);
-
-  React.useEffect(() => {
-    previewsRef.current = previews;
-  }, [previews]);
-
-  React.useEffect(() => {
-    loadingPreviewsRef.current = loadingPreviews;
-  }, [loadingPreviews]);
-
   const loadPreview = React.useCallback(async (templateId: string, code: string) => {
-    if (previewsRef.current[templateId] || loadingPreviewsRef.current[templateId]) return;
+    if (previews[templateId] || loadingPreviews[templateId]) return;
 
     setLoadingPreviews(prev => ({ ...prev, [templateId]: true }));
     try {
@@ -152,7 +137,7 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
     } finally {
       setLoadingPreviews(prev => ({ ...prev, [templateId]: false }));
     }
-  }, []);
+  }, [previews, loadingPreviews]);
 
   return (
     <motion.div 

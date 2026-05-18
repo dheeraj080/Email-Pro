@@ -1,98 +1,178 @@
-import { render } from '@react-email/render';
 import React from 'react';
 import * as EmailComponents from '@react-email/components';
 import { transform } from 'sucrase';
 
-/**
- * Transpiles and renders React Email code to HTML string.
- * This calls our server-side API route for reliable rendering.
- */
-export async function exportToHTML(code: string, language?: string): Promise<string> {
-  const trimmed = code.trim();
-  
-  if (language === 'html' || trimmed.startsWith('<!DOCTYPE') || trimmed.startsWith('<html')) {
-    return code;
+export function transpileJSX(code: string): string {
+  try {
+    const transpiledCode = transform(code, {
+      transforms: ['jsx', 'typescript', 'imports'],
+      jsxRuntime: 'classic',
+    }).code;
+
+    const wrappedCode = `
+      var exports = {};
+      var module = { exports: exports };
+      ${transpiledCode}
+      return module.exports.default || module.exports;
+    `;
+
+    return wrappedCode;
+  } catch (error) {
+    console.error('Transpilation error:', error);
+    throw error;
   }
-  
+}
+
+export function renderEmailToReact(code: string): React.ReactElement | null {
+  try {
+    // If it looks like raw HTML, don't try to transpile it as React
+    if (code.trim().startsWith('<!DOCTYPE') || code.trim().startsWith('<html')) {
+      return React.createElement('div', { 
+        dangerouslySetInnerHTML: { __html: code },
+        className: 'legacy-html-preview'
+      });
+    }
+
+    const transpiled = transpileJSX(code);
+    
+    const mockedComponents = {
+      ...EmailComponents,
+      Html: ({ children }: any) => React.createElement(React.Fragment, null, children),
+      Head: ({ children }: any) => React.createElement(React.Fragment, null, children),
+      Body: ({ children }: any) => React.createElement('div', { 
+        className: 'email-body-preview',
+        style: { width: '100%', minHeight: '100%', backgroundColor: '#ffffff' }
+      }, children),
+      Preview: () => null,
+      Tailwind: ({ children }: any) => React.createElement(React.Fragment, null, children),
+    };
+
+    // Create a local scope for components
+    const scope = {
+      React,
+      ...mockedComponents,
+      // Handle cases where people might use lowercase tags if transpiler allows
+      html: ({ children }: any) => React.createElement(React.Fragment, null, children),
+      body: ({ children }: any) => React.createElement('div', null, children),
+      head: () => null,
+      process: {
+        env: {
+          VERCEL_URL: '',
+        }
+      },
+      require: (name: string) => {
+        if (name === 'react') return React;
+        if (name === '@react-email/components' || name === 'react-email') {
+          return new Proxy(mockedComponents, {
+            get: (target, prop) => {
+              if (prop in target) return (target as any)[prop];
+              return (EmailComponents as any)[prop];
+            }
+          });
+        }
+        // Mock local imports for the editor
+        if (name.startsWith('./') || name.startsWith('../')) {
+          console.warn(`Local import "${name}" is not supported in the live editor. Returning empty module.`);
+          return {
+            barebonesBoxedTailwindConfig: {},
+            BarebonesFonts: () => null,
+          };
+        }
+        return {};
+      }
+    };
+
+    // Use Function constructor to evaluate code safely in browser
+    const keys = Object.keys(scope);
+    const values = Object.values(scope);
+    const renderFn = new Function(...keys, transpiled);
+    
+    let result = renderFn(...values);
+    let Component = result;
+
+    // Handle extraction from exports object
+    if (Component && typeof Component === 'object' && !React.isValidElement(Component)) {
+      if ((Component as any).default) {
+        Component = (Component as any).default;
+      } else {
+        // Find something that looks like a component
+        const componentKey = Object.keys(Component).find(key => {
+          if (key === '__esModule') return false;
+          const val = (Component as any)[key];
+          return typeof val === 'function' || (val && typeof val === 'object' && (val.$$typeof || val.render || val.type));
+        });
+        if (componentKey) {
+          Component = (Component as any)[componentKey];
+        }
+      }
+    }
+    
+    if (typeof Component === 'function' || (Component && typeof Component === 'object' && !React.isValidElement(Component))) {
+      try {
+        return React.createElement(Component as any);
+      } catch (e) {
+        // Already an element or invalid
+      }
+    }
+    
+    if (Component && typeof Component === 'object' && !React.isValidElement(Component) && Object.keys(Component).length === 0) {
+      console.warn('Rendered result is an empty object, possibly failed to find export');
+      return null;
+    }
+
+    return Component;
+  } catch (error) {
+    console.error('Render error:', error);
+    return null;
+  }
+}
+
+const renderCache = new Map<string, string>();
+
+export async function exportToHTML(code: string, language?: string): Promise<string> {
+  const cacheKey = `${language || 'typescript'}:${code}`;
+  if (renderCache.has(cacheKey)) {
+    return renderCache.get(cacheKey)!;
+  }
+
   try {
     const response = await fetch('/api/render', {
       method: 'POST',
-      headers: {
+      headers: { 
         'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
       body: JSON.stringify({ code, language }),
     });
 
+    const text = await response.text();
+    
     if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.error || 'Failed to render email');
+      let errorMessage = 'Failed to render email';
+      try {
+        const errorData = JSON.parse(text);
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        errorMessage = text || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
 
-    const data = await response.json();
+    const data = JSON.parse(text);
+    renderCache.set(cacheKey, data.html);
+    
+    // Simple cache eviction to prevent memory leak
+    if (renderCache.size > 50) {
+      const firstKey = renderCache.keys().next().value;
+      if (firstKey) renderCache.delete(firstKey);
+    }
+
     return data.html;
-  } catch (err) {
-    console.error('Render error:', err);
-    return `<div style="padding: 20px; color: #ef4444; font-family: sans-serif; background: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px;">
-      <h3 style="margin-top: 0;">Render Error</h3>
-      <p style="font-size: 14px;">The template could not be rendered as HTML.</p>
-      <pre style="white-space: pre-wrap; font-size: 12px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 4px;">${(err as Error).message}</pre>
-    </div>`;
-  }
-}
-
-/**
- * Dynamically converts code string to a React component.
- * Uses Sucrase for fast transpilation in the browser.
- */
-export function renderEmailToReact(code: string): React.ComponentType {
-  const trimmed = code.trim();
-  
-  // If it's plain HTML, just return a component that renders it
-  if (trimmed.startsWith('<!DOCTYPE') || trimmed.startsWith('<html')) {
-    const RenderComponent = () => React.createElement('div', { dangerouslySetInnerHTML: { __html: code } });
-    RenderComponent.displayName = 'RenderComponent';
-    return RenderComponent;
-  }
-
-  try {
-    // 1. Transpile TSX to JS using sucrase, including transforming imports
-    const compiled = transform(code, {
-      transforms: ['typescript', 'jsx', 'imports'],
-      jsxRuntime: 'classic',
-    }).code;
-
-    // 2. Wrap in a function and provide a mock require
-    // We'll use a simplified CommonJS implementation
-    const factory = new Function('React', 'require', 'exports', compiled);
-    
-    const exports: any = {};
-    const require = (path: string) => {
-      if (path === 'react') return React;
-      if (path === '@react-email/components') return EmailComponents;
-      throw new Error(`Module not found: ${path}. Only 'react' and '@react-email/components' are supported.`);
-    };
-    
-    factory(React, require, exports);
-    
-    // Look for the component in exports
-    const Component = exports.default || Object.values(exports).find(v => typeof v === 'function');
-    
-    if (!Component) {
-      throw new Error('Could not find a valid React component in the code. Ensure you have a default export.');
+  } catch (error: any) {
+    console.error('Export error (detailed):', error);
+    if (error.message === 'Failed to fetch' || error.message.includes('NetworkError')) {
+      throw new Error('Network error: Could not reach the render API. Please ensure the development server is running and reachable.');
     }
-
-    // Wrap the component to ensure it has a display name
-    const FinalComponent = (props: any) => React.createElement(Component as any, props);
-    FinalComponent.displayName = 'PreviewComponent';
-    
-    return FinalComponent;
-  } catch (err) {
-    console.warn('Transpilation failed:', err);
-    // Fallback for when transpilation fails
-    const FallbackComponent = () => React.createElement('div', { 
-      className: "p-4 font-mono text-xs text-red-500 bg-red-50 rounded whitespace-pre-wrap border border-red-200"
-    }, `Render Error: ${(err as Error).message}`);
-    FallbackComponent.displayName = 'FallbackComponent';
-    return FallbackComponent;
+    throw error;
   }
 }

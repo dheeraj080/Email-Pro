@@ -25,23 +25,14 @@ export interface EmailMetrics {
 export const analyzeEmail = async (code: string): Promise<EmailMetrics> => {
   const html = await exportToHTML(code);
   
-// Accessibility check via axe-core
+  // Accessibility check via axe-core
   let accessibilityIssues: AccessibilityIssue[] = [];
   let accessibilityScore = 100;
 
-  // Use a global lock to prevent concurrent axe runs
-  const runAxe = async (container: HTMLElement) => {
-    const { default: axe } = await import('axe-core');
-    return await axe.run(container, {
-      runOnly: {
-        type: 'tag',
-        values: ['wcag2a', 'wcag2aa', 'best-practice']
-      }
-    });
-  };
-
   if (typeof window !== 'undefined') {
     try {
+      const { default: axe } = await import('axe-core');
+      
       // Create a hidden container to run axe on
       const container = document.createElement('div');
       container.id = 'axe-temp-container';
@@ -49,14 +40,14 @@ export const analyzeEmail = async (code: string): Promise<EmailMetrics> => {
       container.innerHTML = html;
       document.body.appendChild(container);
 
-      // Simple implementation of a mutex for axe
-      if (!(window as any)._axeMutex) {
-        (window as any)._axeMutex = Promise.resolve();
-      }
+      const results = await axe.run(container, {
+        runOnly: {
+          type: 'tag',
+          values: ['wcag2a', 'wcag2aa', 'best-practice']
+        }
+      });
 
-      const results = await ((window as any)._axeMutex = (window as any)._axeMutex.then(() => runAxe(container)));
-
-      accessibilityIssues = results.violations.map((v: any) => ({
+      accessibilityIssues = results.violations.map(v => ({
         id: v.id,
         impact: v.impact as any,
         description: v.description,
@@ -66,7 +57,7 @@ export const analyzeEmail = async (code: string): Promise<EmailMetrics> => {
 
       // Basic score calculation: 100 - (count of violations * impact weight)
       const weightMap: any = { minor: 2, moderate: 5, serious: 10, critical: 20 };
-      const penalty = results.violations.reduce((acc: number, v: any) => acc + (weightMap[v.impact || 'minor'] || 5), 0);
+      const penalty = results.violations.reduce((acc, v) => acc + (weightMap[v.impact || 'minor'] || 5), 0);
       accessibilityScore = Math.max(0, 100 - penalty);
 
       document.body.removeChild(container);

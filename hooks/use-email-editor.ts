@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Template } from '@/lib/types';
 import { TEMPLATES } from '@/lib/templates';
-import { exportToHTML, renderEmailToReact } from '@/lib/render-email';
+import { exportToHTML } from '@/lib/render-email';
 import { analyzeEmail, EmailMetrics } from '@/lib/analytics-utils';
 
 export function useEmailEditor(initialTemplate?: Template) {
@@ -13,7 +13,7 @@ export function useEmailEditor(initialTemplate?: Template) {
   const [code, setCode] = useState(activeTemplate.code);
   const [history, setHistory] = useState<Record<string, { id: string; timestamp: number; code: string }[]>>({});
   const [previewHtml, setPreviewHtml] = useState<string>('');
-  const [previewComponent, setPreviewComponent] = useState<React.ComponentType | null>(null);
+  const [previewComponent, setPreviewComponent] = useState<React.ReactNode>(null);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [customDimensions, setCustomDimensions] = useState<{ width: number; height: number } | null>(null);
   const [view, setView] = useState<'split' | 'editor' | 'preview' | 'analytics'>('split');
@@ -96,6 +96,7 @@ export function useEmailEditor(initialTemplate?: Template) {
 
     const timeout = setTimeout(() => {
       try {
+        const { renderEmailToReact } = require('@/lib/render-email');
         const Component = renderEmailToReact(code);
         setPreviewComponent(Component);
         setError(null);

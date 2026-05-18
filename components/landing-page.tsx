@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   BarChart3
 } from 'lucide-react';
-import Link from 'next/link';
 import TemplateShowcase from './template-showcase';
 import { Template } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -32,18 +31,18 @@ export default function LandingPage({ onStart, onSelectTemplate }: LandingPagePr
       {/* Navigation */}
       <nav className="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-          <Link 
-            href="/"
+          <div 
             className="flex items-center gap-3 cursor-pointer" 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             <div className="w-8 h-8 bg-slate-950 rounded-lg flex items-center justify-center">
               <Code2 className="w-5 h-5 text-white" />
             </div>
             <span className="font-display text-xl font-bold tracking-tight">Email.Pro</span>
-          </Link>
+          </div>
           
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-500">
-            <Link href="/templates" className="hover:text-slate-900 transition-colors">Templates</Link>
+            <button onClick={() => setShowGallery(true)} className="hover:text-slate-900 transition-colors">Templates</button>
             <a href="#features" className="hover:text-slate-900 transition-colors">Architecture</a>
           </div>
 
@@ -85,8 +84,8 @@ export default function LandingPage({ onStart, onSelectTemplate }: LandingPagePr
                   Launch App
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
-                <Button asChild variant="outline" size="lg" className="h-14 px-8 rounded-2xl text-lg border-slate-200">
-                  <Link href="/templates">Explore Templates</Link>
+                <Button variant="outline" size="lg" onClick={() => setShowGallery(true)} className="h-14 px-8 rounded-2xl text-lg border-slate-200">
+                  Explore Templates
                 </Button>
               </div>
             </motion.div>
@@ -289,7 +288,7 @@ export default function LandingPage({ onStart, onSelectTemplate }: LandingPagePr
           </div>
           
           <div className="flex gap-8 text-sm font-medium text-slate-500">
-            <Link href="/templates" className="hover:text-slate-900 transition-colors">Templates</Link>
+            <button onClick={() => setShowGallery(true)} className="hover:text-slate-900 transition-colors">Templates</button>
             <a href="#features" className="hover:text-slate-900 transition-colors">Architecture</a>
           </div>
 

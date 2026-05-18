@@ -23,6 +23,7 @@ export async function POST(req: Request) {
     }).code;
 
     // Evaluate the code to get the component
+    // We wrap it in a function that provides the necessary context
     const wrappedCode = `
       var React = arguments[0];
       var EmailComponents = arguments[1];
@@ -34,13 +35,11 @@ export async function POST(req: Request) {
       var exports = {};
       var module = { exports: exports };
       
-      try {
-        (function(React, EmailComponents, require, exports, module) {
-          ${transpiledCode}
-        })(React, EmailComponents, require, exports, module);
-      } catch (e) {
-        throw new Error('Runtime error in template: ' + e.message);
-      }
+      // Wrap in an IIFE to provide clear scope and avoid redeclaration errors
+      // with variables defined in the outer scope.
+      (function(React, EmailComponents, require, exports, module) {
+        ${transpiledCode}
+      })(React, EmailComponents, require, exports, module);
       
       return module.exports.default || module.exports;
     `;
