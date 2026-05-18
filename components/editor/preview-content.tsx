@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from 'motion/react';
 
 interface PreviewContentProps {
   previewHtml: string;
-  previewComponent: React.ReactNode;
+  previewComponent: React.ComponentType | null;
   previewMode: 'desktop' | 'mobile';
   setPreviewMode: (mode: 'desktop' | 'mobile') => void;
   previewTab: 'design' | 'html';
@@ -254,7 +254,7 @@ export const PreviewContent = React.memo(function PreviewContent({
                       className="w-full max-w-full md:max-w-2xl bg-white origin-top"
                       suppressHydrationWarning
                     >
-                      {isMounted && previewComponent ? previewComponent : (
+                      {isMounted && previewComponent ? React.createElement(previewComponent) : (
                         <div className="flex flex-col items-center justify-center h-48 space-y-4 opacity-50">
                           <div className="w-8 h-8 rounded-full border-2 border-t-powder-blue-500 border-alabaster-grey-200 animate-spin" />
                           <span className="text-[10px] font-bold uppercase tracking-widest">Warming engine...</span>

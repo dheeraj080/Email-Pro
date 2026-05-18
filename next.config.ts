@@ -20,21 +20,8 @@ const nextConfig: NextConfig = {
     ],
   },
   transpilePackages: ['motion'],
-  rewrites: async () => {
-    return [
-      {
-        source: '/api/v1/:path*',
-        destination: 'http://localhost:5000/api/v1/:path*',
-      },
-      {
-        source: '/api/analytics/:path*',
-        destination: 'http://localhost:5000/api/analytics/:path*',
-      },
-      {
-        source: '/api/auth/:path*',
-        destination: 'http://localhost:5000/api/auth/:path*',
-      },
-    ];
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'motion/react', '@react-email/components'],
   },
   webpack: (config, {dev}) => {
     // HMR is disabled in AI Studio via DISABLE_HMR env var.
