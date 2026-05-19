@@ -4,7 +4,8 @@ import React, { useRef, useCallback, memo } from 'react';
 import Editor, { loader } from '@monaco-editor/react';
 import { 
   Code2, 
-  History
+  History,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -87,6 +88,12 @@ export const EditorContent = memo(function EditorContent({
     }, 50);
   }, [onChange]);
 
+  const handleFormatCode = useCallback(() => {
+    if (editorRef.current) {
+      editorRef.current.getAction('editor.action.formatDocument')?.run();
+    }
+  }, []);
+
   return (
     <div className="h-full flex flex-col bg-white">
       <div className="h-10 border-b border-ink-black-100 bg-alabaster-grey-50 px-4 flex items-center justify-between shrink-0">
@@ -117,16 +124,27 @@ export const EditorContent = memo(function EditorContent({
           </div>
         </div>
 
-        <button 
-          onClick={onToggleHistory}
-          className={cn(
-            "flex items-center gap-1.5 px-2 py-1 rounded-md transition-all text-[10px] font-bold uppercase tracking-widest",
-            !isHistoryCollapsed ? "bg-powder-blue-500 text-white" : "text-ink-black-400 hover:text-ink-black-900"
-          )}
-        >
-          <History className="w-3.5 h-3.5" />
-          <span>History</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={handleFormatCode}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-ink-black-100 bg-white hover:bg-alabaster-grey-100 hover:text-ink-black-900 transition-all text-[10px] font-bold uppercase tracking-widest text-ink-black-400 shadow-sm"
+            title="Format Code (Alt+Shift+F)"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Format</span>
+          </button>
+
+          <button 
+            onClick={onToggleHistory}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all text-[10px] font-bold uppercase tracking-widest",
+              !isHistoryCollapsed ? "bg-powder-blue-500 text-white" : "text-ink-black-400 hover:text-ink-black-900"
+            )}
+          >
+            <History className="w-3.5 h-3.5" />
+            <span>History</span>
+          </button>
+        </div>
       </div>
       <div className="flex-1 min-h-0 relative overflow-hidden group/editor">
         <Editor

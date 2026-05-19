@@ -397,6 +397,266 @@ export default WelcomeEmail;
     language: 'typescript'
   },
   {
+    id: 'shipping-confirmation',
+    name: 'Order Shipped & Tracking',
+    code: `
+import React from 'react';
+import { 
+  Body, 
+  Container, 
+  Head, 
+  Heading, 
+  Html, 
+  Preview, 
+  Section, 
+  Text, 
+  Button,
+  Link,
+  Img,
+  Row,
+  Column,
+  Hr,
+  Tailwind
+} from '@react-email/components';
+
+export default function ShippingConfirmationEmail() {
+  return (
+    <Html>
+      <Head />
+      <Preview>Your order is on the way! Track your package here.</Preview>
+      <Tailwind>
+        <Body className="bg-gray-50 py-12 font-sans">
+          <Container className="bg-white border border-gray-200 rounded-2xl overflow-hidden mx-auto max-w-[600px] shadow-sm">
+            {/* Elegant Premium Header */}
+            <Section className="bg-gray-900 text-white p-10 text-center">
+              <Text className="text-indigo-400 font-bold tracking-widest uppercase text-xs mb-2">Order Confirmed</Text>
+              <Heading className="text-3xl font-black text-white m-0 tracking-tight">On Its Way!</Heading>
+              <Text className="text-gray-400 text-sm mt-3 m-0">Hi Sarah, your items have shipped and will arrive by Oct 24th.</Text>
+            </Section>
+
+            {/* Delivery Timeline Progress Bar */}
+            <Section className="px-10 py-8 border-b border-gray-100 bg-gray-50/50">
+              <Heading className="text-xs font-black uppercase tracking-wider text-gray-400 mb-4">Delivery Progress</Heading>
+              <Row className="mb-2">
+                <Column className="text-center w-1/3 py-2 border-b-4 border-indigo-600">
+                  <Text className="text-[10px] font-bold text-indigo-600 m-0 uppercase">Ordered</Text>
+                </Column>
+                <Column className="text-center w-1/3 py-2 border-b-4 border-indigo-600">
+                  <Text className="text-[10px] font-bold text-indigo-600 m-0 uppercase">Shipped</Text>
+                </Column>
+                <Column className="text-center w-1/3 py-2 border-b-4 border-gray-200">
+                  <Text className="text-[10px] font-bold text-gray-400 m-0 uppercase">Out for Delivery</Text>
+                </Column>
+              </Row>
+              <Row>
+                <Column className="text-left w-1/2">
+                  <Text className="text-xs text-gray-500 m-0">Shipped: Oct 20</Text>
+                </Column>
+                <Column className="text-right w-1/2">
+                  <Text className="text-xs text-gray-500 m-0">Est. Delivery: Oct 24</Text>
+                </Column>
+              </Row>
+            </Section>
+
+            {/* Package Items & Quantities Grid */}
+            <Section className="p-10">
+              <Heading className="text-sm font-bold text-gray-900 mb-6 uppercase tracking-wider">Shipment Details</Heading>
+              
+              <Row className="mb-6">
+                <Column className="w-16">
+                  <Img 
+                    src="https://picsum.photos/seed/headphone/200/200" 
+                    alt="Wireless Headphones" 
+                    width="60" 
+                    height="60" 
+                    className="rounded-xl border border-gray-100 object-cover"
+                  />
+                </Column>
+                <Column className="pl-4">
+                  <Text className="text-sm font-bold text-gray-900 m-0">Aura Pro Wireless Headphones</Text>
+                  <Text className="text-xs text-gray-500 m-0">Color: Midnight Black • Qty: 1</Text>
+                </Column>
+                <Column className="text-right align-middle">
+                  <Text className="text-sm font-bold font-mono text-gray-900 m-0">$249.00</Text>
+                </Column>
+              </Row>
+
+              <Row className="mb-6">
+                <Column className="w-16">
+                  <Img 
+                    src="https://picsum.photos/seed/case/200/200" 
+                    alt="Travel Case" 
+                    width="60" 
+                    height="60" 
+                    className="rounded-xl border border-gray-100 object-cover"
+                  />
+                </Column>
+                <Column className="pl-4">
+                  <Text className="text-sm font-bold text-gray-900 m-0">Hard-shell Travel Case</Text>
+                  <Text className="text-xs text-gray-500 m-0">Color: Charcoal Grey • Qty: 1</Text>
+                </Column>
+                <Column className="text-right align-middle">
+                  <Text className="text-sm font-bold font-mono text-gray-900 m-0">$39.00</Text>
+                </Column>
+              </Row>
+
+              <Hr className="border-gray-100 my-6" />
+
+              {/* Pricing breakdown */}
+              <Section className="w-full text-sm">
+                <Row className="mb-2">
+                  <Column className="text-gray-500 text-left">Subtotal</Column>
+                  <Column className="text-gray-900 text-right font-mono">$288.00</Column>
+                </Row>
+                <Row className="mb-2">
+                  <Column className="text-gray-500 text-left">Shipping</Column>
+                  <Column className="text-gray-900 text-right font-mono">FREE</Column>
+                </Row>
+                <Row className="mb-4">
+                  <Column className="text-gray-500 text-left">Tax</Column>
+                  <Column className="text-gray-900 text-right font-mono">$24.48</Column>
+                </Row>
+                <Hr className="border-gray-100 my-4" />
+                <Row>
+                  <Column className="text-gray-900 font-bold text-left text-base">Total Paid</Column>
+                  <Column className="text-indigo-600 font-bold text-right text-lg font-mono">$312.48</Column>
+                </Row>
+              </Section>
+
+              {/* Action Button */}
+              <Section className="text-center mt-10">
+                <Button
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-indigo-600/20 text-center text-sm"
+                  href="https://example.com/track/123456"
+                >
+                  Track Package Delivery
+                </Button>
+              </Section>
+            </Section>
+
+            {/* Support / Help Section */}
+            <Section className="bg-gray-50 p-10 text-center border-t border-gray-100">
+              <Text className="text-gray-400 text-xs mb-6 m-0 leading-relaxed">
+                Need support with your order? Our support team is here to assist 24/7. <br />
+                Visit our <Link href="#" className="text-indigo-600 font-bold underline">Help Center</Link> or reply directly to this email.
+              </Text>
+              <Text className="text-gray-500 font-bold text-[10px] uppercase tracking-widest m-0">
+                LUXE DESIGN LTD • San Francisco • CA
+              </Text>
+            </Section>
+          </Container>
+        </Body>
+      </Tailwind>
+    </Html>
+  );
+}
+`.trim(),
+    language: 'typescript'
+  },
+  {
+    id: 'tech-summit',
+    name: 'Tech Summit RSVP',
+    code: `
+import React from 'react';
+import { 
+  Body, 
+  Container, 
+  Head, 
+  Heading, 
+  Html, 
+  Preview, 
+  Section, 
+  Text, 
+  Button,
+  Link,
+  Img,
+  Row,
+  Column,
+  Hr,
+  Tailwind
+} from '@react-email/components';
+
+export default function TechSummitEmail() {
+  return (
+    <Html>
+      <Head />
+      <Preview>Join us at the Global Tech Summit 2026 — RSVP Today</Preview>
+      <Tailwind>
+        <Body className="bg-[#030712] font-sans text-white py-12">
+          <Container className="bg-[#0b0f19] border border-gray-800 rounded-3xl overflow-hidden mx-auto max-w-[580px] shadow-2xl">
+            <Section className="bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-transparent to-transparent p-10 text-center relative border-b border-gray-900">
+              <Img 
+                src="https://react.email/static/logo-black.png" 
+                alt="Summit Logo" 
+                width="36" 
+                height="36" 
+                className="mx-auto mb-6 opacity-80 invert"
+              />
+              <Text className="text-indigo-400 font-bold uppercase tracking-widest text-xs mb-2">Exclusive Invitation</Text>
+              <Heading className="text-3xl md:text-4xl font-black text-white m-0 tracking-tight leading-tight">
+                Global Tech <br />
+                Summit 2026
+              </Heading>
+            </Section>
+
+            <Section className="p-10 space-y-6">
+              <Text className="text-gray-300 text-base leading-relaxed">
+                Hi Innovator,
+              </Text>
+              <Text className="text-gray-300 text-base leading-relaxed">
+                The future is arriving ahead of schedule. We're gathering the world's leading engineers, creators, and leaders for three days of intense exploration, design, and systems architecture.
+              </Text>
+
+              <Section className="bg-[#111827] border border-gray-800 rounded-2xl p-6 my-8">
+                <Row className="mb-4">
+                  <Column className="w-12 text-center align-middle">
+                    <Text className="text-xl m-0">📅</Text>
+                  </Column>
+                  <Column className="pl-3 align-middle">
+                    <Text className="text-sm font-bold text-white m-0">DATE & TIME</Text>
+                    <Text className="text-xs text-gray-400 m-0">October 14-16, 2026 • 9:00 AM PST</Text>
+                  </Column>
+                </Row>
+                <Row>
+                  <Column className="w-12 text-center align-middle">
+                    <Text className="text-xl m-0">📍</Text>
+                  </Column>
+                  <Column className="pl-3 align-middle">
+                    <Text className="text-sm font-bold text-white m-0">LOCATION</Text>
+                    <Text className="text-xs text-gray-400 m-0">Innovation Center • San Francisco, CA & Online</Text>
+                  </Column>
+                </Row>
+              </Section>
+
+              <Section className="text-center py-6">
+                <Button
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-10 rounded-xl shadow-lg shadow-indigo-600/30 text-center transition-all"
+                  href="https://example.com/rsvp"
+                >
+                  Confirm Your RSVP
+                </Button>
+              </Section>
+            </Section>
+
+            <Section className="bg-[#090d16] p-10 text-center border-t border-gray-900">
+              <Text className="text-gray-500 text-xs leading-relaxed mb-6">
+                You received this exclusive invitation based on your contribution to the developer ecosystem. 
+                If you choose not to attend, you can <Link href="#" className="text-indigo-400 underline">decline invitation</Link>.
+              </Text>
+              <Text className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.2em] m-0">
+                Tech Summit Lab • San Francisco • CA
+              </Text>
+            </Section>
+          </Container>
+        </Body>
+      </Tailwind>
+    </Html>
+  );
+}
+`.trim(),
+    language: 'typescript'
+  },
+  {
     id: 'legacy-html',
     name: 'Plain HTML Template',
     code: `

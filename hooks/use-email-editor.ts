@@ -29,12 +29,13 @@ export function useEmailEditor(initialTemplate?: Template) {
   const [newTemplateName, setNewTemplateName] = useState('');
   const [lastSaved, setLastSaved] = useState<number | null>(null);
 
-  // Load saved templates and active template from local storage on mount
+  // Load saved templates, active template, and history from local storage on mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
     const savedTemplates = localStorage.getItem('email_studio_templates');
     const savedActiveId = localStorage.getItem('email_studio_active_template_id');
+    const savedHistory = localStorage.getItem('email_studio_history');
 
     if (savedTemplates) {
       try {
@@ -55,6 +56,15 @@ export function useEmailEditor(initialTemplate?: Template) {
         console.error('Failed to parse saved templates:', err);
       }
     }
+
+    if (savedHistory) {
+      try {
+        setHistory(JSON.parse(savedHistory));
+      } catch (err) {
+        console.error('Failed to parse saved history:', err);
+      }
+    }
+
     setMounted(true);
   }, []);
 
@@ -74,6 +84,14 @@ export function useEmailEditor(initialTemplate?: Template) {
 
     return () => clearTimeout(timeout);
   }, [code, templates, activeTemplate.id, mounted]);
+
+  // Save history to local storage when history state changes
+  useEffect(() => {
+    if (!mounted) return;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('email_studio_history', JSON.stringify(history));
+    }
+  }, [history, mounted]);
 
   const performRender = useCallback(async (codeToRender: string, currentLanguage?: string) => {
     // Only call server-side render if we actually need the HTML
@@ -188,6 +206,7 @@ export function useEmailEditor(initialTemplate?: Template) {
     if (window.confirm('This will reset all templates and delete your drafts. Are you sure?')) {
       localStorage.removeItem('email_studio_templates');
       localStorage.removeItem('email_studio_active_template_id');
+      localStorage.removeItem('email_studio_history');
       window.location.reload();
     }
   };
