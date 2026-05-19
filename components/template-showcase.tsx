@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  X, 
-  Search, 
-  Check, 
+import {
+  X,
+  Search,
+  Check,
   ExternalLink,
   Mail,
   ArrowRight
@@ -39,7 +39,7 @@ function TemplateCard({ template, isActive, onSelect, preview, isLoading, onLoad
   }, [template.id, template.code, onLoadPreview]);
 
   return (
-    <motion.div 
+    <motion.div
       layoutId={template.id}
       className="group relative"
     >
@@ -56,9 +56,9 @@ function TemplateCard({ template, isActive, onSelect, preview, isLoading, onLoad
             </div>
           ) : preview ? (
             <div className="absolute inset-0 origin-top transform scale-[0.4] w-[250%] h-[250%] pointer-events-none transition-transform duration-700 group-hover:scale-[0.42]">
-              <iframe 
-                srcDoc={preview} 
-                className="w-full h-full border-none pointer-events-none" 
+              <iframe
+                srcDoc={preview}
+                className="w-full h-full border-none pointer-events-none"
                 title={template.name}
               />
             </div>
@@ -68,7 +68,7 @@ function TemplateCard({ template, isActive, onSelect, preview, isLoading, onLoad
               <span className="text-[10px] font-bold uppercase tracking-widest">No Preview</span>
             </div>
           )}
-          
+
           {/* Hover Overlay */}
           <div className="absolute inset-0 bg-ink-black-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none z-10">
             <div className="bg-white text-ink-black-900 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl">
@@ -90,8 +90,8 @@ function TemplateCard({ template, isActive, onSelect, preview, isLoading, onLoad
               <h3 className="font-bold text-lg text-ink-black-900 group-hover:text-powder-blue-600 transition-colors">{template.name}</h3>
               <p className="text-[9px] font-black uppercase tracking-widest text-ink-black-400 mt-0.5">Enterprise Ready</p>
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="icon"
               className="h-8 w-8 rounded-xl"
             >
@@ -101,8 +101,8 @@ function TemplateCard({ template, isActive, onSelect, preview, isLoading, onLoad
           <p className="text-xs text-ink-black-500 line-clamp-2 leading-relaxed mb-6 flex-1 font-medium italic opacity-70">
             Tested across all major mail clients for guaranteed deliverability.
           </p>
-          
-          <Button 
+
+          <Button
             onClick={() => onSelect(template)}
             variant={isActive ? "outline" : "primary"}
             className="w-full h-11"
@@ -121,7 +121,7 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const [loadingPreviews, setLoadingPreviews] = useState<Record<string, boolean>>({});
 
-  const filteredTemplates = TEMPLATES.filter(t => 
+  const filteredTemplates = TEMPLATES.filter(t =>
     t.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -140,13 +140,13 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
   }, [previews, loadingPreviews]);
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-ink-black-900/60 backdrop-blur-md"
     >
-      <motion.div 
+      <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -161,15 +161,15 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
 
           <div className="flex items-center gap-6">
             <div className="hidden md:block w-72">
-              <Input 
-                placeholder="Search base..." 
+              <Input
+                placeholder="Search base..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 icon={<Search className="w-4 h-4" />}
                 className="h-11 shadow-inner bg-white"
               />
             </div>
-            <Button 
+            <Button
               onClick={onClose}
               variant="outline"
               size="icon"
@@ -184,7 +184,7 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
         <div className="flex-1 overflow-y-auto p-10 custom-scrollbar bg-alabaster-grey-50/20">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {filteredTemplates.map((template) => (
-              <TemplateCard 
+              <TemplateCard
                 key={template.id}
                 template={template}
                 isActive={activeTemplateId === template.id}
@@ -209,15 +209,6 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
           )}
         </div>
 
-        {/* Footer */}
-        <div className="px-8 py-5 bg-alabaster-grey-50 border-t border-ink-black-100 flex items-center justify-between">
-          <p className="text-[10px] font-black text-ink-black-400 uppercase tracking-widest">
-            © 2026 Email.Pro • System Ready
-          </p>
-          <div className="flex gap-6 items-center">
-             <span className="text-[10px] font-black text-ink-black-300 uppercase tracking-widest">Global Library 1.0</span>
-          </div>
-        </div>
       </motion.div>
     </motion.div>
   );

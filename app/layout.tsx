@@ -2,7 +2,6 @@ import type {Metadata} from 'next';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css'; 
 import { ErrorBoundary } from '@/components/error-boundary';
-import { AuthProvider } from '@/context/auth-context';
 import { Toaster } from 'sonner';
 
 const inter = Inter({
@@ -26,12 +25,10 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} scroll-smooth`}>
       <body className="font-sans antialiased text-ink-black-900 bg-white">
-        <AuthProvider>
-          <ErrorBoundary>
-            {children}
-            <Toaster position="top-right" expand={false} richColors />
-          </ErrorBoundary>
-        </AuthProvider>
+        <ErrorBoundary>
+          {children}
+          <Toaster position="top-right" expand={false} richColors />
+        </ErrorBoundary>
       </body>
     </html>
   );

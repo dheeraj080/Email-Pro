@@ -11,11 +11,11 @@ import { cn } from '@/lib/utils';
 // Pre-warm Monaco
 if (typeof window !== 'undefined') {
   loader.init().then(monaco => {
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-      target: monaco.languages.typescript.ScriptTarget.ESNext,
+    (monaco.languages as any).typescript.typescriptDefaults.setCompilerOptions({
+      target: (monaco.languages as any).typescript.ScriptTarget.ESNext,
       allowNonTsExtensions: true,
-      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-      module: monaco.languages.typescript.ModuleKind.CommonJS,
+      moduleResolution: (monaco.languages as any).typescript.ModuleResolutionKind.NodeJs,
+      module: (monaco.languages as any).typescript.ModuleKind.CommonJS,
       noEmit: true,
       typeRoots: ["node_modules/@types"]
     });

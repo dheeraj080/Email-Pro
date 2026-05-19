@@ -1,21 +1,3 @@
-export interface RoleDTO {
-  id?: string;
-  name?: string;
-}
-
-export interface UserDTO {
-  id?: string;
-  name?: string;
-  email?: string;
-  password?: string;
-  image?: string;
-  enabled?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  provider?: 'LOCAL' | 'GOOGLE' | 'GITHUB' | 'FACEBOOK';
-  roles?: RoleDTO[];
-}
-
 export interface EmailTemplate {
   id: string;
   name: string;
@@ -55,19 +37,6 @@ export interface EmailRequest {
   replyTo?: string;
   subject: string;
   body: string;
-}
-
-export interface LoginRequest {
-  email?: string;
-  password?: string;
-}
-
-export interface TokenResponse {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
-  tokenType: string;
-  user: UserDTO;
 }
 
 export interface AnalyticsStats {

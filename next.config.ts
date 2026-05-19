@@ -30,10 +30,6 @@ const nextConfig: NextConfig = {
         source: '/api/analytics/:path*',
         destination: 'http://localhost:5000/api/analytics/:path*',
       },
-      {
-        source: '/api/auth/:path*',
-        destination: 'http://localhost:5000/api/auth/:path*',
-      },
     ];
   },
   webpack: (config, {dev}) => {

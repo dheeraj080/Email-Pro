@@ -1,32 +1,11 @@
 import { apiClient } from './api-client';
 import { 
-  UserDTO, 
   EmailTemplate, 
   Contact, 
   ContactGroup, 
   EmailRequest, 
-  AnalyticsStats,
-  LoginRequest,
-  TokenResponse
+  AnalyticsStats
 } from './types';
-
-// Auth Service
-export const authService = {
-  login: (data: LoginRequest) => 
-    apiClient.post<TokenResponse>('/api/v1/auth/login', data).then(r => r.data),
-  
-  register: (data: UserDTO) => 
-    apiClient.post<UserDTO>('/api/v1/auth/register', data).then(r => r.data),
-    
-  logout: () => 
-    apiClient.post('/api/v1/auth/logout'),
-    
-  forgotPassword: (email: string) => 
-    apiClient.post('/api/v1/auth/forgot-password', { email }),
-    
-  resetPassword: (data: any) => 
-    apiClient.post('/api/v1/auth/reset-password', data),
-};
 
 // Template Service
 export const templateService = {
