@@ -36,9 +36,9 @@ import {
 export default function WelcomeEmail() {
   return (
     <Html>
-      <Head />
-      <Preview>Welcome to Email Pro!</Preview>
       <Tailwind>
+        <Head />
+        <Preview>Welcome to Email Pro!</Preview>
         <Body className="bg-white font-sans">
           <Container className="mx-auto py-10 px-5 max-w-[600px]">
             <Heading className="text-3xl font-bold text-center text-gray-800 mb-6">
@@ -101,9 +101,9 @@ import {
 export default function ResetPasswordEmail() {
   return (
     <Html>
-      <Head />
-      <Preview>Reset your password</Preview>
       <Tailwind>
+        <Head />
+        <Preview>Reset your password</Preview>
         <Body className="bg-slate-50 font-sans py-12">
           <Container className="bg-white border border-slate-200 rounded-xl shadow-sm mx-auto p-12 max-w-[500px]">
             <Heading className="text-2xl font-bold text-slate-900 mb-4">
@@ -155,9 +155,9 @@ import {
 export default function ReceiptEmail() {
   return (
     <Html>
-      <Head />
-      <Preview>Your Order Receipt #12345</Preview>
       <Tailwind>
+        <Head />
+        <Preview>Your Order Receipt #12345</Preview>
         <Body className="bg-gray-50 py-8 font-sans">
           <Container className="bg-white border border-gray-200 p-10 mx-auto max-w-[600px]">
             <Heading className="text-2xl font-bold text-gray-900 mb-8 border-b-2 border-indigo-600 pb-2 inline-block">
@@ -225,9 +225,9 @@ import {
 export default function NewsletterEmail() {
   return (
     <Html>
-      <Head />
-      <Preview>The Weekly Dispatch: Fresh insights, new tools, and community highlights</Preview>
       <Tailwind>
+        <Head />
+        <Preview>The Weekly Dispatch: Fresh insights, new tools, and community highlights</Preview>
         <Body className="bg-slate-100 font-sans py-12">
           <Container className="bg-white border border-slate-200 shadow-xl mx-auto overflow-hidden rounded-2xl max-w-[600px]">
             <Section className="bg-slate-900 px-10 py-12 text-center">
@@ -422,9 +422,9 @@ import {
 export default function ShippingConfirmationEmail() {
   return (
     <Html>
-      <Head />
-      <Preview>Your order is on the way! Track your package here.</Preview>
       <Tailwind>
+        <Head />
+        <Preview>Your order is on the way! Track your package here.</Preview>
         <Body className="bg-gray-50 py-12 font-sans">
           <Container className="bg-white border border-gray-200 rounded-2xl overflow-hidden mx-auto max-w-[600px] shadow-sm">
             {/* Elegant Premium Header */}
@@ -579,9 +579,9 @@ import {
 export default function TechSummitEmail() {
   return (
     <Html>
-      <Head />
-      <Preview>Join us at the Global Tech Summit 2026 — RSVP Today</Preview>
       <Tailwind>
+        <Head />
+        <Preview>Join us at the Global Tech Summit 2026 — RSVP Today</Preview>
         <Body className="bg-[#030712] font-sans text-white py-12">
           <Container className="bg-[#0b0f19] border border-gray-800 rounded-3xl overflow-hidden mx-auto max-w-[580px] shadow-2xl">
             <Section className="bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-transparent to-transparent p-10 text-center relative border-b border-gray-900">

@@ -8,6 +8,8 @@ import {
   Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ThemePicker } from './theme-picker';
+import { SnippetsPicker } from './snippets-picker';
 
 // Pre-warm Monaco
 if (typeof window !== 'undefined') {
@@ -94,6 +96,31 @@ export const EditorContent = memo(function EditorContent({
     }
   }, []);
 
+  const handleInsertSnippet = useCallback((snippetCode: string) => {
+    if (editorRef.current) {
+      const editor = editorRef.current;
+      const selection = editor.getSelection();
+      
+      const range = {
+        startLineNumber: selection.startLineNumber,
+        startColumn: selection.startColumn,
+        endLineNumber: selection.endLineNumber,
+        endColumn: selection.endColumn
+      };
+      
+      editor.executeEdits('snippets-inserter', [
+        {
+          range: range,
+          text: snippetCode,
+          forceMoveMarkers: true
+        }
+      ]);
+      
+      // Keep editor in focus
+      editor.focus();
+    }
+  }, []);
+
   return (
     <div className="h-full flex flex-col bg-white">
       <div className="h-10 border-b border-ink-black-100 bg-alabaster-grey-50 px-4 flex items-center justify-between shrink-0">
@@ -125,6 +152,13 @@ export const EditorContent = memo(function EditorContent({
         </div>
 
         <div className="flex items-center gap-2">
+          {language !== 'html' && (
+            <>
+              <ThemePicker currentCode={code} onCodeChange={onChange} />
+              <SnippetsPicker onInsert={handleInsertSnippet} />
+            </>
+          )}
+
           <button 
             onClick={handleFormatCode}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-ink-black-100 bg-white hover:bg-alabaster-grey-100 hover:text-ink-black-900 transition-all text-[10px] font-bold uppercase tracking-widest text-ink-black-400 shadow-sm"

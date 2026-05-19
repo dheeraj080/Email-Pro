@@ -23,6 +23,7 @@ import { PreviewContent } from './editor/preview-content';
 import { AnalyticsView } from './editor/analytics-view';
 import { CreateTemplateDialog } from './editor/create-template-dialog';
 import { HistorySidebar } from './editor/history-sidebar';
+import { SendTestDialog } from './editor/send-test-dialog';
 
 interface EmailEditorProps {
   onBack?: () => void;
@@ -75,6 +76,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
   const [isHistoryCollapsed, setIsHistoryCollapsed] = useState(true);
   const [isResizing, setIsResizing] = useState(false);
   const [showShowcase, setShowShowcase] = useState(false);
+  const [showSendTest, setShowSendTest] = useState(false);
 
   const handleResize = (e: React.MouseEvent, direction: string) => {
     e.preventDefault();
@@ -165,6 +167,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
             onSave={handleSaveVersion}
             onDownload={handleDownload}
             onCopy={handleCopyHTML}
+            onSendTest={() => setShowSendTest(true)}
             copied={copied}
             isExporting={isExporting}
             isRendering={isRendering}
@@ -289,6 +292,14 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
               handleTemplateChange(t);
               setShowShowcase(false);
             }}
+          />
+        )}
+        {showSendTest && (
+          <SendTestDialog 
+            isOpen={showSendTest}
+            onClose={() => setShowSendTest(false)}
+            code={code}
+            templateName={activeTemplate.name || 'Untitled'}
           />
         )}
       </AnimatePresence>

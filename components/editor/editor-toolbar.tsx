@@ -1,16 +1,17 @@
 'use client';
 
 import React from 'react';
-import { 
-  Save, 
-  Download, 
-  Copy, 
-  Check, 
-  Eye, 
-  Code2, 
+import {
+  Save,
+  Download,
+  Copy,
+  Check,
+  Eye,
+  Code2,
   TrendingUp,
   Columns2,
-  RefreshCw
+  RefreshCw,
+  SendHorizontal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ interface EditorToolbarProps {
   onSave: () => void;
   onDownload: () => void;
   onCopy: () => void;
+  onSendTest: () => void;
   copied: boolean;
   isExporting: boolean;
   isRendering: boolean;
@@ -33,6 +35,7 @@ export const EditorToolbar = React.memo(function EditorToolbar({
   onSave,
   onDownload,
   onCopy,
+  onSendTest,
   copied,
   isExporting,
   isRendering,
@@ -55,8 +58,8 @@ export const EditorToolbar = React.memo(function EditorToolbar({
             onClick={() => onViewChange(v.id as any)}
             className={cn(
               "flex items-center gap-2 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-              activeView === v.id 
-                ? "bg-white text-ink-black-900 shadow-sm border border-ink-black-100" 
+              activeView === v.id
+                ? "bg-white text-ink-black-900 shadow-sm border border-ink-black-100"
                 : "text-ink-black-400 hover:text-ink-black-600"
             )}
           >
@@ -67,7 +70,7 @@ export const EditorToolbar = React.memo(function EditorToolbar({
       </div>
 
       <div className="flex items-center gap-2">
-        <Button 
+        <Button
           variant="outline"
           size="icon"
           onClick={onForceRender}
@@ -77,7 +80,7 @@ export const EditorToolbar = React.memo(function EditorToolbar({
           <RefreshCw className={cn("w-4 h-4", isRendering ? "animate-spin text-powder-blue-500" : "")} />
         </Button>
 
-        <Button 
+        <Button
           variant="outline"
           onClick={onSave}
           className="h-10"
@@ -86,7 +89,7 @@ export const EditorToolbar = React.memo(function EditorToolbar({
           <span className="hidden sm:inline">Save</span>
         </Button>
 
-        <Button 
+        <Button
           variant="outline"
           onClick={onCopy}
           className="h-10 min-w-[120px]"
@@ -95,7 +98,16 @@ export const EditorToolbar = React.memo(function EditorToolbar({
           <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy HTML'}</span>
         </Button>
 
-        <Button 
+        <Button
+          variant="outline"
+          onClick={onSendTest}
+          className="h-10"
+        >
+          <SendHorizontal className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Send Test</span>
+        </Button>
+
+        <Button
           variant="primary"
           onClick={onDownload}
           isLoading={isExporting}

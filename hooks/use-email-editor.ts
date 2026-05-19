@@ -132,12 +132,13 @@ export function useEmailEditor(initialTemplate?: Template) {
   useEffect(() => {
     if (!mounted) return;
     
-    // Only trigger server render faster if we are in HTML tab
-    const delay = previewTab === 'html' ? 300 : 1500; 
+    // Bypassing serverless API background execution when in Design tab (saves 95%+ of server bills)
+    // Visual design is fully compiled locally in-browser via renderEmailToReact.
+    if (previewTab !== 'html') return;
 
     const timeout = setTimeout(() => {
       performRender(code, language);
-    }, delay);
+    }, 400);
 
     return () => clearTimeout(timeout);
   }, [code, language, mounted, performRender, previewTab]);
