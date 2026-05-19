@@ -72,17 +72,17 @@ export function SnippetsPicker({ onInsert }: SnippetsPickerProps) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-ink-black-100 bg-white hover:bg-alabaster-grey-100 hover:text-ink-black-900 transition-all text-[10px] font-bold uppercase tracking-widest text-ink-black-400 shadow-sm",
-          isOpen && "border-slate-350 text-slate-800"
+          "flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold text-ink-black-500 hover:text-ink-black-900 transition-colors",
+          isOpen && "text-ink-black-950 bg-ink-black-50"
         )}
         title="Insert pre-designed visual email block snippets at cursor"
       >
-        <PlusSquare className="w-3.5 h-3.5" />
+        <PlusSquare className="w-3.5 h-3.5 text-ink-black-400" />
         <span>Insert</span>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-1.5 w-60 bg-white border border-slate-200 rounded-xl shadow-xl p-3.5 z-[200] animate-in fade-in slide-in-from-top-1 duration-200">
+        <div className="absolute right-0 bottom-full mb-1.5 w-60 bg-white border border-slate-200 rounded-xl shadow-xl p-3.5 z-[200] animate-in fade-in slide-in-from-bottom-1 duration-200">
           <div className="text-[8px] font-black uppercase tracking-wider text-slate-400 mb-2">Boilerplate Snippets</div>
           <div className="space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar">
             {EMAIL_SNIPPETS.map((snippet) => (

@@ -123,63 +123,6 @@ export const EditorContent = memo(function EditorContent({
 
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="h-10 border-b border-ink-black-100 bg-alabaster-grey-50 px-4 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Code2 className="w-3.5 h-3.5 text-ink-black-400" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ink-black-400">Editor</span>
-          </div>
-          <div className="flex bg-white border border-ink-black-100 rounded-lg p-0.5 shadow-sm">
-            {[
-              { id: 'typescript', label: 'TS' },
-              { id: 'javascript', label: 'JS' },
-              { id: 'html', label: 'HTML' }
-            ].map((lang) => (
-              <button
-                key={lang.id}
-                onClick={() => onLanguageChange(lang.id as any)}
-                className={cn(
-                  "px-2.5 py-0.5 rounded text-[9px] font-bold transition-all",
-                  language === lang.id 
-                    ? "bg-ink-black-900 text-white shadow-sm" 
-                    : "text-ink-black-400 hover:text-ink-black-600"
-                )}
-              >
-                {lang.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {language !== 'html' && (
-            <>
-              <ThemePicker currentCode={code} onCodeChange={onChange} />
-              <SnippetsPicker onInsert={handleInsertSnippet} />
-            </>
-          )}
-
-          <button 
-            onClick={handleFormatCode}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-ink-black-100 bg-white hover:bg-alabaster-grey-100 hover:text-ink-black-900 transition-all text-[10px] font-bold uppercase tracking-widest text-ink-black-400 shadow-sm"
-            title="Format Code (Alt+Shift+F)"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Format</span>
-          </button>
-
-          <button 
-            onClick={onToggleHistory}
-            className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all text-[10px] font-bold uppercase tracking-widest",
-              !isHistoryCollapsed ? "bg-powder-blue-500 text-white" : "text-ink-black-400 hover:text-ink-black-900"
-            )}
-          >
-            <History className="w-3.5 h-3.5" />
-            <span>History</span>
-          </button>
-        </div>
-      </div>
       <div className="flex-1 min-h-0 relative overflow-hidden group/editor">
         <Editor
           height="100%"
@@ -221,6 +164,65 @@ export const EditorContent = memo(function EditorContent({
           } as any}
         />
         <div className="absolute top-0 right-0 w-32 h-32 bg-powder-blue-500/5 blur-3xl rounded-full pointer-events-none opacity-0 group-hover/editor:opacity-100 transition-opacity" />
+      </div>
+
+      {/* Bottom Status Bar */}
+      <div className="h-8 border-t border-ink-black-100/80 bg-white px-3 flex items-center justify-between shrink-0 select-none">
+        <div className="flex items-center gap-3">
+          <div className="flex bg-alabaster-grey-100 border border-ink-black-100/80 rounded-md p-0.5 shadow-sm">
+            {[
+              { id: 'typescript', label: 'TS' },
+              { id: 'javascript', label: 'JS' },
+              { id: 'html', label: 'HTML' }
+            ].map((lang) => (
+              <button
+                key={lang.id}
+                onClick={() => onLanguageChange(lang.id as any)}
+                className={cn(
+                  "px-2 py-0.5 rounded text-[9px] font-bold transition-all",
+                  language === lang.id 
+                    ? "bg-white text-ink-black-900 shadow-sm border border-ink-black-100/50" 
+                    : "text-ink-black-400 hover:text-ink-black-600"
+                )}
+              >
+                {lang.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="h-3 w-[1px] bg-ink-black-100" />
+
+          <button 
+            onClick={handleFormatCode}
+            className="flex items-center gap-1 text-[10px] font-semibold text-ink-black-500 hover:text-ink-black-900 transition-colors"
+            title="Format Code (Alt+Shift+F)"
+          >
+            <Sparkles className="w-3 h-3 text-ink-black-400" />
+            <span>Format</span>
+          </button>
+
+          <button 
+            onClick={onToggleHistory}
+            className={cn(
+              "flex items-center gap-1 text-[10px] font-semibold transition-colors",
+              !isHistoryCollapsed 
+                ? "text-powder-blue-600 font-bold" 
+                : "text-ink-black-500 hover:text-ink-black-900"
+            )}
+          >
+            <History className={cn("w-3 h-3", !isHistoryCollapsed ? "text-powder-blue-600" : "text-ink-black-400")} />
+            <span>History</span>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {language !== 'html' && (
+            <>
+              <ThemePicker currentCode={code} onCodeChange={onChange} />
+              <SnippetsPicker onInsert={handleInsertSnippet} />
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

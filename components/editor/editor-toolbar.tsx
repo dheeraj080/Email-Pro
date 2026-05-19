@@ -82,39 +82,43 @@ export const EditorToolbar = React.memo(function EditorToolbar({
 
         <Button
           variant="outline"
+          size="icon"
           onClick={onSave}
-          className="h-10"
+          className="h-10 w-10"
+          title="Save Version"
         >
-          <Save className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Save</span>
+          <Save className="w-4 h-4" />
         </Button>
 
         <Button
           variant="outline"
+          size="icon"
           onClick={onCopy}
-          className="h-10 min-w-[120px]"
+          className="h-10 w-10"
+          title={copied ? "Copied!" : "Copy HTML"}
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
-          <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy HTML'}</span>
+          {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
         </Button>
 
         <Button
           variant="outline"
+          size="icon"
           onClick={onSendTest}
-          className="h-10"
+          className="h-10 w-10"
+          title="Send Test Email"
         >
-          <SendHorizontal className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Send Test</span>
+          <SendHorizontal className="w-4 h-4" />
         </Button>
 
         <Button
           variant="primary"
+          size="icon"
           onClick={onDownload}
           isLoading={isExporting}
-          className="h-10 min-w-[100px]"
+          className="h-10 w-10"
+          title="Export Template File"
         >
-          <Download className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Export</span>
+          <Download className="w-4 h-4" />
         </Button>
       </div>
 

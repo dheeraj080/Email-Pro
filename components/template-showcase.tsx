@@ -70,7 +70,7 @@ const OFFICIAL_REACT_EMAIL_METRICS: Record<string, {
     type: 'official'
   },
   'welcome-v2': {
-    name: 'Studio / Welcome Core',
+    name: 'Email.Pro / Welcome Core',
     category: 'Official',
     readTime: '2m read',
     type: 'official'

@@ -137,7 +137,7 @@ export async function exportToHTML(code: string, language?: string, templateId?:
 
   // Check localStorage for static preset templates
   if (templateId && typeof window !== 'undefined') {
-    const localKey = `email_studio_preview_${templateId}_${code.length}`;
+    const localKey = `email_pro_preview_${templateId}_${code.length}`;
     try {
       const cachedHTML = localStorage.getItem(localKey);
       if (cachedHTML) {
@@ -176,7 +176,7 @@ export async function exportToHTML(code: string, language?: string, templateId?:
     
     // Save to localStorage for persistence across app loads
     if (templateId && typeof window !== 'undefined') {
-      const localKey = `email_studio_preview_${templateId}_${code.length}`;
+      const localKey = `email_pro_preview_${templateId}_${code.length}`;
       try {
         localStorage.setItem(localKey, data.html);
       } catch (e) {

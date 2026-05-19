@@ -33,9 +33,9 @@ export function useEmailEditor(initialTemplate?: Template) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    const savedTemplates = localStorage.getItem('email_studio_templates');
-    const savedActiveId = localStorage.getItem('email_studio_active_template_id');
-    const savedHistory = localStorage.getItem('email_studio_history');
+    const savedTemplates = localStorage.getItem('email_pro_templates');
+    const savedActiveId = localStorage.getItem('email_pro_active_template_id');
+    const savedHistory = localStorage.getItem('email_pro_history');
 
     if (savedTemplates) {
       try {
@@ -74,10 +74,10 @@ export function useEmailEditor(initialTemplate?: Template) {
 
     const timeout = setTimeout(() => {
       if (typeof window !== 'undefined') {
-        localStorage.setItem('email_studio_templates', JSON.stringify(templates.map(t => 
+        localStorage.setItem('email_pro_templates', JSON.stringify(templates.map(t => 
           t.id === activeTemplate.id ? { ...t, code } : t
         )));
-        localStorage.setItem('email_studio_active_template_id', activeTemplate.id);
+        localStorage.setItem('email_pro_active_template_id', activeTemplate.id);
         setLastSaved(Date.now());
       }
     }, 1000);
@@ -89,7 +89,7 @@ export function useEmailEditor(initialTemplate?: Template) {
   useEffect(() => {
     if (!mounted) return;
     if (typeof window !== 'undefined') {
-      localStorage.setItem('email_studio_history', JSON.stringify(history));
+      localStorage.setItem('email_pro_history', JSON.stringify(history));
     }
   }, [history, mounted]);
 
@@ -205,9 +205,9 @@ export function useEmailEditor(initialTemplate?: Template) {
 
   const handleReset = () => {
     if (window.confirm('This will reset all templates and delete your drafts. Are you sure?')) {
-      localStorage.removeItem('email_studio_templates');
-      localStorage.removeItem('email_studio_active_template_id');
-      localStorage.removeItem('email_studio_history');
+      localStorage.removeItem('email_pro_templates');
+      localStorage.removeItem('email_pro_active_template_id');
+      localStorage.removeItem('email_pro_history');
       window.location.reload();
     }
   };

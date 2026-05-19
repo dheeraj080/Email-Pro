@@ -107,113 +107,6 @@ export const PreviewContent = React.memo(function PreviewContent({
 
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="h-10 border-b border-ink-black-100 bg-alabaster-grey-50 px-4 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Eye className="w-3.5 h-3.5 text-ink-black-400" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ink-black-400">Preview</span>
-          </div>
-          <div className="flex bg-white border border-ink-black-100 rounded-lg p-0.5 shadow-sm">
-            <button
-              onClick={() => setPreviewTab('design')}
-              className={cn(
-                "px-3 py-0.5 rounded text-[9px] font-bold transition-all",
-                previewTab === 'design' ? "bg-ink-black-900 text-white shadow-sm" : "text-ink-black-400 hover:text-ink-black-600"
-              )}
-            >
-              DESIGN
-            </button>
-            <button
-              onClick={() => setPreviewTab('html')}
-              className={cn(
-                "px-3 py-0.5 rounded text-[9px] font-bold transition-all",
-                previewTab === 'html' ? "bg-ink-black-900 text-white shadow-sm" : "text-ink-black-400 hover:text-ink-black-600"
-              )}
-            >
-              HTML
-            </button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="relative" ref={presetsRef}>
-            <button 
-              onClick={() => setShowPresets(!showPresets)}
-              className={cn(
-                "flex items-center gap-2 px-2 py-1 rounded-lg border border-ink-black-100 shadow-sm text-ink-black-600 hover:bg-alabaster-grey-50 transition-all",
-                showPresets && "bg-alabaster-grey-50 ring-2 ring-powder-blue-500/20"
-              )}
-            >
-              <Smartphone className="w-3 h-3" />
-              <span className="text-[9px] font-bold">DEVICES</span>
-              <ChevronDown className={cn("w-3 h-3 transition-transform", showPresets && "rotate-180")} />
-            </button>
-
-            <AnimatePresence>
-              {showPresets && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                  className="absolute top-full right-0 mt-2 w-48 bg-white border border-ink-black-100 rounded-xl shadow-2xl z-[100] overflow-hidden"
-                >
-                  <div className="p-1">
-                    {DEVICE_PRESETS.map((preset) => (
-                      <button
-                        key={preset.name}
-                        onClick={() => {
-                          setCustomDimensions({ width: preset.width, height: preset.height });
-                          setShowPresets(false);
-                        }}
-                        className="w-full flex items-center justify-between px-3 py-2 hover:bg-alabaster-grey-50 rounded-lg transition-colors group"
-                      >
-                        <div className="flex items-center gap-3">
-                          <preset.icon className="w-3.5 h-3.5 text-ink-black-400 group-hover:text-powder-blue-500" />
-                          <span className="text-[10px] font-medium text-ink-black-600 truncate">{preset.name}</span>
-                        </div>
-                        <span className="text-[8px] font-mono text-ink-black-300">{preset.width}×{preset.height}</span>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          <div className="flex bg-white border border-ink-black-100 rounded-lg p-0.5 shadow-sm">
-            <button 
-              onClick={() => { setPreviewMode('mobile'); setCustomDimensions(null); }}
-              className={cn(
-                "p-1.5 rounded transition-all",
-                previewMode === 'mobile' && !customDimensions ? "bg-alabaster-grey-100 text-ink-black-900" : "text-ink-black-300 hover:text-ink-black-600"
-              )}
-              title="Standard Mobile"
-            >
-              <Smartphone className="w-3.5 h-3.5" />
-            </button>
-            <button 
-              onClick={() => { setPreviewMode('desktop'); setCustomDimensions(null); }}
-              className={cn(
-                "p-1.5 rounded transition-all",
-                previewMode === 'desktop' && !customDimensions ? "bg-alabaster-grey-100 text-ink-black-900" : "text-ink-black-300 hover:text-ink-black-600"
-              )}
-              title="Standard Desktop"
-            >
-              <Monitor className="w-3.5 h-3.5" />
-            </button>
-          </div>
-          {customDimensions && (
-            <button 
-              onClick={() => setCustomDimensions(null)}
-              className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg border border-red-100 transition-colors"
-              title="Reset View"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-      </div>
-
       <div className="flex-1 bg-alabaster-grey-100 relative overflow-hidden flex flex-col">
         {error && (
           <div className="absolute inset-0 z-50 flex items-center justify-center p-8 bg-white/80 backdrop-blur-sm">
@@ -281,12 +174,6 @@ export const PreviewContent = React.memo(function PreviewContent({
             </div>
           </div>
 
-          {customDimensions && (
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-ink-black-900 text-white px-3 py-1 rounded-full text-[9px] font-mono shadow-lg border border-white/10 z-50">
-              {Math.round(customDimensions.width)} × {Math.round(customDimensions.height)}
-            </div>
-          )}
-
           <AnimatePresence>
             {isRendering && (
               <motion.div 
@@ -300,6 +187,124 @@ export const PreviewContent = React.memo(function PreviewContent({
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Bottom Status Bar */}
+      <div className="h-8 border-t border-ink-black-100/80 bg-white px-3 flex items-center justify-between shrink-0 select-none">
+        <div className="flex items-center gap-3">
+          <div className="flex bg-alabaster-grey-100 border border-ink-black-100/80 rounded-md p-0.5 shadow-sm">
+            <button
+              onClick={() => setPreviewTab('design')}
+              className={cn(
+                "px-2.5 py-0.5 rounded text-[9px] font-bold transition-all",
+                previewTab === 'design' 
+                  ? "bg-white text-ink-black-900 shadow-sm border border-ink-black-100/50" 
+                  : "text-ink-black-400 hover:text-ink-black-600"
+              )}
+            >
+              DESIGN
+            </button>
+            <button
+              onClick={() => setPreviewTab('html')}
+              className={cn(
+                "px-2.5 py-0.5 rounded text-[9px] font-bold transition-all",
+                previewTab === 'html' 
+                  ? "bg-white text-ink-black-900 shadow-sm border border-ink-black-100/50" 
+                  : "text-ink-black-400 hover:text-ink-black-600"
+              )}
+            >
+              HTML
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {customDimensions && (
+            <span className="text-[10px] font-mono text-ink-black-400">
+              {Math.round(customDimensions.width)} × {Math.round(customDimensions.height)}
+            </span>
+          )}
+
+          <div className="relative" ref={presetsRef}>
+            <button 
+              onClick={() => setShowPresets(!showPresets)}
+              className={cn(
+                "flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold text-ink-black-500 hover:text-ink-black-900 transition-colors bg-transparent",
+                showPresets && "text-ink-black-950 bg-ink-black-50"
+              )}
+              title="Select device size presets"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-ink-black-400" />
+              <span>Devices</span>
+              <ChevronDown className={cn("w-3 h-3 transition-transform text-ink-black-400", showPresets && "rotate-180")} />
+            </button>
+
+            <AnimatePresence>
+              {showPresets && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                  className="absolute bottom-full right-0 mb-1.5 w-48 bg-white border border-ink-black-100 rounded-xl shadow-2xl z-[100] overflow-hidden"
+                >
+                  <div className="p-1">
+                    {DEVICE_PRESETS.map((preset) => (
+                      <button
+                        key={preset.name}
+                        onClick={() => {
+                          setCustomDimensions({ width: preset.width, height: preset.height });
+                          setShowPresets(false);
+                        }}
+                        className="w-full flex items-center justify-between px-3 py-2 hover:bg-alabaster-grey-50 rounded-lg transition-colors group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <preset.icon className="w-3.5 h-3.5 text-ink-black-400 group-hover:text-powder-blue-500" />
+                          <span className="text-[10px] font-medium text-ink-black-600 truncate">{preset.name}</span>
+                        </div>
+                        <span className="text-[8px] font-mono text-ink-black-300">{preset.width}×{preset.height}</span>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="h-3 w-[1px] bg-ink-black-100" />
+
+          <div className="flex items-center bg-alabaster-grey-100 border border-ink-black-100/80 rounded-md p-0.5 shadow-sm">
+            <button 
+              onClick={() => { setPreviewMode('mobile'); setCustomDimensions(null); }}
+              className={cn(
+                "p-1 rounded transition-all",
+                previewMode === 'mobile' && !customDimensions ? "bg-white text-ink-black-900 shadow-sm border border-ink-black-100/50" : "text-ink-black-300 hover:text-ink-black-600"
+              )}
+              title="Standard Mobile Viewport"
+            >
+              <Smartphone className="w-3 h-3" />
+            </button>
+            <button 
+              onClick={() => { setPreviewMode('desktop'); setCustomDimensions(null); }}
+              className={cn(
+                "p-1 rounded transition-all",
+                previewMode === 'desktop' && !customDimensions ? "bg-white text-ink-black-900 shadow-sm border border-ink-black-100/50" : "text-ink-black-300 hover:text-ink-black-600"
+              )}
+              title="Standard Desktop Viewport"
+            >
+              <Monitor className="w-3 h-3" />
+            </button>
+          </div>
+
+          {customDimensions && (
+            <button 
+              onClick={() => setCustomDimensions(null)}
+              className="p-1 text-red-500 hover:bg-red-50 rounded-md border border-red-150 transition-colors"
+              title="Reset view back to standard viewport"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          )}
         </div>
       </div>
     </div>

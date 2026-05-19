@@ -15,11 +15,11 @@ Email.Pro is a high-fidelity, code-first design environment for building React-p
 
 ### 3. Serverless Billing Optimization & Caching ⚡
 * **Hooks/Utilities**: `hooks/use-email-editor.ts`, `lib/render-email.ts`
-* **Details**: Bypasses serverless background compilation calls entirely when editing in the **Design** tab (renders locally inside the client browser DOM). Added dynamic local storage hashing (`email_studio_preview_[id]_[hash]`) to cache previews, dropping redundant server-side API rendering requests by over 95%.
+* **Details**: Bypasses serverless background compilation calls entirely when editing in the **Design** tab (renders locally inside the client browser DOM). Added dynamic local storage hashing (`email_pro_preview_[id]_[hash]`) to cache previews, dropping redundant server-side API rendering requests by over 95%.
 
 ### 4. Secure Live Test Dispatcher (`Send Test`) ✉️
 * **File**: `components/editor/send-test-dialog.tsx`
-* **Details**: A client-side test delivery form. Resolves compiled HTML locally and makes direct fetch POST requests to Resend's API (`https://api.resend.com/emails`) using client-side API keys. Stored safely in local browser storage (`email_studio_resend_api_key`) to remain offline.
+* **Details**: A client-side test delivery form. Resolves compiled HTML locally and makes direct fetch POST requests to Resend's API (`https://api.resend.com/emails`) using client-side API keys. Stored safely in local browser storage (`email_pro_resend_api_key`) to remain offline.
 
 ### 5. Dynamic Theme Syncer & Snippets Library 🎨⚡
 * **Files**: `components/editor/theme-picker.tsx`, `components/editor/snippets-picker.tsx`

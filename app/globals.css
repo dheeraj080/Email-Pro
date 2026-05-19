@@ -168,14 +168,6 @@ code[class*="language-"] {
   background: #94a3b8 !important;
 }
 
-/* Global Cursor Overrides */
-html, body {
-  cursor: auto !important;
-}
-
-button, a, [role="button"], .cursor-pointer {
-  cursor: pointer !important;
-}
 
 /* Firefox Support */
 * {

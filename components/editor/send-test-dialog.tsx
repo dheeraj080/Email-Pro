@@ -25,8 +25,8 @@ export function SendTestDialog({ isOpen, onClose, code, templateName }: SendTest
   // Load API Key and email from LocalStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedApiKey = localStorage.getItem('email_studio_resend_api_key');
-      const savedToEmail = localStorage.getItem('email_studio_test_to_email');
+      const savedApiKey = localStorage.getItem('email_pro_resend_api_key');
+      const savedToEmail = localStorage.getItem('email_pro_test_to_email');
       if (savedApiKey) setApiKey(savedApiKey);
       if (savedToEmail) setToEmail(savedToEmail);
     }
@@ -52,8 +52,8 @@ export function SendTestDialog({ isOpen, onClose, code, templateName }: SendTest
       const html = await exportToHTML(code);
 
       // Save credentials locally for developer convenience
-      localStorage.setItem('email_studio_resend_api_key', apiKey);
-      localStorage.setItem('email_studio_test_to_email', toEmail);
+      localStorage.setItem('email_pro_resend_api_key', apiKey);
+      localStorage.setItem('email_pro_test_to_email', toEmail);
 
       // 2. Post directly to Resend's API
       const response = await fetch('https://api.resend.com/emails', {
