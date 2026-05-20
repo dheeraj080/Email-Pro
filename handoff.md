@@ -39,6 +39,12 @@ Email.Pro is a high-fidelity, code-first design environment for building React-p
 * **File**: `components/editor/preview-content.tsx`
 * **Details**: The email preview body was previously rendered as a direct React child of the editor DOM, causing host page CSS (media queries, Tailwind utilities, global styles) to bleed into the preview and clip wide emails at large mobile/tablet viewport sizes. The preview is now rendered inside a dedicated `<Frame>` component, which uses `react-dom`'s `createPortal` to mount the component tree into an isolated `<iframe>` document. This gives every preview its own fully clean CSS scope — large-mobile (412px Pixel 7, etc.) templates now render without any clipping from the parent app's responsive breakpoints.
 
+### 8. Modular Templates & Premium Stripe/Linear Redesigns 🎨⚡
+* **Files**: `lib/templates.ts`, `lib/templates/*.ts`
+* **Details**:
+  * **Modular Architecture**: Decoupled the giant, single-file `lib/templates.ts` into a modular design repository. Each template (Welcome, Reset Password, Order Receipt, Newsletter, etc.) now lives in its own dedicated, clean file under `lib/templates/welcome.ts`, etc.
+  * **Premium Redesigns**: Completely overhauled the default presets with gorgeous, high-polish designs inspired by Stripe, Linear, and Vercel. Added custom `#f4f4f5` background wrappers, drop shadows, responsive table-column grids, and modern layout cards with visual badges and emojis.
+
 ## Tech Stack
 * **Framework**: Next.js 15+ (App Router)
 * **Styling**: Tailwind CSS v4
