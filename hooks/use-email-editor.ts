@@ -18,7 +18,7 @@ export function useEmailEditor(initialTemplate?: Template) {
   const [customDimensions, setCustomDimensions] = useState<{ width: number; height: number } | null>(null);
   const [view, setView] = useState<'split' | 'editor' | 'preview' | 'analytics'>('split');
   const [language, setLanguage] = useState<'typescript' | 'javascript' | 'html'>('typescript');
-  const [previewTab, setPreviewTab] = useState<'design' | 'html'>('design');
+  const [previewTab, setPreviewTab] = useState<'design' | 'html' | 'json'>('design');
   const [isRendering, setIsRendering] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [metrics, setMetrics] = useState<EmailMetrics | null>(null);

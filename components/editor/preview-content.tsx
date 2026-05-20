@@ -14,7 +14,10 @@ import {
   Globe,
   HelpCircle,
   CheckCircle,
-  Settings
+  Settings,
+  Copy,
+  Check,
+  FileJson
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -82,14 +85,16 @@ interface PreviewContentProps {
   previewComponent: React.ReactNode;
   previewMode: 'desktop' | 'mobile';
   setPreviewMode: (mode: 'desktop' | 'mobile') => void;
-  previewTab: 'design' | 'html';
-  setPreviewTab: (tab: 'design' | 'html') => void;
+  previewTab: 'design' | 'html' | 'json';
+  setPreviewTab: (tab: 'design' | 'html' | 'json') => void;
   customDimensions: { width: number; height: number } | null;
   setCustomDimensions: (dims: { width: number; height: number } | null) => void;
   isRendering: boolean;
   error: string | null;
   isSplit: boolean;
   onResize: (e: React.MouseEvent, direction: string) => void;
+  activeTemplate: any;
+  currentCode: string;
 }
 
 const DEVICE_PRESETS = [
@@ -114,11 +119,37 @@ export const PreviewContent = React.memo(function PreviewContent({
   isRendering,
   error,
   isSplit,
-  onResize
+  onResize,
+  activeTemplate,
+  currentCode
 }: PreviewContentProps) {
   const [showPresets, setShowPresets] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
   const presetsRef = React.useRef<HTMLDivElement>(null);
+  
+  const [copiedHtml, setCopiedHtml] = React.useState(false);
+  const [copiedJson, setCopiedJson] = React.useState(false);
+
+  const handleCopyHtml = () => {
+    navigator.clipboard.writeText(previewHtml);
+    setCopiedHtml(true);
+    setTimeout(() => setCopiedHtml(false), 2000);
+  };
+
+  const jsonCode = React.useMemo(() => {
+    return JSON.stringify({
+      id: activeTemplate?.id || 'custom-template',
+      name: activeTemplate?.name || 'Custom Template',
+      language: activeTemplate?.language || 'typescript',
+      code: currentCode
+    }, null, 2);
+  }, [activeTemplate, currentCode]);
+
+  const handleCopyJson = () => {
+    navigator.clipboard.writeText(jsonCode);
+    setCopiedJson(true);
+    setTimeout(() => setCopiedJson(false), 2000);
+  };
 
   React.useEffect(() => {
     setIsMounted(true);
@@ -264,16 +295,59 @@ export const PreviewContent = React.memo(function PreviewContent({
                   <ResizeHandle direction="se" />
                   <ResizeHandle direction="sw" />
                 </div>
-              ) : (
+              ) : previewTab === 'html' ? (
                 /* Raw HTML Code Output Display Panel */
                 <div className="w-full h-full bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-xs flex flex-col">
-                  <div className="h-9.5 bg-neutral-50/80 border-b border-neutral-200/50 px-4 flex items-center justify-between shrink-0 select-none">
+                  <div className="h-10 bg-neutral-50/80 border-b border-neutral-200/50 px-4 flex items-center justify-between shrink-0 select-none">
                     <span className="text-[9px] font-black text-neutral-400 uppercase tracking-wider">compiled-output.html</span>
-                    <span className="text-[8px] font-mono text-neutral-400/80">Read-Only</span>
+                    <button
+                      onClick={handleCopyHtml}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold text-neutral-500 hover:text-neutral-905 hover:bg-neutral-50 transition-all bg-white border border-neutral-200/60 shadow-3xs"
+                    >
+                      {copiedHtml ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-500" />
+                          <span className="text-emerald-600">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>Copy HTML</span>
+                        </>
+                      )}
+                    </button>
                   </div>
-                  <div className="flex-1 p-6 overflow-auto custom-scrollbar">
-                    <pre className="text-[10px] font-mono leading-relaxed text-neutral-600 bg-neutral-50/50 p-5 rounded-xl border border-neutral-200/50 whitespace-pre-wrap">
+                  <div className="flex-1 p-6 overflow-auto custom-scrollbar bg-neutral-50/20">
+                    <pre className="text-[10px] font-mono leading-relaxed text-neutral-600 bg-white p-5 rounded-xl border border-neutral-200/50 whitespace-pre-wrap select-text selection:bg-indigo-100">
                       {previewHtml}
+                    </pre>
+                  </div>
+                </div>
+              ) : (
+                /* JSON Configuration Output Display Panel */
+                <div className="w-full h-full bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-xs flex flex-col">
+                  <div className="h-10 bg-neutral-50/80 border-b border-neutral-200/50 px-4 flex items-center justify-between shrink-0 select-none">
+                    <span className="text-[9px] font-black text-neutral-400 uppercase tracking-wider">configuration.json</span>
+                    <button
+                      onClick={handleCopyJson}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold text-neutral-500 hover:text-neutral-905 hover:bg-neutral-50 transition-all bg-white border border-neutral-200/60 shadow-3xs"
+                    >
+                      {copiedJson ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-500" />
+                          <span className="text-emerald-600">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>Copy JSON</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="flex-1 p-6 overflow-auto custom-scrollbar bg-neutral-50/20">
+                    <pre className="text-[10px] font-mono leading-relaxed text-neutral-600 bg-white p-5 rounded-xl border border-neutral-200/50 whitespace-pre-wrap select-text selection:bg-indigo-100">
+                      {jsonCode}
                     </pre>
                   </div>
                 </div>
@@ -322,6 +396,17 @@ export const PreviewContent = React.memo(function PreviewContent({
               )}
             >
               HTML
+            </button>
+            <button
+              onClick={() => setPreviewTab('json')}
+              className={cn(
+                "px-2.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider transition-all",
+                previewTab === 'json' 
+                  ? "bg-white text-neutral-900 shadow-2xs border border-neutral-200/50" 
+                  : "text-neutral-400 hover:text-neutral-600"
+              )}
+            >
+              JSON
             </button>
           </div>
         </div>

@@ -45,6 +45,12 @@ Email.Pro is a high-fidelity, code-first design environment for building React-p
   * **Modular Architecture**: Decoupled the giant, single-file `lib/templates.ts` into a modular design repository. Each template (Welcome, Reset Password, Order Receipt, Newsletter, etc.) now lives in its own dedicated, clean file under `lib/templates/welcome.ts`, etc.
   * **Premium Redesigns**: Completely overhauled the default presets with gorgeous, high-polish designs inspired by Stripe, Linear, and Vercel. Added custom `#f4f4f5` background wrappers, drop shadows, responsive table-column grids, and modern layout cards with visual badges and emojis.
 
+### 9. Multi-Output Viewer & Direct Copy Actions 📑✂️
+* **Files**: `components/editor/preview-content.tsx`, `components/email-editor.tsx`, `hooks/use-email-editor.ts`
+* **Details**:
+  * **Dual Output Viewers**: Extended the preview panel tabs to render the live rendered **HTML** output code block alongside a fully formatted **JSON** template configuration block (which wraps the current active code state, metadata, and language).
+  * **Actionable Copy buttons**: Integrated gorgeous floating "Copy HTML" and "Copy JSON" action buttons in the headers of their respective view displays. Built-in interactive micro-animations swap copy icons with green success checkmarks (`Copied!`) and handle clipboard operations dynamically.
+
 ## Tech Stack
 * **Framework**: Next.js 15+ (App Router)
 * **Styling**: Tailwind CSS v4

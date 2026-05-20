@@ -239,6 +239,8 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
                 error={error}
                 isSplit={false}
                 onResize={handleResize}
+                activeTemplate={activeTemplate}
+                currentCode={code}
               />
             ) : (
               <Group orientation="horizontal">
@@ -269,6 +271,8 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
                         error={error}
                         isSplit={true}
                         onResize={handleResize}
+                        activeTemplate={activeTemplate}
+                        currentCode={code}
                       />
                     </div>
                     {!isHistoryCollapsed && (
