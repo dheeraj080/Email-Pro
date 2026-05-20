@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  FilePlus2, 
-  LayoutGrid, 
+import {
+  LayoutGrid,
   ChevronRight,
   Search,
-  Check
+  Check,
+  FileCode,
+  Plus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -22,127 +23,151 @@ interface TemplateSidebarProps {
   onToggleCollapse: () => void;
 }
 
-export const TemplateSidebar = React.memo(function TemplateSidebar({ 
-  templates, 
-  activeTemplate, 
-  onTemplateChange, 
-  onCreateTemplate, 
-  isCollapsed, 
+export const TemplateSidebar = React.memo(function TemplateSidebar({
+  templates,
+  activeTemplate,
+  onTemplateChange,
+  onCreateTemplate,
+  isCollapsed,
 }: TemplateSidebarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSectionCollapsed, setIsSectionCollapsed] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
-  const filteredTemplates = templates.filter(t => 
+  const filteredTemplates = templates.filter(t =>
     t.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const displayTemplates = (searchQuery || showAll) 
-    ? filteredTemplates 
+  const displayTemplates = (searchQuery || showAll)
+    ? filteredTemplates
     : filteredTemplates.filter(t => t.id === activeTemplate.id);
 
   if (isCollapsed) return null;
 
   return (
-    <div className="w-64 p-5 space-y-8 shrink-0 overflow-y-auto custom-scrollbar border-r border-ink-black-100 bg-white">
-      <Input 
-        placeholder="Filter templates..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        icon={<Search className="w-4 h-4" />}
-        className="h-10 shadow-sm"
-      />
-
-      <section className="space-y-5">
-        <div 
-          className="flex items-center justify-between px-1 cursor-pointer group/header"
-          onClick={() => setIsSectionCollapsed(!isSectionCollapsed)}
-        >
-          <div className="flex items-center gap-2">
-            <motion.div 
-              animate={{ rotate: isSectionCollapsed ? 0 : 90 }}
-              className="text-ink-black-300"
-            >
-              <ChevronRight className="w-3.5 h-3.5" />
-            </motion.div>
-            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-ink-black-400">Campaign Templates</h3>
-          </div>
-          <div className="flex items-center gap-1 opacity-0 group-hover/header:opacity-100 transition-all">
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                onCreateTemplate();
-              }}
-              className="p-1.5 hover:bg-alabaster-grey-200 rounded-xl transition-colors text-ink-black-400 hover:text-ink-black-900"
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-            </button>
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                onCreateTemplate();
-              }}
-              className="p-1.5 hover:bg-alabaster-grey-200 rounded-xl transition-colors text-powder-blue-600"
-            >
-              <FilePlus2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
+    <div className="w-64 p-5 space-y-6 shrink-0 overflow-y-auto custom-scrollbar border-r border-neutral-200/50 bg-[#FAFAFA] flex flex-col justify-between h-full">
+      <div className="space-y-6">
+        <div className="relative">
+          <Input
+            placeholder="Search templates..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            icon={<Search className="w-4 h-4 text-neutral-400" />}
+            className="h-9.5 bg-white rounded-xl border-neutral-200/60 focus-visible:ring-neutral-200 placeholder-neutral-400 text-xs text-neutral-800 pl-9.5 shadow-2xs"
+          />
         </div>
-        
-        <AnimatePresence>
-          {!isSectionCollapsed && (
-            <motion.div 
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="space-y-1.5 overflow-hidden"
-            >
-              {displayTemplates.map((template) => (
-                <button
-                  key={template.id}
-                  onClick={() => onTemplateChange(template)}
-                  className={cn(
-                    "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-all group relative",
-                    activeTemplate.id === template.id 
-                      ? "bg-white border-ink-black-100 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border" 
-                      : "hover:bg-alabaster-grey-100 text-ink-black-600 border border-transparent"
-                  )}
-                >
-                  <div className="relative flex-shrink-0">
-                    <div className={cn(
-                      "w-2.5 h-2.5 rounded-full transition-all border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.05)]",
-                      activeTemplate.id === template.id ? "bg-powder-blue-500 scale-110" : "bg-ink-black-100 group-hover:bg-ink-black-200"
-                    )} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className={cn(
-                      "text-xs font-bold truncate transition-colors",
-                      activeTemplate.id === template.id ? "text-ink-black-900" : "text-ink-black-500 group-hover:text-ink-black-700"
-                    )}>
-                      {template.name}
-                    </div>
-                  </div>
-                  <div className={cn(
-                    "transition-all duration-300",
-                    activeTemplate.id === template.id ? "text-powder-blue-500 opacity-100 scale-100" : "opacity-0 scale-50 group-hover:opacity-30 group-hover:scale-75"
-                  )}>
-                    <Check className="w-3.5 h-3.5" />
-                  </div>
-                </button>
-              ))}
 
-              {!searchQuery && filteredTemplates.length > 1 && (
-                <button
-                  onClick={() => setShowAll(!showAll)}
-                  className="w-full text-[10px] font-bold text-ink-black-400 hover:text-ink-black-900 py-2 transition-colors uppercase tracking-wider mt-2"
-                >
-                  {showAll ? 'Show Less' : `View ${filteredTemplates.length - 1} Other Templates`}
-                </button>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </section>
+        <section className="space-y-4">
+          <div
+            className="flex items-center justify-between px-1 cursor-pointer group/header"
+            onClick={() => setIsSectionCollapsed(!isSectionCollapsed)}
+          >
+            <div className="flex items-center gap-2">
+              <motion.div
+                animate={{ rotate: isSectionCollapsed ? 0 : 90 }}
+                className="text-neutral-400"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </motion.div>
+              <h3 className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Templates</h3>
+            </div>
+
+            {/* 
+              Removed opacity-0 and group-hover classes so these buttons are always visible.
+              The Plus button has the hover background removed as requested.
+            */}
+            <div className="flex items-center gap-1 transition-all">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCreateTemplate();
+                }}
+                className="p-1 hover:bg-neutral-200/60 rounded-lg transition-colors text-neutral-400 hover:text-neutral-800"
+                title="Templates Catalog"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCreateTemplate();
+                }}
+                className="p-1 text-neutral-600 transition-colors hover:text-neutral-900"
+                title="Create Template"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {!isSectionCollapsed && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="space-y-1 overflow-hidden"
+              >
+                {displayTemplates.map((template) => {
+                  const isHtml = template.language === 'html';
+                  return (
+                    <button
+                      key={template.id}
+                      onClick={() => onTemplateChange(template)}
+                      className={cn(
+                        "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all group relative border",
+                        activeTemplate.id === template.id
+                          ? "bg-white border-neutral-200/80 shadow-2xs text-neutral-900 font-bold"
+                          : "bg-transparent hover:bg-neutral-200/40 text-neutral-500 hover:text-neutral-800 border-transparent"
+                      )}
+                    >
+                      <div className="relative flex-shrink-0">
+                        <FileCode className={cn(
+                          "w-4 h-4 transition-colors",
+                          activeTemplate.id === template.id
+                            ? (isHtml ? "text-amber-500" : "text-indigo-500")
+                            : "text-neutral-400 group-hover:text-neutral-600"
+                        )} />
+                      </div>
+                      <div className="flex-1 min-w-0 flex items-baseline justify-between gap-1.5">
+                        <span className="text-xs truncate">
+                          {template.name}
+                        </span>
+                        <span className="text-[8px] font-mono text-neutral-400/80 uppercase font-black tracking-wider shrink-0 select-none">
+                          {isHtml ? '.html' : '.tsx'}
+                        </span>
+                      </div>
+                      {activeTemplate.id === template.id && (
+                        <div className="text-emerald-500">
+                          <Check className="w-3 h-3" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+
+                {!searchQuery && filteredTemplates.length > 1 && (
+                  <button
+                    onClick={() => setShowAll(!showAll)}
+                    className="w-full text-[9px] font-black text-neutral-400 hover:text-neutral-800 py-2.5 transition-colors uppercase tracking-wider text-center"
+                  >
+                    {showAll ? 'Show Less' : `View ${filteredTemplates.length - 1} Other Files`}
+                  </button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </section>
+      </div>
+
+      <div className="bg-white border border-neutral-200/60 rounded-xl p-3.5 space-y-2.5 shadow-2xs select-none">
+        <div className="flex items-center gap-1.5 text-[8px] font-black uppercase tracking-wider text-neutral-400">
+          <FileCode className="w-3 h-3 text-neutral-400" /> workspace engine
+        </div>
+        <p className="text-[9px] text-neutral-400/90 font-medium leading-relaxed">
+          Files are kept locally. Save changes to trigger automatic compilation checks.
+        </p>
+      </div>
     </div>
   );
 });

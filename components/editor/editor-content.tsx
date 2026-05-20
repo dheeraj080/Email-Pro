@@ -123,7 +123,7 @@ export const EditorContent = memo(function EditorContent({
 
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="flex-1 min-h-0 relative overflow-hidden group/editor">
+      <div className="flex-1 min-h-0 relative overflow-hidden group/editor border-b border-neutral-200/50">
         <Editor
           height="100%"
           defaultLanguage={language}
@@ -134,17 +134,17 @@ export const EditorContent = memo(function EditorContent({
           onMount={handleEditorDidMount}
           options={{
             minimap: { enabled: false },
-            fontSize: 13,
+            fontSize: 12,
             lineNumbers: 'on',
             scrollBeyondLastLine: false,
-            automaticLayout: false, // Turned off in favor of ResizeObserver
-            padding: { top: 20, bottom: 20 },
+            automaticLayout: false,
+            padding: { top: 16, bottom: 16 },
             fontFamily: 'var(--font-mono)',
             fontWeight: '500',
             cursorBlinking: 'smooth',
             cursorSmoothCaretAnimation: 'on',
             smoothScrolling: true,
-            wordWrap: 'off', // Performance optimization for large content
+            wordWrap: 'off',
             bracketPairColorization: { enabled: true },
             formatOnPaste: true,
             formatOnType: true,
@@ -154,8 +154,8 @@ export const EditorContent = memo(function EditorContent({
               vertical: 'visible',
               horizontal: 'visible',
               useShadows: false,
-              verticalScrollbarSize: 8,
-              horizontalScrollbarSize: 8,
+              verticalScrollbarSize: 7,
+              horizontalScrollbarSize: 7,
               alwaysConsumeMouseWheel: true
             },
             experimental: {
@@ -167,22 +167,22 @@ export const EditorContent = memo(function EditorContent({
       </div>
 
       {/* Bottom Status Bar */}
-      <div className="h-8 border-t border-ink-black-100/80 bg-white px-3 flex items-center justify-between shrink-0 select-none">
+      <div className="h-9.5 border-t border-neutral-200/80 bg-white px-4 flex items-center justify-between shrink-0 select-none">
         <div className="flex items-center gap-3">
-          <div className="flex bg-alabaster-grey-100 border border-ink-black-100/80 rounded-md p-0.5 shadow-sm">
+          <div className="flex bg-neutral-100 border border-neutral-200/60 rounded-lg p-0.5 shadow-2xs">
             {[
-              { id: 'typescript', label: 'TS' },
-              { id: 'javascript', label: 'JS' },
+              { id: 'typescript', label: 'TSX' },
+              { id: 'javascript', label: 'JSX' },
               { id: 'html', label: 'HTML' }
             ].map((lang) => (
               <button
                 key={lang.id}
                 onClick={() => onLanguageChange(lang.id as any)}
                 className={cn(
-                  "px-2 py-0.5 rounded text-[9px] font-bold transition-all",
+                  "px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider transition-all",
                   language === lang.id 
-                    ? "bg-white text-ink-black-900 shadow-sm border border-ink-black-100/50" 
-                    : "text-ink-black-400 hover:text-ink-black-600"
+                    ? "bg-white text-neutral-900 shadow-2xs border border-neutral-200/50" 
+                    : "text-neutral-400 hover:text-neutral-600"
                 )}
               >
                 {lang.label}
@@ -190,27 +190,27 @@ export const EditorContent = memo(function EditorContent({
             ))}
           </div>
 
-          <div className="h-3 w-[1px] bg-ink-black-100" />
+          <div className="h-4 w-[1px] bg-neutral-200" />
 
           <button 
             onClick={handleFormatCode}
-            className="flex items-center gap-1 text-[10px] font-semibold text-ink-black-500 hover:text-ink-black-900 transition-colors"
+            className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-neutral-500 hover:text-neutral-800 transition-colors"
             title="Format Code (Alt+Shift+F)"
           >
-            <Sparkles className="w-3 h-3 text-ink-black-400" />
+            <Sparkles className="w-3.5 h-3.5 text-neutral-400" />
             <span>Format</span>
           </button>
 
           <button 
             onClick={onToggleHistory}
             className={cn(
-              "flex items-center gap-1 text-[10px] font-semibold transition-colors",
+              "flex items-center gap-1 text-[9px] font-black uppercase tracking-wider transition-colors",
               !isHistoryCollapsed 
-                ? "text-powder-blue-600 font-bold" 
-                : "text-ink-black-500 hover:text-ink-black-900"
+                ? "text-indigo-600 font-extrabold" 
+                : "text-neutral-500 hover:text-neutral-800"
             )}
           >
-            <History className={cn("w-3 h-3", !isHistoryCollapsed ? "text-powder-blue-600" : "text-ink-black-400")} />
+            <History className={cn("w-3.5 h-3.5", !isHistoryCollapsed ? "text-indigo-600" : "text-neutral-400")} />
             <span>History</span>
           </button>
         </div>

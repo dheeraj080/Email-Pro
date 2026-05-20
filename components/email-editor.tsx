@@ -134,31 +134,42 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
   }
 
   return (
-    <div className="flex flex-col h-screen bg-white text-ink-black-900 overflow-hidden font-sans">
-      <header className="h-14 bg-white border-b border-ink-black-100 flex items-center justify-between px-6 shrink-0 z-20">
-        <div className="flex items-center gap-4">
+    <div className="flex flex-col h-screen bg-[#F8FAF9] text-neutral-900 overflow-hidden font-sans select-none">
+      <header className="h-16 bg-white/95 backdrop-blur-md border-b border-neutral-200/50 flex items-center justify-between px-6 shrink-0 z-20 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
+        <div className="flex items-center gap-3">
           {onBack && (
             <button 
               onClick={onBack}
-              className="p-2 hover:bg-alabaster-grey-100 rounded-lg transition-colors text-ink-black-400 hover:text-ink-black-900 border border-ink-black-100"
+              className="p-2 hover:bg-neutral-50 rounded-xl transition-all text-neutral-400 hover:text-neutral-800 border border-neutral-200/60 shadow-2xs hover:scale-[1.02] active:scale-[0.98]"
               title="Back to Landing Page"
             >
-              <Home className="w-4 h-4" />
+              <Home className="w-3.5 h-3.5" />
             </button>
           )}
           <button 
             onClick={handleToggleSidebar}
-            className="p-2 hover:bg-alabaster-grey-100 rounded-lg transition-colors text-ink-black-400 hover:text-ink-black-900"
+            className="p-2 hover:bg-neutral-50 rounded-xl transition-colors text-neutral-400 hover:text-neutral-800"
             title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
-            {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+            {isSidebarCollapsed ? <PanelLeftOpen className="w-4.5 h-4.5" /> : <PanelLeftClose className="w-4.5 h-4.5" />}
           </button>
-          <div className="h-6 w-[1px] bg-ink-black-100 mx-1" />
-          <div className="w-8 h-8 bg-ink-black-900 rounded-lg flex items-center justify-center text-white font-bold text-xs italic shadow-sm">EP</div>
-          <h1 className="text-sm font-semibold tracking-tight flex items-center">
-            Email Pro <span className="text-ink-black-300 font-normal mx-2">/</span> 
-            <span className="text-powder-blue-600 truncate max-w-[150px]">{activeTemplate.name || 'Untitled'}</span>
-          </h1>
+          
+          <div className="h-5 w-[1px] bg-neutral-200/80 mx-1" />
+          
+          <div className="flex items-center gap-2">
+            <div className="w-7.5 h-7.5 bg-neutral-900 rounded-lg flex items-center justify-center text-white font-bold text-[10px] tracking-tight shadow-sm">
+              EP
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-neutral-900 tracking-tight">Email.Pro</span>
+                <span className="text-neutral-300">/</span>
+                <span className="text-powder-blue-600 bg-powder-blue-50 border border-powder-blue-100/50 px-2 py-0.5 rounded-md font-extrabold text-[9px] uppercase tracking-wider truncate max-w-[150px]">
+                  {activeTemplate.name || 'Untitled'}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center gap-4">
