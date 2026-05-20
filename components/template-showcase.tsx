@@ -115,8 +115,8 @@ function TemplateCard({ template, isActive, onSelect, onZoom, preview, isLoading
         className={cn(
           "aspect-[16/11] bg-white relative overflow-hidden rounded-xl border transition-all duration-300 cursor-pointer",
           isActive 
-            ? "border-slate-900 shadow-sm ring-1 ring-slate-900" 
-            : "border-slate-200/80 hover:border-slate-350 hover:shadow-[0_4px_12px_rgba(0,0,0,0.03)]"
+            ? "border-ink-black-900 shadow-sm ring-1 ring-ink-black-900" 
+            : "border-ink-black-100 hover:border-ink-black-200 hover:shadow-sm"
         )}
       >
         {isLoading ? (
@@ -166,15 +166,15 @@ function TemplateCard({ template, isActive, onSelect, onZoom, preview, isLoading
         </button>
       </div>
 
-      {/* Typography metadata underneath the card - exact react.email/templates style */}
+      {/* Typography metadata underneath the card */}
       <div className="mt-3.5 pl-0.5">
         <h4 
           onClick={() => onSelect(template)}
-          className="font-bold text-[13px] text-slate-800 tracking-tight hover:text-slate-950 transition-colors cursor-pointer"
+          className="font-bold text-[13px] text-ink-black-900 tracking-tight hover:text-ink-black-700 transition-colors cursor-pointer"
         >
           {meta.name}
         </h4>
-        <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">
+        <p className="text-[10px] text-ink-black-500 font-semibold uppercase tracking-wider mt-0.5">
           {meta.category} • {meta.readTime}
         </p>
       </div>
@@ -229,19 +229,19 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-slate-900/30 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-ink-black-950/20 backdrop-blur-md animate-fade-in"
     >
       <motion.div
         initial={{ scale: 0.98, opacity: 0, y: 8 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.98, opacity: 0, y: 8 }}
-        className="bg-[#fcfcfb] w-full max-w-[95vw] xl:max-w-7xl h-full max-h-[92vh] rounded-[32px] shadow-2xl flex flex-col overflow-hidden border border-slate-200/60"
+        className="bg-white w-full max-w-[95vw] xl:max-w-7xl h-full max-h-[92vh] rounded-3xl shadow-xl flex flex-col overflow-hidden border border-ink-black-100"
       >
         {/* Horizontal Navigation Topbar toolbar */}
-        <div className="px-10 py-6 border-b border-slate-200/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#fcfcfb] shrink-0">
+        <div className="px-10 py-6 border-b border-ink-black-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white shrink-0">
           <div>
-            <h3 className="font-extrabold text-[22px] text-slate-900 tracking-tight">Templates</h3>
-            <p className="text-[11px] text-slate-400 font-semibold tracking-wide mt-1">Open source templates built with React Email.</p>
+            <h3 className="font-semibold text-2xl text-ink-black-900 tracking-tight">Templates</h3>
+            <p className="text-[11px] text-ink-black-500 font-semibold tracking-wide mt-1">Open source templates built with React Email.</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -251,31 +251,31 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                 placeholder="Search templates catalog..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                icon={<Search className="w-3.5 h-3.5 text-slate-400" />}
-                className="h-8.5 bg-slate-100 rounded-lg border-slate-200/60 focus-visible:ring-slate-400 text-xs text-slate-700 placeholder-slate-400 pl-8"
+                icon={<Search className="w-3.5 h-3.5 text-ink-black-400" />}
+                className="h-8.5 bg-alabaster-grey-50 rounded-full border-ink-black-100 focus-visible:ring-ink-black-200 text-xs text-ink-black-900 placeholder-ink-black-400 pl-8"
               />
             </div>
 
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full border border-slate-200 hover:border-slate-350 bg-white flex items-center justify-center text-slate-400 hover:text-slate-700 transition-all duration-200"
+              className="w-8 h-8 rounded-full border border-ink-black-100 hover:border-ink-black-200 bg-white flex items-center justify-center text-ink-black-400 hover:text-ink-black-700 transition-all duration-200"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Scrollable Templates Grid grouped like react.email/templates */}
-        <div className="flex-grow overflow-y-auto px-10 py-10 bg-[#f9f9f9]/80 custom-scrollbar space-y-12">
+        {/* Scrollable Templates Grid */}
+        <div className="flex-grow overflow-y-auto px-10 py-10 bg-alabaster-grey-50/30 custom-scrollbar space-y-12">
           
           {/* Section: Official Themes */}
           {officialTemplates.length > 0 && (
             <div className="space-y-6">
-              <div className="flex items-center gap-3 border-b border-slate-200/60 pb-3">
-                <span className="text-[11px] font-black uppercase text-slate-900 tracking-widest flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-slate-700" /> Curated Themes
+              <div className="flex items-center gap-3 border-b border-ink-black-100 pb-3">
+                <span className="text-[11px] font-bold uppercase text-ink-black-900 tracking-widest flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-ink-black-500" /> Curated Themes
                 </span>
-                <span className="text-[9px] text-slate-400 font-bold">({officialTemplates.length})</span>
+                <span className="text-[9px] text-ink-black-400 font-bold">({officialTemplates.length})</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-10">
                 {officialTemplates.map((template) => (
@@ -297,11 +297,11 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
           {/* Section: Brand Recreations */}
           {brandTemplates.length > 0 && (
             <div className="space-y-6 pt-2">
-              <div className="flex items-center gap-3 border-b border-slate-200/60 pb-3">
-                <span className="text-[11px] font-black uppercase text-slate-900 tracking-widest flex items-center gap-1.5">
-                  <Layout className="w-3.5 h-3.5 text-slate-700" /> Brand Recreations
+              <div className="flex items-center gap-3 border-b border-ink-black-100 pb-3">
+                <span className="text-[11px] font-bold uppercase text-ink-black-900 tracking-widest flex items-center gap-1.5">
+                  <Layout className="w-3.5 h-3.5 text-ink-black-500" /> Brand Recreations
                 </span>
-                <span className="text-[9px] text-slate-400 font-bold">({brandTemplates.length})</span>
+                <span className="text-[9px] text-ink-black-400 font-bold">({brandTemplates.length})</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-10">
                 {brandTemplates.map((template) => (
@@ -323,11 +323,11 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
           {/* Empty search matches */}
           {officialTemplates.length === 0 && brandTemplates.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-12 h-12 bg-white rounded-xl border border-slate-200/60 flex items-center justify-center mb-4 text-slate-300 shadow-sm">
+              <div className="w-12 h-12 bg-white rounded-xl border border-ink-black-100 flex items-center justify-center mb-4 text-ink-black-300 shadow-sm">
                 <Inbox className="w-5 h-5" />
               </div>
-              <h4 className="text-sm font-bold text-slate-700 mb-1">No blueprints found</h4>
-              <p className="text-xs text-slate-400 font-medium max-w-xs leading-relaxed">
+              <h4 className="text-sm font-bold text-ink-black-700 mb-1">No blueprints found</h4>
+              <p className="text-xs text-ink-black-400 font-medium max-w-xs leading-relaxed">
                 We couldn't find any templates matching your search keyword.
               </p>
             </div>
@@ -342,31 +342,31 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4 md:p-8"
+            className="fixed inset-0 z-[200] bg-ink-black-950/20 backdrop-blur-md flex items-center justify-center p-4 md:p-8"
           >
             <motion.div
               initial={{ scale: 0.98, opacity: 0, y: 8 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.98, opacity: 0, y: 8 }}
-              className="bg-white w-full max-w-4xl h-full max-h-[80vh] rounded-[24px] overflow-hidden flex flex-col shadow-2xl border border-slate-100"
+              className="bg-white w-full max-w-4xl h-full max-h-[80vh] rounded-[24px] overflow-hidden flex flex-col shadow-xl border border-ink-black-100"
             >
               {/* Simulator Header */}
-              <div className="px-8 py-4 border-b border-slate-100 flex justify-between items-center bg-white shrink-0">
+              <div className="px-8 py-4 border-b border-ink-black-100 flex justify-between items-center bg-white shrink-0">
                 <div>
-                  <h4 className="font-bold text-sm text-slate-800 leading-none">
+                  <h4 className="font-bold text-sm text-ink-black-900 leading-none">
                     {OFFICIAL_REACT_EMAIL_METRICS[zoomTemplate.id]?.name || zoomTemplate.name}
                   </h4>
-                  <span className="text-[8px] text-slate-400 font-semibold tracking-wider block mt-1.5 uppercase">Live Sandbox Simulator</span>
+                  <span className="text-[8px] text-ink-black-400 font-semibold tracking-wider block mt-1.5 uppercase">Live Sandbox Simulator</span>
                 </div>
                 
                 <div className="flex items-center gap-3">
                   {/* Viewport Toggles */}
-                  <div className="flex bg-slate-50 border border-slate-200/60 rounded-lg p-0.5">
+                  <div className="flex bg-alabaster-grey-50 border border-ink-black-100 rounded-lg p-0.5">
                     <button
                       onClick={() => setZoomPreviewMode('desktop')}
                       className={cn(
                         "px-2.5 py-1 rounded-md transition-all text-[8px] font-black uppercase tracking-wider flex items-center gap-1",
-                        zoomPreviewMode === 'desktop' ? "bg-white text-slate-800 shadow-sm border border-slate-200/40" : "text-slate-400 hover:text-slate-600"
+                        zoomPreviewMode === 'desktop' ? "bg-white text-ink-black-900 shadow-sm border border-ink-black-100" : "text-ink-black-400 hover:text-ink-black-600"
                       )}
                     >
                       <Laptop className="w-3 h-3" /> Desktop
@@ -375,7 +375,7 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                       onClick={() => setZoomPreviewMode('mobile')}
                       className={cn(
                         "px-2.5 py-1 rounded-md transition-all text-[8px] font-black uppercase tracking-wider flex items-center gap-1",
-                        zoomPreviewMode === 'mobile' ? "bg-white text-slate-800 shadow-sm border border-slate-200/40" : "text-slate-400 hover:text-slate-600"
+                        zoomPreviewMode === 'mobile' ? "bg-white text-ink-black-900 shadow-sm border border-ink-black-100" : "text-ink-black-400 hover:text-ink-black-600"
                       )}
                     >
                       <Smartphone className="w-3 h-3" /> Mobile
@@ -391,8 +391,8 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                     className={cn(
                       "h-8 rounded-lg px-4 text-[8px] font-bold uppercase tracking-widest transition-all",
                       activeTemplateId === zoomTemplate.id 
-                        ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed" 
-                        : "bg-slate-900 hover:bg-slate-805 text-white"
+                        ? "bg-alabaster-grey-100 text-ink-black-400 border border-ink-black-100 cursor-not-allowed" 
+                        : "bg-ink-black-900 hover:bg-ink-black-800 text-white"
                     )}
                   >
                     {activeTemplateId === zoomTemplate.id ? 'Selected' : 'Use Base'}
@@ -400,7 +400,7 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
 
                   <Button
                     onClick={() => setZoomTemplate(null)}
-                    className="h-8 w-8 rounded-full border border-slate-200 hover:border-slate-350 bg-slate-50 text-slate-400 hover:text-slate-700 flex items-center justify-center p-0"
+                    className="h-8 w-8 rounded-full border border-ink-black-100 hover:border-ink-black-200 bg-white text-ink-black-400 hover:text-ink-black-700 flex items-center justify-center p-0"
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -408,10 +408,10 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
               </div>
 
               {/* Viewport Frame */}
-              <div className="flex-1 bg-slate-50 flex items-center justify-center p-8 overflow-hidden relative">
+              <div className="flex-1 bg-alabaster-grey-50/50 flex items-center justify-center p-8 overflow-hidden relative">
                 <div 
                   className={cn(
-                    "h-full bg-white shadow-lg transition-all duration-300 rounded-2xl overflow-hidden border border-slate-200/60 flex flex-col",
+                    "h-full bg-white shadow-md transition-all duration-300 rounded-2xl overflow-hidden border border-ink-black-100 flex flex-col",
                     zoomPreviewMode === 'desktop' ? "w-full" : "w-[375px] max-w-full"
                   )}
                 >

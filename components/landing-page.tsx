@@ -34,6 +34,55 @@ interface LandingPageProps {
 
 type Device = 'desktop' | 'tablet' | 'mobile';
 
+function FeatureCard({ feature, darkMode }: { feature: any; darkMode: boolean }) {
+  const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
+  
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  return (
+    <motion.div
+      whileHover={{ y: -4 }}
+      onMouseMove={handleMouseMove}
+      className={`relative overflow-hidden group rounded-3xl border p-8 backdrop-blur-xl ${darkMode
+        ? 'bg-white/5 border-white/10'
+        : 'bg-white border-black/10 shadow-sm hover:shadow-xl transition-all duration-300'
+        }`}
+    >
+      <div 
+        className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 group-hover:opacity-100 transition duration-300"
+        style={{
+          background: `radial-gradient(400px circle at ${mousePosition.x}px ${mousePosition.y}px, ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(99,102,241,0.08)'}, transparent 40%)`
+        }}
+      />
+      
+      <div className="relative z-10">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-500 text-white flex items-center justify-center mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
+          {feature.icon}
+        </div>
+
+        <h3 className="text-xl font-semibold tracking-tight mb-3 group-hover:text-blue-500 transition-colors">
+          {feature.title}
+        </h3>
+
+        <p
+          className={`leading-relaxed ${darkMode
+            ? 'text-neutral-400'
+            : 'text-neutral-500'
+            }`}
+        >
+          {feature.description}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function LandingPage({
   onStart,
   onSelectTemplate,
@@ -262,15 +311,13 @@ export default function LandingPage({
                 </button>
               </motion.div>
 
-              <div className="mt-10 flex flex-wrap gap-6 text-sm">
-                <div className="flex items-center gap-2 text-green-400">
-                  <CheckCircle2 className="w-4 h-4" />
-                  No signup required
-                </div>
-
-                <div className="flex items-center gap-2 text-green-400">
-                  <ShieldCheck className="w-4 h-4" />
-                  Runs locally
+              <div className="mt-10 pt-8 border-t border-black/5 dark:border-white/5 flex flex-wrap items-center gap-6 text-sm">
+                <span className="text-neutral-400 font-medium">Powered by</span>
+                <div className="flex items-center gap-5 grayscale opacity-60 hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1.5 font-semibold"><Code2 className="w-4 h-4" /> React</div>
+                  <div className="flex items-center gap-1.5 font-semibold"><Code2 className="w-4 h-4" /> TypeScript</div>
+                  <div className="flex items-center gap-1.5 font-semibold"><Code2 className="w-4 h-4" /> Tailwind</div>
+                  <div className="flex items-center gap-1.5 font-semibold"><Layout className="w-4 h-4" /> Monaco</div>
                 </div>
               </div>
             </div>
@@ -595,33 +642,7 @@ export default function Email() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {features.map((feature) => (
-                <motion.div
-                  whileHover={{
-                    y: -4,
-                  }}
-                  key={feature.title}
-                  className={`rounded-3xl border p-8 backdrop-blur-xl ${darkMode
-                    ? 'bg-white/5 border-white/10'
-                    : 'bg-white border-black/10'
-                    }`}
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-500 text-white flex items-center justify-center mb-6 shadow-xl">
-                    {feature.icon}
-                  </div>
-
-                  <h3 className="text-xl font-semibold tracking-tight mb-3">
-                    {feature.title}
-                  </h3>
-
-                  <p
-                    className={`leading-relaxed ${darkMode
-                      ? 'text-neutral-400'
-                      : 'text-neutral-500'
-                      }`}
-                  >
-                    {feature.description}
-                  </p>
-                </motion.div>
+                <FeatureCard key={feature.title} feature={feature} darkMode={darkMode} />
               ))}
             </div>
           </div>

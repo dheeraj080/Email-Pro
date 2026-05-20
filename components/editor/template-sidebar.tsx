@@ -31,15 +31,20 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
 }: TemplateSidebarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSectionCollapsed, setIsSectionCollapsed] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   const filteredTemplates = templates.filter(t => 
     t.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const displayTemplates = (searchQuery || showAll) 
+    ? filteredTemplates 
+    : filteredTemplates.filter(t => t.id === activeTemplate.id);
+
   if (isCollapsed) return null;
 
   return (
-    <div className="w-64 p-5 space-y-8 shrink-0 overflow-y-auto custom-scrollbar border-r border-ink-black-100 bg-alabaster-grey-50">
+    <div className="w-64 p-5 space-y-8 shrink-0 overflow-y-auto custom-scrollbar border-r border-ink-black-100 bg-white">
       <Input 
         placeholder="Filter templates..."
         value={searchQuery}
@@ -92,7 +97,7 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
               exit={{ height: 0, opacity: 0 }}
               className="space-y-1.5 overflow-hidden"
             >
-              {filteredTemplates.map((template) => (
+              {displayTemplates.map((template) => (
                 <button
                   key={template.id}
                   onClick={() => onTemplateChange(template)}
@@ -125,6 +130,15 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
                   </div>
                 </button>
               ))}
+
+              {!searchQuery && filteredTemplates.length > 1 && (
+                <button
+                  onClick={() => setShowAll(!showAll)}
+                  className="w-full text-[10px] font-bold text-ink-black-400 hover:text-ink-black-900 py-2 transition-colors uppercase tracking-wider mt-2"
+                >
+                  {showAll ? 'Show Less' : `View ${filteredTemplates.length - 1} Other Templates`}
+                </button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

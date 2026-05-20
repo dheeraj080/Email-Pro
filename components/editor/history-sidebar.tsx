@@ -25,7 +25,7 @@ export const HistorySidebar = React.memo(function HistorySidebar({
 
   return (
     <div className="w-64 border-l border-ink-black-100 bg-white flex flex-col hide-scrollbar">
-      <div className="p-5 border-b border-ink-black-100 bg-alabaster-grey-50/50">
+      <div className="p-5 border-b border-ink-black-100 bg-white">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <History className="w-3.5 h-3.5 text-ink-black-400" />

@@ -133,8 +133,8 @@ export const PreviewContent = React.memo(function PreviewContent({
                 <div 
                   id={isSplit ? 'preview-container-split' : 'preview-container'}
                   className={cn(
-                    "bg-white shadow-2xl relative shrink-0 overflow-auto custom-scrollbar",
-                    !customDimensions && (previewMode === 'mobile' ? "w-[375px] h-[667px] rounded-[32px] ring-8 ring-ink-black-900/5 transition-all duration-500" : "w-full h-full rounded-lg transition-all duration-500")
+                    "bg-white shadow-md relative shrink-0 overflow-auto custom-scrollbar border border-ink-black-100",
+                    !customDimensions && (previewMode === 'mobile' ? "w-[375px] h-[667px] rounded-[32px] transition-all duration-500" : "w-full h-full rounded-lg transition-all duration-500")
                   )}
                   style={customDimensions ? {
                     width: `${customDimensions.width}px`,
@@ -246,7 +246,7 @@ export const PreviewContent = React.memo(function PreviewContent({
                   initial={{ opacity: 0, y: -8, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                  className="absolute bottom-full right-0 mb-1.5 w-48 bg-white border border-ink-black-100 rounded-xl shadow-2xl z-[100] overflow-hidden"
+                  className="absolute bottom-full right-0 mb-1.5 w-48 bg-white border border-ink-black-100 rounded-xl shadow-lg z-[100] overflow-hidden"
                 >
                   <div className="p-1">
                     {DEVICE_PRESETS.map((preset) => (

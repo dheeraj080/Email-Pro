@@ -31,14 +31,14 @@ export function CreateTemplateDialog({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-ink-black-900/40 backdrop-blur-sm"
+          className="absolute inset-0 bg-ink-black-950/20 backdrop-blur-md"
           onClick={onClose}
         />
         <motion.div 
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-md shadow-2xl"
+          className="relative w-full max-w-md shadow-xl"
         >
           <Card className="p-8 space-y-8">
             <div className="flex items-center gap-5">

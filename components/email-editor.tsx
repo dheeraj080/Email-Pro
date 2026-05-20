@@ -134,7 +134,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
   }
 
   return (
-    <div className="flex flex-col h-screen bg-alabaster-grey-50 text-ink-black-900 overflow-hidden font-sans">
+    <div className="flex flex-col h-screen bg-white text-ink-black-900 overflow-hidden font-sans">
       <header className="h-14 bg-white border-b border-ink-black-100 flex items-center justify-between px-6 shrink-0 z-20">
         <div className="flex items-center gap-4">
           {onBack && (
