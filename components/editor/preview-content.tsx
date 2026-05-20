@@ -24,27 +24,29 @@ import { motion, AnimatePresence } from 'motion/react';
 import { createPortal } from 'react-dom';
 
 interface FrameProps {
-  children: React.ReactNode;
+  html?: string;
+  children?: React.ReactNode;
   className?: string;
   title?: string;
 }
 
-function Frame({ children, className, title }: FrameProps) {
+function Frame({ html, children, className, title }: FrameProps) {
   const [contentRef, setContentRef] = React.useState<HTMLIFrameElement | null>(null);
   const [iframeLoaded, setIframeLoaded] = React.useState(false);
   const mountNode = contentRef?.contentWindow?.document?.body;
 
   React.useEffect(() => {
-    if (!contentRef) return;
+    if (html || !contentRef) return;
     const doc = contentRef.contentWindow?.document;
     if (!doc) return;
 
+    // Standard styling reset inside the React portal sandbox
     const style = doc.createElement('style');
     style.innerHTML = `
       html, body {
         margin: 0;
         padding: 0;
-        background-color: #ffffff;
+        background-color: #f8fafc;
         font-family: ui-sans-serif, system-ui, sans-serif;
         overflow-x: hidden;
       }
@@ -64,16 +66,36 @@ function Frame({ children, className, title }: FrameProps) {
         background: #d4d4d4;
       }
     `;
-    doc.head.appendChild(style);
-    setIframeLoaded(true);
-  }, [contentRef]);
 
+    // Inject Tailwind Play CDN for high-fidelity rendering inside React portal
+    const script = doc.createElement('script');
+    script.src = "https://cdn.tailwindcss.com";
+    doc.head.appendChild(script);
+    doc.head.appendChild(style);
+    
+    setIframeLoaded(true);
+  }, [contentRef, html]);
+
+  // If high-fidelity compiled HTML is ready, render standard srcDoc (100% layout and styles match production)
+  if (html) {
+    return (
+      <iframe 
+        title={title} 
+        className={className} 
+        srcDoc={html}
+        style={{ width: '100%', height: '100%', border: 'none' }}
+      />
+    );
+  }
+
+  // Fallback to instant client-side portal rendering while compiling
   return (
     <iframe 
       title={title} 
       className={className} 
       ref={setContentRef}
       onLoad={() => setIframeLoaded(true)}
+      style={{ width: '100%', height: '100%', border: 'none' }}
     >
       {mountNode && iframeLoaded && createPortal(children, mountNode)}
     </iframe>
@@ -90,6 +112,7 @@ interface PreviewContentProps {
   customDimensions: { width: number; height: number } | null;
   setCustomDimensions: (dims: { width: number; height: number } | null) => void;
   isRendering: boolean;
+  isDirty?: boolean;
   error: string | null;
   isSplit: boolean;
   onResize: (e: React.MouseEvent, direction: string) => void;
@@ -117,6 +140,7 @@ export const PreviewContent = React.memo(function PreviewContent({
   customDimensions,
   setCustomDimensions,
   isRendering,
+  isDirty = false,
   error,
   isSplit,
   onResize,
@@ -265,18 +289,25 @@ export const PreviewContent = React.memo(function PreviewContent({
 
                   {/* Browser body view */}
                   <div className="flex-1 bg-white relative overflow-hidden">
-                    {isMounted && previewComponent ? (
-                      <Frame className="w-full h-full border-none bg-white" title="Email Preview">
-                        <div className={cn(
-                          "w-full min-h-full flex justify-center",
-                          previewMode === 'mobile' || (customDimensions && customDimensions.width < 600)
-                            ? "p-0"
-                            : "p-4 md:p-8"
-                        )}>
-                          <div 
-                            className="w-full max-w-full md:max-w-2xl bg-white origin-top"
-                            suppressHydrationWarning
-                          >
+                    {/* Render high-fidelity error banner if compilation failed */}
+                    {error && (
+                      <div className="absolute top-3 left-3 right-3 z-50 bg-rose-50 border border-rose-200 rounded-xl p-3.5 flex items-start gap-3 shadow-md">
+                        <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                        <div className="space-y-1">
+                          <h4 className="text-[10px] font-bold text-rose-800 uppercase tracking-wide">Compilation Error</h4>
+                          <p className="text-[11px] text-rose-750 leading-relaxed font-mono whitespace-pre-wrap">{error}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {isMounted && (((!isDirty && previewHtml) || previewComponent)) ? (
+                      <Frame 
+                        html={(!isDirty && previewHtml) ? previewHtml : undefined}
+                        className="w-full h-full border-none bg-white" 
+                        title="Email Preview"
+                      >
+                        <div className="w-full min-h-full flex justify-center p-4 md:p-8">
+                          <div className="w-full max-w-full md:max-w-2xl bg-white origin-top" suppressHydrationWarning>
                             {previewComponent}
                           </div>
                         </div>

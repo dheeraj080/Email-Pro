@@ -21,61 +21,68 @@ export const WelcomeEmail = () => (
   <Tailwind>
     <Html>
       <Head />
-      <Body className="bg-white m-0 font-sans text-center">
-        <Preview>Welcome aboard—Resend</Preview>
-        <Container className="mx-auto mt-8 w-full max-w-[640px]">
-          <Section className="bg-white px-6 py-4 border border-slate-100 rounded-xl shadow-sm">
-            <Section className="mb-6">
-              <Row>
-                <Column className="py-[7px] w-1/2 align-middle">
-                  <Img
-                    src="https://react.email/static/logo-black.png"
-                    alt="Logo"
-                    width={23}
-                    className="block"
-                  />
-                </Column>
-                <Column align="right" className="py-[7px] w-1/2 align-middle">
-                  <Text className="m-0 text-sm text-slate-500 text-right">
-                    Resend
-                  </Text>
-                </Column>
-              </Row>
+      <Body className="bg-[#f8fafc] m-0 font-sans text-neutral-800 antialiased">
+        <Preview>Welcome aboard — let's build the future of email together.</Preview>
+        <Container className="mx-auto mt-16 w-full max-w-[580px] px-4">
+          
+          {/* Logo Brand Header */}
+          <Section className="mb-8 px-2 flex justify-between items-center">
+            <Img
+              src="https://react.email/static/logo-black.png"
+              alt="Resend Logo"
+              width={24}
+              height={24}
+              className="block"
+            />
+            <Text className="m-0 text-xs font-black uppercase tracking-wider text-neutral-400">
+              Resend Core
+            </Text>
+          </Section>
+
+          {/* Primary Welcome Card */}
+          <Section className="bg-white px-10 py-12 border border-neutral-200/60 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] mb-6">
+            <Section className="mb-8">
+              <Img
+                src="https://react.email/static/barebones-image.png"
+                alt="Welcome Illustration"
+                width={500}
+                className="block mx-auto rounded-2xl w-full border border-neutral-100 shadow-2xs object-cover"
+              />
+            </Section>
+            
+            <Section className="text-left">
+              <Text className="mt-0 mb-2 text-[10px] font-black uppercase tracking-widest text-indigo-600">
+                Welcome to Resend
+              </Text>
+              <Heading className="mt-0 mb-4 text-2xl font-black text-neutral-900 tracking-tight leading-tight">
+                Developer-first email platform.
+              </Heading>
+              <Text className="m-0 text-sm text-neutral-500 leading-relaxed">
+                You've successfully created your account. With Resend, you can easily integrate responsive transactional emails, manage deliverability pipelines, and track performance analytics directly in your applications.
+              </Text>
             </Section>
 
-            <Section className="bg-slate-50 mb-6 p-8 rounded-xl border border-slate-100">
-              <Section className="mb-6">
-                <Img
-                  src="https://react.email/static/barebones-image.png"
-                  alt="Welcome"
-                  width={600}
-                  className="block mx-auto rounded-xl w-full"
-                />
-              </Section>
-              <Section className="mx-auto max-w-[422px] text-center">
-                <Text className="mt-0 mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">
-                  Thanks for joining us
-                </Text>
-                <Heading className="mt-0 mb-6 text-3xl font-bold text-slate-900">
-                  Welcome aboard
-                </Heading>
-                <Text className="m-0 text-slate-600 leading-relaxed">
-                  You're all set. Open your dashboard to explore the
-                  basics, connect a few tools, and invite your team when
-                  you're ready.
-                </Text>
-              </Section>
-            </Section>
-
-            <Section className="text-center pb-8">
+            <Section className="text-left mt-8">
               <Button
                 href="https://resend.com"
-                className="bg-slate-900 text-white px-10 py-4 rounded-lg font-bold text-sm"
+                className="bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-black uppercase tracking-wider px-8 py-4.5 rounded-xl no-underline inline-block shadow-sm"
               >
                 Go to Dashboard
               </Button>
             </Section>
           </Section>
+
+          {/* Secondary support link card */}
+          <Section className="bg-white px-8 py-6 border border-neutral-200/60 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.01)] mb-8">
+            <Text className="text-xs text-neutral-500 leading-relaxed m-0 text-center">
+              Need assistance? Read our <Link href="https://resend.com/docs" className="text-indigo-600 font-bold underline">Documentation</Link> or join the global <Link href="#" className="text-indigo-600 font-bold underline">Developer Discord</Link>.
+            </Text>
+          </Section>
+
+          {/* Minimalist Footer */}
+          <Text className="text-center text-[10px] text-neutral-400 m-0 uppercase tracking-widest leading-relaxed">
+            Resend Technologies Inc · 2261 Market St · San Francisco · CA
+          </Text>
         </Container>
       </Body>
     </Html>

@@ -69,6 +69,8 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
     handleRevertVersion,
     handleCopyHTML,
     handleDownload,
+    handleDeleteTemplate,
+    isDirty,
     performRender
   } = useEmailEditor(initialTemplate);
 
@@ -196,6 +198,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
           activeTemplate={activeTemplate}
           onTemplateChange={handleTemplateChange}
           onCreateTemplate={handleCreateTemplate}
+          onDeleteTemplate={handleDeleteTemplate}
           isCollapsed={isSidebarCollapsed}
           onToggleCollapse={handleToggleSidebar}
         />
@@ -236,6 +239,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
                 customDimensions={customDimensions}
                 setCustomDimensions={setCustomDimensions}
                 isRendering={isRendering}
+                isDirty={isDirty}
                 error={error}
                 isSplit={false}
                 onResize={handleResize}
@@ -268,6 +272,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
                         customDimensions={customDimensions}
                         setCustomDimensions={setCustomDimensions}
                         isRendering={isRendering}
+                        isDirty={isDirty}
                         error={error}
                         isSplit={true}
                         onResize={handleResize}

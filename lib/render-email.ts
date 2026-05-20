@@ -23,7 +23,50 @@ export function transpileJSX(code: string): string {
   }
 }
 
-export function renderEmailToReact(code: string): React.ReactElement | null {
+export function compileTemplate(code: string, templates: any[] = []): any {
+  try {
+    const transpiled = transpileJSX(code);
+    const mockedComponents = {
+      ...EmailComponents,
+      Html: ({ children }: any) => React.createElement(React.Fragment, null, children),
+      Head: ({ children }: any) => React.createElement(React.Fragment, null, children),
+      Body: ({ children, className, style }: any) => React.createElement('div', { 
+        className: `email-body-preview ${className || ''}`,
+        style: { width: '100%', minHeight: '100%', ...style }
+      }, children),
+      Preview: () => null,
+      Tailwind: ({ children }: any) => React.createElement(React.Fragment, null, children),
+    };
+
+    const scope = {
+      React,
+      ...mockedComponents,
+      html: ({ children }: any) => React.createElement(React.Fragment, null, children),
+      body: ({ children }: any) => React.createElement('div', null, children),
+      head: () => null,
+      process: { env: { VERCEL_URL: 'react.email' } },
+      require: (name: string) => {
+        if (name === 'react') return React;
+        if (name === '@react-email/components' || name === 'react-email') {
+          return mockedComponents;
+        }
+        return {};
+      }
+    };
+
+    const keys = Object.keys(scope);
+    const values = Object.values(scope);
+    const wrappedFn = new Function(...keys, 'exports', 'module', transpiled + '; return module.exports.default || module.exports;');
+    const exports = {};
+    const module = { exports };
+    return wrappedFn(...values, exports, module);
+  } catch (error) {
+    console.error('Failed to compile dependency:', error);
+    return {};
+  }
+}
+
+export function renderEmailToReact(code: string, templates: any[] = []): React.ReactElement | null {
   try {
     // If it looks like raw HTML, don't try to transpile it as React
     if (code.trim().startsWith('<!DOCTYPE') || code.trim().startsWith('<html')) {
@@ -39,9 +82,9 @@ export function renderEmailToReact(code: string): React.ReactElement | null {
       ...EmailComponents,
       Html: ({ children }: any) => React.createElement(React.Fragment, null, children),
       Head: ({ children }: any) => React.createElement(React.Fragment, null, children),
-      Body: ({ children }: any) => React.createElement('div', { 
-        className: 'email-body-preview',
-        style: { width: '100%', minHeight: '100%', backgroundColor: '#ffffff' }
+      Body: ({ children, className, style }: any) => React.createElement('div', { 
+        className: `email-body-preview ${className || ''}`,
+        style: { width: '100%', minHeight: '100%', ...style }
       }, children),
       Preview: () => null,
       Tailwind: ({ children }: any) => React.createElement(React.Fragment, null, children),
@@ -57,7 +100,7 @@ export function renderEmailToReact(code: string): React.ReactElement | null {
       head: () => null,
       process: {
         env: {
-          VERCEL_URL: '',
+          VERCEL_URL: 'react.email',
         }
       },
       require: (name: string) => {
@@ -70,13 +113,48 @@ export function renderEmailToReact(code: string): React.ReactElement | null {
             }
           });
         }
-        // Mock local imports for the editor
+        
+        // Resolve relative imports from the workspace templates registry
         if (name.startsWith('./') || name.startsWith('../')) {
-          console.warn(`Local import "${name}" is not supported in the live editor. Returning empty module.`);
-          return {
-            barebonesBoxedTailwindConfig: {},
-            BarebonesFonts: () => null,
-          };
+          const cleanName = name.replace(/^\.\/?/, '').replace(/^\.\.\/?/, '').replace(/\.(ts|tsx|js|jsx)$/, '');
+          const template = templates.find(t => 
+            t.id === cleanName || 
+            t.name?.toLowerCase() === cleanName.toLowerCase()
+          );
+          if (template) {
+            return compileTemplate(template.code, templates);
+          }
+          
+          // Pre-styled high-fidelity Barebones fallback configuration if not present
+          if (name.includes('theme') || name.includes('fonts')) {
+            return {
+              barebonesBoxedTailwindConfig: {
+                theme: {
+                  extend: {
+                    colors: {
+                      bg: '#ffffff',
+                      'bg-2': '#f4f4f5',
+                      fg: '#18181b',
+                      'fg-2': '#71717a',
+                      'fg-3': '#a1a1aa',
+                      'fg-inverted': '#ffffff',
+                    },
+                    fontSize: {
+                      'font-11': '11px',
+                      'font-13': '13px',
+                      'font-16': '16px',
+                      'font-28': '28px',
+                    }
+                  }
+                }
+              },
+              BarebonesFonts: () => React.createElement('style', {
+                dangerouslySetInnerHTML: {
+                  __html: `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); body { font-family: 'Inter', sans-serif !important; }`
+                }
+              })
+            };
+          }
         }
         return {};
       }
@@ -129,7 +207,7 @@ export function renderEmailToReact(code: string): React.ReactElement | null {
 
 const renderCache = new Map<string, string>();
 
-export async function exportToHTML(code: string, language?: string, templateId?: string): Promise<string> {
+export async function exportToHTML(code: string, language?: string, templateId?: string, templates: any[] = []): Promise<string> {
   const cacheKey = `${language || 'typescript'}:${code}`;
   if (renderCache.has(cacheKey)) {
     return renderCache.get(cacheKey)!;
@@ -156,7 +234,7 @@ export async function exportToHTML(code: string, language?: string, templateId?:
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify({ code, language }),
+      body: JSON.stringify({ code, language, templates }),
     });
 
     const text = await response.text();

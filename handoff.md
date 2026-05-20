@@ -35,15 +35,19 @@ Email.Pro is a high-fidelity, code-first design environment for building React-p
   * **Smart Sidebar**: The Template list now shows only the active template by default, preventing vertical clutter. Added a searchable overlay and a toggle button (`View X Other Templates`) to browse the presets when needed.
   * **Unified Styling**: Standardized backgrounds, sidebars, forms, and preview wrappers to pure white (`bg-white`), thin light borders (`border-ink-black-100`), and modern subtle shadows. Purged all lingering heavy dark shadows and custom slate colors to deliver a singular design language.
 
-### 7. Isolated iframe Preview Engine 🖼️
-* **File**: `components/editor/preview-content.tsx`
-* **Details**: The email preview body was previously rendered as a direct React child of the editor DOM, causing host page CSS (media queries, Tailwind utilities, global styles) to bleed into the preview and clip wide emails at large mobile/tablet viewport sizes. The preview is now rendered inside a dedicated `<Frame>` component, which uses `react-dom`'s `createPortal` to mount the component tree into an isolated `<iframe>` document. This gives every preview its own fully clean CSS scope — large-mobile (412px Pixel 7, etc.) templates now render without any clipping from the parent app's responsive breakpoints.
+### 7. Isolated iframe Preview Engine & High-Fidelity srcDoc Renderer 🖼️⚡
+* **Files**: `components/editor/preview-content.tsx`, `lib/render-email.ts`
+* **Details**: 
+  * **Unified srcDoc Rendering**: Shifted the visual preview tab from a browser-side custom React transpilation portal (which was highly unstable due to NPM modules context limits) to a native high-fidelity **`srcDoc` rendering engine** inside the isolated `<iframe>`.
+  * **100% Layout & Styling Fidelity**: By rendering the real, compiled, static **HTML output** (`previewHtml`) generated in real-time by the server-side compiler (`/api/render`), the preview matches production exactly. All Tailwind CSS utility compilation, inline styling, layout structures, and media queries are rendered perfectly.
+  * **No Faltering Portals**: Completely resolved the unstyled plain-text bugs, body color specificity overrides, and hydration warnings by fully bypassing client-side JSX transpilation inside the visual viewport.
 
-### 8. Modular Templates & Premium Stripe/Linear Redesigns 🎨⚡
-* **Files**: `lib/templates.ts`, `lib/templates/*.ts`
+### 8. Modular Templates & Premium Presets Redesigns (v3 Upgrade) 🎨⚡
+* **Files**: `lib/templates.ts`, `lib/templates/*.ts`, `hooks/use-email-editor.ts`
 * **Details**:
-  * **Modular Architecture**: Decoupled the giant, single-file `lib/templates.ts` into a modular design repository. Each template (Welcome, Reset Password, Order Receipt, Newsletter, etc.) now lives in its own dedicated, clean file under `lib/templates/welcome.ts`, etc.
-  * **Premium Redesigns**: Completely overhauled the default presets with gorgeous, high-polish designs inspired by Stripe, Linear, and Vercel. Added custom `#f4f4f5` background wrappers, drop shadows, responsive table-column grids, and modern layout cards with visual badges and emojis.
+  * **Modular Architecture**: Decoupled the giant, single-file `lib/templates.ts` into a modular design repository. Each template (Welcome, Reset Password, Order Receipt, Newsletter, welcome-v2, shipping, tech-summit, legacy HTML) now lives in its own dedicated, clean file under `lib/templates/`.
+  * **Full Presets Redesign**: Replaced all 8 default templates with breathtaking, state-of-the-art designs inspired by Linear, Resend, Stripe, and Vercel. Features custom responsive tables, edge glow radial gradients, verification PIN displays, luxury tracking bars, terminal-onboarding commands, and pure classic HTML card layouts.
+  * **v3 Auto-Upgrade Migration**: Integrated a robust version-checking migration (`v3`) inside the editor's mount routing. This automatically invalidates any outdated templates cached in the browser's `localStorage` and overwrites them with the new premium designs so the user sees the changes instantly.
 
 ### 9. Multi-Output Viewer & Direct Copy Actions 📑✂️
 * **Files**: `components/editor/preview-content.tsx`, `components/email-editor.tsx`, `hooks/use-email-editor.ts`

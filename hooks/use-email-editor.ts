@@ -28,11 +28,30 @@ export function useEmailEditor(initialTemplate?: Template) {
   const [isCreating, setIsCreating] = useState(false);
   const [newTemplateName, setNewTemplateName] = useState('');
   const [lastSaved, setLastSaved] = useState<number | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
 
   // Load saved templates, active template, and history from local storage on mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
+    // Auto-migrate and force reload newly designed premium v3 templates
+    const currentVersion = 'v3';
+    const savedVersion = localStorage.getItem('email_pro_templates_version');
+    
+    if (savedVersion !== currentVersion) {
+      localStorage.removeItem('email_pro_templates');
+      localStorage.removeItem('email_pro_active_template_id');
+      localStorage.removeItem('email_pro_history');
+      localStorage.setItem('email_pro_templates_version', currentVersion);
+      
+      setTemplates(TEMPLATES);
+      setActiveTemplate(TEMPLATES[0]);
+      setCode(TEMPLATES[0].code);
+      setLanguage(TEMPLATES[0].language || 'typescript');
+      setMounted(true);
+      return;
+    }
+
     const savedTemplates = localStorage.getItem('email_pro_templates');
     const savedActiveId = localStorage.getItem('email_pro_active_template_id');
     const savedHistory = localStorage.getItem('email_pro_history');
@@ -97,16 +116,18 @@ export function useEmailEditor(initialTemplate?: Template) {
     // Only call server-side render if we actually need the HTML
     setIsRendering(true);
     try {
-      const html = await exportToHTML(codeToRender, currentLanguage || language);
+      const html = await exportToHTML(codeToRender, currentLanguage || language, activeTemplate.id, templates);
       setPreviewHtml(html);
       setError(null);
+      return true;
     } catch (err: any) {
       console.error('Preview error:', err);
       setError(err.message || 'An error occurred while rendering');
+      return false;
     } finally {
       setIsRendering(false);
     }
-  }, [language]);
+  }, [language, activeTemplate.id, templates]);
 
   // Fast local React rendering for visual preview
   useEffect(() => {
@@ -115,7 +136,7 @@ export function useEmailEditor(initialTemplate?: Template) {
     const timeout = setTimeout(() => {
       try {
         const { renderEmailToReact } = require('@/lib/render-email');
-        const Component = renderEmailToReact(code);
+        const Component = renderEmailToReact(code, templates);
         setPreviewComponent(Component);
         setError(null);
       } catch (err: any) {
@@ -126,22 +147,22 @@ export function useEmailEditor(initialTemplate?: Template) {
     }, 100); // Very fast debounce for local render
 
     return () => clearTimeout(timeout);
-  }, [code, mounted]);
+  }, [code, templates, mounted]);
 
-  // Debounced server-side render for HTML tab and export
+  // Debounced background compilation for high-fidelity production styling
   useEffect(() => {
     if (!mounted) return;
     
-    // Bypassing serverless API background execution when in Design tab (saves 95%+ of server bills)
-    // Visual design is fully compiled locally in-browser via renderEmailToReact.
-    if (previewTab !== 'html') return;
+    setIsDirty(true);
 
     const timeout = setTimeout(() => {
-      performRender(code, language);
-    }, 400);
+      performRender(code, language).then(() => {
+        setIsDirty(false);
+      });
+    }, 500);
 
     return () => clearTimeout(timeout);
-  }, [code, language, mounted, performRender, previewTab]);
+  }, [code, language, mounted, performRender]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -208,6 +229,7 @@ export function useEmailEditor(initialTemplate?: Template) {
       localStorage.removeItem('email_pro_templates');
       localStorage.removeItem('email_pro_active_template_id');
       localStorage.removeItem('email_pro_history');
+      localStorage.removeItem('email_pro_templates_version');
       window.location.reload();
     }
   };
@@ -241,6 +263,34 @@ export function useEmailEditor(initialTemplate?: Template) {
       console.error('Copy to Clipboard error:', err);
     }
   };
+
+  const handleDeleteTemplate = useCallback((templateId: string) => {
+    // Prevent deleting the only remaining template
+    if (templates.length <= 1) {
+      alert("You cannot delete the only remaining template in your workspace.");
+      return;
+    }
+    
+    const updated = templates.filter(t => t.id !== templateId);
+    setTemplates(updated);
+    
+    // Save to local storage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('email_pro_templates', JSON.stringify(updated));
+    }
+    
+    // If the active template was deleted, switch to the first remaining template
+    if (activeTemplate.id === templateId) {
+      const nextActive = updated[0];
+      setActiveTemplate(nextActive);
+      setCode(nextActive.code);
+      setLanguage(nextActive.language || 'typescript');
+      
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('email_pro_active_template_id', nextActive.id);
+      }
+    }
+  }, [templates, activeTemplate.id]);
 
   const handleDownload = async () => {
     setIsExporting(true);
@@ -300,6 +350,8 @@ export function useEmailEditor(initialTemplate?: Template) {
     handleRevertVersion,
     handleCopyHTML,
     handleDownload,
+    handleDeleteTemplate,
+    isDirty,
     performRender
   };
 }

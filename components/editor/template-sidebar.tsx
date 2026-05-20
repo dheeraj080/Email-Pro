@@ -7,7 +7,8 @@ import {
   Search,
   Check,
   FileCode,
-  Plus
+  Plus,
+  Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -19,6 +20,7 @@ interface TemplateSidebarProps {
   activeTemplate: Template;
   onTemplateChange: (template: Template) => void;
   onCreateTemplate: () => void;
+  onDeleteTemplate: (templateId: string) => void;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
 }
@@ -28,6 +30,7 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
   activeTemplate,
   onTemplateChange,
   onCreateTemplate,
+  onDeleteTemplate,
   isCollapsed,
 }: TemplateSidebarProps) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -129,7 +132,7 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
                             : "text-neutral-400 group-hover:text-neutral-600"
                         )} />
                       </div>
-                      <div className="flex-1 min-w-0 flex items-baseline justify-between gap-1.5">
+                      <div className="flex-1 min-w-0 flex items-baseline justify-between gap-1.5 mr-6">
                         <span className="text-xs truncate">
                           {template.name}
                         </span>
@@ -137,11 +140,28 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
                           {isHtml ? '.html' : '.tsx'}
                         </span>
                       </div>
-                      {activeTemplate.id === template.id && (
-                        <div className="text-emerald-500">
-                          <Check className="w-3 h-3" />
-                        </div>
-                      )}
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200 z-10">
+                        {templates.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm(`Are you sure you want to delete "${template.name}"?`)) {
+                                onDeleteTemplate(template.id);
+                              }
+                            }}
+                            className="p-1 rounded-md text-neutral-400 hover:text-rose-600 hover:bg-rose-50 transition-all"
+                            title="Delete Template"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
+                        {activeTemplate.id === template.id && (
+                          <div className="text-emerald-500 p-1">
+                            <Check className="w-3 h-3" />
+                          </div>
+                        )}
+                      </div>
                     </button>
                   );
                 })}
