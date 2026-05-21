@@ -15,48 +15,56 @@ export const TEMPLATES: Template[] = [
     id: 'welcome',
     name: 'Welcome Email',
     code: welcomeTemplate,
-    language: 'typescript'
+    language: 'typescript',
+    folder: 'Transactional'
   },
   {
     id: 'reset-password',
     name: 'Reset Password',
     code: resetPasswordTemplate,
-    language: 'typescript'
+    language: 'typescript',
+    folder: 'Transactional'
   },
   {
     id: 'receipt',
     name: 'Order Receipt',
     code: receiptTemplate,
-    language: 'typescript'
+    language: 'typescript',
+    folder: 'Transactional'
   },
   {
     id: 'newsletter',
     name: 'Weekly Newsletter',
     code: newsletterTemplate,
-    language: 'typescript'
+    language: 'typescript',
+    folder: 'Marketing'
   },
   {
     id: 'welcome-v2',
     name: 'Resend Welcome',
     code: welcomeV2Template,
-    language: 'typescript'
+    language: 'typescript',
+    folder: 'System'
   },
   {
     id: 'shipping-confirmation',
     name: 'Order Shipped & Tracking',
     code: shippingConfirmationTemplate,
-    language: 'typescript'
+    language: 'typescript',
+    folder: 'Transactional'
   },
   {
     id: 'tech-summit',
     name: 'Tech Summit RSVP',
     code: techSummitTemplate,
-    language: 'typescript'
+    language: 'typescript',
+    folder: 'Marketing'
   },
   {
     id: 'legacy-html',
     name: 'Plain HTML Template',
     code: legacyHtmlTemplate,
-    language: 'html'
+    language: 'html',
+    folder: 'System'
   }
 ];

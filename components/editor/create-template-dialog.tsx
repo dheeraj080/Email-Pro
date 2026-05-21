@@ -13,6 +13,8 @@ interface CreateTemplateDialogProps {
   onConfirm: () => void;
   name: string;
   setName: (name: string) => void;
+  folder: string;
+  setFolder: (folder: string) => void;
 }
 
 export function CreateTemplateDialog({
@@ -20,7 +22,9 @@ export function CreateTemplateDialog({
   onClose,
   onConfirm,
   name,
-  setName
+  setName,
+  folder,
+  setFolder
 }: CreateTemplateDialogProps) {
   if (!isOpen) return null;
 
@@ -51,13 +55,21 @@ export function CreateTemplateDialog({
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-5">
               <Input 
                 label="Template Name"
                 placeholder="e.g. Summer Campaign 2026"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
+                onKeyDown={(e) => e.key === 'Enter' && onConfirm()}
+              />
+
+              <Input 
+                label="Folder Name (Optional)"
+                placeholder="e.g. Marketing, Transactional, Auth"
+                value={folder}
+                onChange={(e) => setFolder(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && onConfirm()}
               />
               

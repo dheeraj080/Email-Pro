@@ -27,6 +27,7 @@ export function useEmailEditor(initialTemplate?: Template) {
   const [isExporting, setIsExporting] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [newTemplateName, setNewTemplateName] = useState('');
+  const [newTemplateFolder, setNewTemplateFolder] = useState('');
   const [lastSaved, setLastSaved] = useState<number | null>(null);
   const [isDirty, setIsDirty] = useState(false);
 
@@ -201,7 +202,7 @@ export function useEmailEditor(initialTemplate?: Template) {
     setNewTemplateName('');
   };
 
-  const confirmCreateTemplate = () => {
+  const confirmCreateTemplate = (folderName?: string) => {
     if (!newTemplateName.trim()) {
       setIsCreating(false);
       return;
@@ -210,18 +211,27 @@ export function useEmailEditor(initialTemplate?: Template) {
     setTemplates(prev => prev.map(t => t.id === activeTemplate.id ? { ...t, code } : t));
 
     const id = newTemplateName.toLowerCase().replace(/\s+/g, '-');
+    const folderToUse = folderName !== undefined ? folderName : newTemplateFolder;
     const newTemplate: Template = {
       id: `${id}-${Date.now()}`,
       name: newTemplateName,
       code: language === 'html' ? '<!-- New HTML Template -->' : TEMPLATES[0].code,
-      language: language
+      language: language,
+      folder: folderToUse.trim() ? folderToUse.trim() : undefined
     };
 
-    setTemplates(prev => [...prev, newTemplate]);
+    setTemplates(prev => {
+      const updated = [...prev, newTemplate];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('email_pro_templates', JSON.stringify(updated));
+      }
+      return updated;
+    });
     setActiveTemplate(newTemplate);
     setCode(newTemplate.code);
     setIsCreating(false);
     setNewTemplateName('');
+    setNewTemplateFolder('');
   };
 
   const handleReset = () => {
@@ -264,6 +274,28 @@ export function useEmailEditor(initialTemplate?: Template) {
     }
   };
 
+  const handleMoveTemplate = useCallback((templateId: string, targetFolder: string) => {
+    setTemplates(prev => {
+      const updated = prev.map(t => {
+        if (t.id === templateId) {
+          return { ...t, folder: targetFolder.trim() ? targetFolder.trim() : undefined };
+        }
+        return t;
+      });
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('email_pro_templates', JSON.stringify(updated));
+      }
+      return updated;
+    });
+
+    if (activeTemplate.id === templateId) {
+      setActiveTemplate(prev => ({
+        ...prev,
+        folder: targetFolder.trim() ? targetFolder.trim() : undefined
+      }));
+    }
+  }, [activeTemplate.id]);
+
   const handleDeleteTemplate = useCallback((templateId: string) => {
     // Prevent deleting the only remaining template
     if (templates.length <= 1) {
@@ -291,6 +323,52 @@ export function useEmailEditor(initialTemplate?: Template) {
       }
     }
   }, [templates, activeTemplate.id]);
+
+  const handleDownloadWorkspace = async () => {
+    setIsExporting(true);
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+
+      // Group templates by folder and add them to the zip
+      for (const t of templates) {
+        const templateCode = t.id === activeTemplate.id ? code : t.code;
+        const fileName = `${t.name.toLowerCase().replace(/\s+/g, '-')}.html`;
+
+        let finalHtml = '';
+        if (t.language === 'html') {
+          finalHtml = templateCode;
+        } else {
+          try {
+            finalHtml = await exportToHTML(templateCode, t.language || 'typescript', t.id, templates);
+          } catch (compileErr: any) {
+            console.error(`Failed to compile template ${t.name}:`, compileErr);
+            finalHtml = `<!-- COMPILATION FAILED: ${compileErr.message || compileErr} -->\n${templateCode}`;
+          }
+        }
+
+        if (t.folder) {
+          zip.folder(t.folder)?.file(fileName, finalHtml);
+        } else {
+          zip.file(fileName, finalHtml);
+        }
+      }
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `email-pro-templates.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Workspace export error:', err);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const handleDownload = async () => {
     setIsExporting(true);
@@ -341,6 +419,8 @@ export function useEmailEditor(initialTemplate?: Template) {
     setIsCreating,
     newTemplateName,
     setNewTemplateName,
+    newTemplateFolder,
+    setNewTemplateFolder,
     lastSaved,
     handleTemplateChange,
     handleCreateTemplate,
@@ -350,7 +430,9 @@ export function useEmailEditor(initialTemplate?: Template) {
     handleRevertVersion,
     handleCopyHTML,
     handleDownload,
+    handleDownloadWorkspace,
     handleDeleteTemplate,
+    handleMoveTemplate,
     isDirty,
     performRender
   };

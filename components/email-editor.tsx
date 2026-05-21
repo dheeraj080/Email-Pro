@@ -69,7 +69,11 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
     handleRevertVersion,
     handleCopyHTML,
     handleDownload,
+    newTemplateFolder,
+    setNewTemplateFolder,
+    handleDownloadWorkspace,
     handleDeleteTemplate,
+    handleMoveTemplate,
     isDirty,
     performRender
   } = useEmailEditor(initialTemplate);
@@ -199,6 +203,8 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
           onTemplateChange={handleTemplateChange}
           onCreateTemplate={handleCreateTemplate}
           onDeleteTemplate={handleDeleteTemplate}
+          onDownloadWorkspace={handleDownloadWorkspace}
+          onMoveTemplate={handleMoveTemplate}
           isCollapsed={isSidebarCollapsed}
           onToggleCollapse={handleToggleSidebar}
         />
@@ -302,6 +308,8 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
         onConfirm={confirmCreateTemplate}
         name={newTemplateName}
         setName={setNewTemplateName}
+        folder={newTemplateFolder}
+        setFolder={setNewTemplateFolder}
       />
 
       <AnimatePresence>

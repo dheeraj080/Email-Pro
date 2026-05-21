@@ -59,4 +59,5 @@ export interface AnalyticsStats {
 export interface Template extends EmailTemplate {
   code: string; // Alias for content to maintain compatibility with existing frontend
   language?: 'typescript' | 'javascript' | 'html';
+  folder?: string; // Optional folder group
 }
