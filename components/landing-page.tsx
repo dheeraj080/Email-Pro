@@ -42,15 +42,15 @@ type Device = 'desktop' | 'tablet' | 'mobile';
 // VS Code High Contrast Style Syntax Highlighter
 function HighlightedCode({ code }: { code: string }) {
   const lines = code.split('\n');
-  
+
   const highlightLine = (line: string) => {
     if (!line.trim()) return <span className="inline-block h-4" />;
-    
+
     // Check for comments
     if (line.trim().startsWith('//')) {
       return <span className="text-[#6A9955]">{line}</span>;
     }
-    
+
     // Check for imports
     if (line.trim().startsWith('import ')) {
       const fromIdx = line.indexOf(' from ');
@@ -59,7 +59,7 @@ function HighlightedCode({ code }: { code: string }) {
         const importBody = line.substring(line.indexOf('import') + 6, fromIdx);
         const fromKeyword = <span className="text-[#C586C0] font-semibold">from</span>;
         const importPath = line.substring(fromIdx + 6);
-        
+
         return (
           <span>
             {importKeyword}
@@ -70,7 +70,7 @@ function HighlightedCode({ code }: { code: string }) {
         );
       }
     }
-    
+
     // Check for export default function
     if (line.includes('export default function')) {
       const startIdx = line.indexOf('export default function');
@@ -79,7 +79,7 @@ function HighlightedCode({ code }: { code: string }) {
       const nameStart = rest.indexOf('function') + 8;
       const nameEnd = rest.indexOf('(');
       const funcName = rest.substring(nameStart, nameEnd).trim();
-      
+
       return (
         <span>
           {leadingSpace}
@@ -94,7 +94,7 @@ function HighlightedCode({ code }: { code: string }) {
     if (line.includes('<') || line.includes('>')) {
       const parts: React.ReactNode[] = [];
       let currentIdx = 0;
-      
+
       // Simple regex parser logic to split tags and render them
       while (currentIdx < line.length) {
         const openIdx = line.indexOf('<', currentIdx);
@@ -102,24 +102,24 @@ function HighlightedCode({ code }: { code: string }) {
           parts.push(<span key={currentIdx} className="text-[#D4D4D4]">{line.substring(currentIdx)}</span>);
           break;
         }
-        
+
         if (openIdx > currentIdx) {
           parts.push(<span key={currentIdx} className="text-[#D4D4D4]">{line.substring(currentIdx, openIdx)}</span>);
         }
-        
+
         const closeIdx = line.indexOf('>', openIdx);
         if (closeIdx === -1) {
           parts.push(<span key={openIdx} className="text-[#D4D4D4]">{line.substring(openIdx)}</span>);
           break;
         }
-        
+
         const tagContent = line.substring(openIdx, closeIdx + 1);
         const isClosing = tagContent.startsWith('</');
         const isSelfClosing = tagContent.endsWith('/>');
-        
+
         let tagName = '';
         let attributesStr = '';
-        
+
         if (isClosing) {
           tagName = tagContent.substring(2, tagContent.length - 1);
         } else if (isSelfClosing) {
@@ -133,14 +133,14 @@ function HighlightedCode({ code }: { code: string }) {
           tagName = spaceIdx === -1 ? content : content.substring(0, spaceIdx);
           attributesStr = spaceIdx === -1 ? '' : content.substring(spaceIdx + 1);
         }
-        
+
         const tagElements: React.ReactNode[] = [];
         const isReactEmailComponent = tagName && tagName[0] === tagName[0].toUpperCase() && tagName !== 'Html';
         const tagColorClass = isReactEmailComponent ? 'text-[#4FC1FF] font-semibold' : 'text-[#569CD6]';
-        
+
         tagElements.push(<span key="open" className="text-[#808080]">&lt;{isClosing ? '/' : ''}</span>);
         tagElements.push(<span key="name" className={tagColorClass}>{tagName}</span>);
-        
+
         if (attributesStr) {
           // Parse attributes
           const attrs = attributesStr.split(' ');
@@ -159,15 +159,15 @@ function HighlightedCode({ code }: { code: string }) {
             }
           });
         }
-        
+
         tagElements.push(<span key="close" className="text-[#808080]">{isSelfClosing ? '/' : ''}&gt;</span>);
         parts.push(<span key={openIdx}>{tagElements}</span>);
         currentIdx = closeIdx + 1;
       }
-      
+
       return <span>{parts}</span>;
     }
-    
+
     return <span className="text-[#D4D4D4]">{line}</span>;
   };
 
@@ -186,22 +186,22 @@ function HighlightedCode({ code }: { code: string }) {
 }
 
 // Features Bento Card
-function BentoCard({ 
-  feature, 
-  className = '' 
-}: { 
-  feature: { 
-    icon: React.ReactNode; 
-    title: string; 
-    description: string; 
+function BentoCard({
+  feature,
+  className = ''
+}: {
+  feature: {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
     badge?: string;
     extra?: React.ReactNode;
-  }; 
+  };
   className?: string;
 }) {
   const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
   const [hovered, setHovered] = React.useState(false);
-  
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setMousePosition({
@@ -219,14 +219,14 @@ function BentoCard({
       className={`relative overflow-hidden rounded-3xl border border-neutral-200/60 bg-white p-8 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_24px_-10px_rgba(0,0,0,0.08)] hover:border-neutral-300/80 transition-all duration-300 flex flex-col justify-between ${className}`}
     >
       {/* Glow effect */}
-      <div 
+      <div
         className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 group-hover:opacity-100 transition duration-300"
         style={{
           background: `radial-gradient(350px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(99,102,241,0.06), transparent 60%)`,
           opacity: hovered ? 1 : 0
         }}
       />
-      
+
       <div className="relative z-10 flex-1">
         <div className="flex items-start justify-between mb-5">
           <div className="w-11 h-11 rounded-2xl bg-neutral-50 border border-neutral-100 text-neutral-900 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300">
@@ -247,7 +247,7 @@ function BentoCard({
           {feature.description}
         </p>
       </div>
-      
+
       {feature.extra && (
         <div className="relative z-10 w-full mt-2">
           {feature.extra}
@@ -275,7 +275,7 @@ export default function LandingPage({
   React.useEffect(() => {
     let active = true;
     setLoadingPreview(true);
-    
+
     // Approximate sizes
     const sizes: Record<string, number> = {
       'welcome': 42.1,
@@ -302,7 +302,7 @@ export default function LandingPage({
     };
   }, [activeTab, activeTemplate]);
 
-  const showcaseTemplates = TEMPLATES.filter(t => 
+  const showcaseTemplates = TEMPLATES.filter(t =>
     ['welcome', 'reset-password', 'receipt', 'newsletter'].includes(t.id)
   );
 
@@ -410,7 +410,6 @@ export default function LandingPage({
             </div>
             <div>
               <div className="font-bold text-xs tracking-tight text-neutral-900">Email.Pro</div>
-              <div className="text-[9px] font-semibold text-neutral-400">Offline-first workspace</div>
             </div>
           </div>
 
@@ -429,7 +428,7 @@ export default function LandingPage({
             >
               <Github className="w-4 h-4" />
             </a>
-            
+
             <button
               onClick={onStart}
               className="px-4.5 py-2 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-[11px] font-bold uppercase tracking-widest transition-all shadow-sm"
@@ -444,17 +443,10 @@ export default function LandingPage({
         {/* HERO SECTION */}
         <section className="pt-32 pb-20 px-6 max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
+
             {/* HERO LEFT COLUMN (5 columns) */}
             <div className="lg:col-span-5 flex flex-col items-start text-left">
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-neutral-200/60 text-[10px] font-bold uppercase tracking-wider text-neutral-800 shadow-xs mb-6"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500/20" />
-                Offline Email IDE v2.0
-              </motion.div>
+
 
               <motion.h1
                 initial={{ opacity: 0, y: 16 }}
@@ -500,11 +492,10 @@ export default function LandingPage({
               </motion.div>
 
               <div className="mt-12 pt-8 border-t border-neutral-200/50 w-full flex flex-col gap-3">
-                <span className="text-[9px] font-black uppercase tracking-widest text-neutral-400">POWERED BY PURE CLIENT ENGINE</span>
                 <div className="flex flex-wrap items-center gap-2">
                   {['React 19', 'TypeScript', 'Tailwind v4', 'Monaco Core', 'Sucrase JSX'].map((tech) => (
-                    <span 
-                      key={tech} 
+                    <span
+                      key={tech}
                       className="px-3 py-1 bg-white border border-neutral-200/60 rounded-full text-[10px] text-neutral-600 font-semibold shadow-2xs"
                     >
                       {tech}
@@ -522,7 +513,7 @@ export default function LandingPage({
               className="lg:col-span-7"
             >
               <div className="bg-neutral-900 rounded-[24px] border border-neutral-800 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col max-w-full">
-                
+
                 {/* WINDOW CHROME HEADER */}
                 <div className="h-14 border-b border-neutral-800/80 px-5 flex items-center justify-between shrink-0 bg-neutral-950/60">
                   <div className="flex items-center gap-6">
@@ -531,23 +522,22 @@ export default function LandingPage({
                       <div className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]" />
                       <div className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]" />
                     </div>
-                    
+
                     {/* Workspace File Tab switcher */}
                     <div className="flex items-center gap-1.5">
                       {showcaseTemplates.map(t => (
                         <button
                           key={t.id}
                           onClick={() => setActiveTab(t.id)}
-                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1.5 ${
-                            activeTab === t.id
-                              ? 'bg-neutral-800 text-white shadow-xs'
-                              : 'text-neutral-500 hover:text-neutral-300'
-                          }`}
+                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1.5 ${activeTab === t.id
+                            ? 'bg-neutral-800 text-white shadow-xs'
+                            : 'text-neutral-500 hover:text-neutral-300'
+                            }`}
                         >
                           <FileCode className="w-3 h-3" />
-                          {t.id === 'welcome' ? 'welcome-email.tsx' : 
-                           t.id === 'reset-password' ? 'reset-pwd.tsx' : 
-                           t.id === 'receipt' ? 'order-receipt.tsx' : 'newsletter.tsx'}
+                          {t.id === 'welcome' ? 'welcome-email.tsx' :
+                            t.id === 'reset-password' ? 'reset-pwd.tsx' :
+                              t.id === 'receipt' ? 'order-receipt.tsx' : 'newsletter.tsx'}
                         </button>
                       ))}
                     </div>
@@ -561,7 +551,7 @@ export default function LandingPage({
 
                 {/* WORKSPACE CONTENT BODY */}
                 <div className="grid grid-cols-1 md:grid-cols-12 min-h-[460px] max-h-[460px] overflow-hidden">
-                  
+
                   {/* LEFT: SYNTAX HIGHLIGHTED CODE (7 Cols) */}
                   <div className="md:col-span-6 border-r border-neutral-800/80 bg-neutral-900/40 p-4 overflow-y-auto custom-scrollbar flex flex-col">
                     <div className="text-[9px] font-black tracking-widest text-neutral-500 uppercase mb-3 flex items-center gap-1">
@@ -574,22 +564,21 @@ export default function LandingPage({
 
                   {/* RIGHT: LIVE VIEWPORT RENDERER (6 Cols) */}
                   <div className="md:col-span-6 bg-neutral-950 flex flex-col h-full overflow-hidden relative">
-                    
+
                     {/* Viewport bar controls */}
                     <div className="h-12 border-b border-neutral-900 bg-neutral-950 px-4 flex items-center justify-between shrink-0">
                       <span className="text-[9px] font-black uppercase text-neutral-500 tracking-wider">LIVE FRAME</span>
-                      
+
                       {/* Device switch controls */}
                       <div className="flex bg-neutral-900 rounded-lg p-0.5 border border-neutral-800">
                         {(['desktop', 'tablet', 'mobile'] as Device[]).map(d => (
                           <button
                             key={d}
                             onClick={() => setActiveDevice(d)}
-                            className={`p-1.5 rounded-md transition-all text-xs ${
-                              activeDevice === d
-                                ? 'bg-neutral-800 text-white shadow-xs'
-                                : 'text-neutral-500 hover:text-neutral-300'
-                            }`}
+                            className={`p-1.5 rounded-md transition-all text-xs ${activeDevice === d
+                              ? 'bg-neutral-800 text-white shadow-xs'
+                              : 'text-neutral-500 hover:text-neutral-300'
+                              }`}
                           >
                             {d === 'desktop' && <Laptop className="w-3.5 h-3.5" />}
                             {d === 'tablet' && <Tablet className="w-3.5 h-3.5" />}
@@ -602,7 +591,7 @@ export default function LandingPage({
                     {/* Email View Frame Container */}
                     <div className="flex-1 p-4 bg-neutral-900/60 flex items-start justify-center overflow-auto custom-scrollbar">
                       <div className={`transition-all duration-300 rounded-xl overflow-hidden bg-white shadow-lg ${previewWidth[activeDevice]}`}>
-                        
+
                         {/* Simulation Client Header */}
                         <div className="bg-white border-b border-neutral-100 px-3.5 py-2.5 flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 shrink-0">
@@ -635,9 +624,8 @@ export default function LandingPage({
                     {/* PAYLOAD METRICS FLOATING DISPLAY */}
                     <div className="absolute bottom-3 right-3 left-3 bg-neutral-950/90 border border-neutral-800 rounded-xl p-3 flex items-center justify-between backdrop-blur-md shadow-lg">
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                          payloadSize > 90 ? 'bg-amber-500/10 text-amber-500' : 'bg-emerald-500/10 text-emerald-500'
-                        }`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${payloadSize > 90 ? 'bg-amber-500/10 text-amber-500' : 'bg-emerald-500/10 text-emerald-500'
+                          }`}>
                           {payloadSize > 90 ? <AlertTriangle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
                         </div>
                         <div className="overflow-hidden">
@@ -646,10 +634,9 @@ export default function LandingPage({
                         </div>
                       </div>
                       <div className="w-20 bg-neutral-800 h-1.5 rounded-full overflow-hidden shrink-0">
-                        <div 
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            payloadSize > 90 ? 'bg-amber-500' : 'bg-emerald-500'
-                          }`}
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${payloadSize > 90 ? 'bg-amber-500' : 'bg-emerald-500'
+                            }`}
                           style={{ width: `${(payloadSize / 102) * 100}%` }}
                         />
                       </div>
@@ -684,7 +671,7 @@ export default function LandingPage({
                 { name: 'Outlook (Office 365)', engine: 'Word/MSHTML', size: 'Fallback Table', badge: '100% Verified' },
                 { name: 'Apple Mail', engine: 'WebKit Engine', size: 'Fluid/Media Q', badge: '100% Verified' }
               ].map((rig) => (
-                <div 
+                <div
                   key={rig.name}
                   className="bg-neutral-50 border border-neutral-200/60 rounded-2xl p-5 hover:border-neutral-300 transition-colors shadow-2xs flex flex-col justify-between"
                 >
@@ -723,23 +710,23 @@ export default function LandingPage({
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Bento Card 1: Monaco - Double Width */}
-            <BentoCard 
-              feature={bentoFeatures[0]} 
+            <BentoCard
+              feature={bentoFeatures[0]}
               className="md:col-span-2 shadow-sm"
             />
             {/* Bento Card 2: Gmail Clipping - Single Width */}
-            <BentoCard 
-              feature={bentoFeatures[1]} 
+            <BentoCard
+              feature={bentoFeatures[1]}
               className="shadow-sm"
             />
             {/* Bento Card 3: Secure Keys - Single Width */}
-            <BentoCard 
-              feature={bentoFeatures[2]} 
+            <BentoCard
+              feature={bentoFeatures[2]}
               className="shadow-sm"
             />
             {/* Bento Card 4: Local History - Double Width */}
-            <BentoCard 
-              feature={bentoFeatures[3]} 
+            <BentoCard
+              feature={bentoFeatures[3]}
               className="md:col-span-2 shadow-sm"
             />
           </div>
@@ -750,7 +737,7 @@ export default function LandingPage({
           <div className="bg-neutral-900 rounded-[32px] border border-neutral-800 p-10 md:p-14 text-center relative overflow-hidden shadow-2xl">
             <div className="absolute inset-0 bg-[radial-gradient(#262626_1px,transparent_1px)] [background-size:12px_12px] opacity-40" />
             <div className="absolute -top-1/2 left-1/2 -translate-x-1/2 w-[350px] h-[350px] bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none" />
-            
+
             <div className="relative z-10 max-w-lg mx-auto">
               <span className="text-[9px] font-black uppercase text-indigo-400 tracking-widest">LOCAL-FIRST DEPLOYMENT</span>
               <h2 className="text-3xl font-black text-white mt-4 tracking-tight leading-none">
@@ -759,7 +746,7 @@ export default function LandingPage({
               <p className="text-xs text-neutral-400 font-medium mt-4 leading-relaxed max-w-md mx-auto">
                 No signup flows, subscription tiers, or external server calls. Just drag-and-drop or write pure React code and export layouts instantly.
               </p>
-              
+
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
                 <button
                   onClick={onStart}
