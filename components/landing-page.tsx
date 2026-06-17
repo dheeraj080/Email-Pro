@@ -415,8 +415,8 @@ export default function LandingPage({
 
           <div className="hidden md:flex items-center gap-8 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
             <a href="#features" className="hover:text-neutral-900 transition-colors">Features</a>
-            <button onClick={() => setShowGallery(true)} className="hover:text-neutral-900 transition-colors">Templates</button>
             <a href="#compatibility" className="hover:text-neutral-900 transition-colors">Compatibility</a>
+            <button onClick={() => setShowGallery(true)} className="hover:text-neutral-900 transition-colors">TEMPLATES</button>
           </div>
 
           <div className="flex items-center gap-3">
