@@ -88,24 +88,24 @@ export function SendTestDialog({ isOpen, onClose, code, templateName }: SendTest
   };
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-ink-black-950/20 backdrop-blur-md">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#07080b]/80 backdrop-blur-md">
       <motion.div
         initial={{ scale: 0.97, opacity: 0, y: 10 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.97, opacity: 0, y: 10 }}
-        className="bg-white w-full max-w-md rounded-2xl shadow-xl border border-ink-black-100 overflow-hidden flex flex-col"
+        className="bg-[#0c0d12] w-full max-w-md rounded-2xl shadow-2xl border border-[#1f222e] overflow-hidden flex flex-col text-neutral-300"
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-ink-black-100 flex justify-between items-center bg-white shrink-0">
+        <div className="px-6 py-4 border-b border-[#1f222e] flex justify-between items-center bg-[#0c0d12] shrink-0">
           <div>
-            <h3 className="font-bold text-sm text-ink-black-900 tracking-tight flex items-center gap-2">
-              <SendHorizontal className="w-4 h-4 text-ink-black-900" /> Live Test Dispatcher
+            <h3 className="font-bold text-sm text-white tracking-tight flex items-center gap-2">
+              <SendHorizontal className="w-4 h-4 text-indigo-400" /> Live Test Dispatcher
             </h3>
-            <p className="text-[9px] text-ink-black-400 font-semibold tracking-wider block mt-0.5 uppercase">Audit delivery in real clients</p>
+            <p className="text-[9px] text-neutral-400 font-semibold tracking-wider block mt-0.5 uppercase">Audit delivery in real clients</p>
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-full border border-ink-black-100 hover:border-ink-black-200 bg-alabaster-grey-50 flex items-center justify-center text-ink-black-400 hover:text-ink-black-700 transition-colors"
+            className="w-7 h-7 rounded-full border border-[#1f222e] bg-[#12141c] flex items-center justify-center text-neutral-400 hover:text-white transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -115,47 +115,47 @@ export function SendTestDialog({ isOpen, onClose, code, templateName }: SendTest
         <form onSubmit={handleSend} className="p-6 space-y-4">
           
           {status === 'success' && (
-            <div className="p-3.5 bg-emerald-50 border border-emerald-200/60 text-emerald-800 rounded-xl text-xs font-semibold flex items-start gap-2.5">
-              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 rounded-xl text-xs font-semibold flex items-start gap-2.5">
+              <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold">Email sent successfully!</p>
-                <p className="text-[10px] text-emerald-600 font-medium mt-0.5">Check your inbox. Note: Sandbox free keys can only deliver to your Resend account owner email.</p>
+                <p className="font-bold text-emerald-200">Email sent successfully!</p>
+                <p className="text-[10px] text-emerald-400/90 font-medium mt-0.5">Check your inbox. Note: Sandbox free keys can only deliver to your Resend account owner email.</p>
               </div>
             </div>
           )}
 
           {status === 'error' && (
-            <div className="p-3.5 bg-red-50 border border-red-200/60 text-red-800 rounded-xl text-xs font-semibold flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-300 rounded-xl text-xs font-semibold flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold">Failed to send</p>
-                <p className="text-[10px] text-red-600 font-mono mt-0.5">{errorMessage}</p>
+                <p className="font-bold text-rose-200">Failed to send</p>
+                <p className="text-[10px] text-rose-400 font-mono mt-0.5">{errorMessage}</p>
               </div>
             </div>
           )}
 
           {/* Receiver Email Field */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-ink-black-500">To Address</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">To Address</label>
             <Input
               type="email"
               placeholder="e.g. you@example.com"
               value={toEmail}
               onChange={(e) => setToEmail(e.target.value)}
-              className="h-9 rounded-lg border-ink-black-100 focus-visible:ring-ink-black-200 text-xs text-ink-black-900"
+              className="h-9 rounded-lg border-[#1f222e] bg-[#07080b] focus-visible:ring-indigo-500 text-xs text-white placeholder-neutral-500"
               required
             />
           </div>
 
           {/* Subject Field */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-ink-black-500">Subject</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Subject</label>
             <Input
               type="text"
               placeholder="e.g. Onboarding Welcomer"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="h-9 rounded-lg border-ink-black-100 focus-visible:ring-ink-black-200 text-xs text-ink-black-900"
+              className="h-9 rounded-lg border-[#1f222e] bg-[#07080b] focus-visible:ring-indigo-500 text-xs text-white placeholder-neutral-500"
               required
             />
           </div>
@@ -163,14 +163,14 @@ export function SendTestDialog({ isOpen, onClose, code, templateName }: SendTest
           {/* Resend API Key Field */}
           <div className="space-y-1.5">
             <div className="flex justify-between items-center">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-ink-black-500 flex items-center gap-1">
-                <Key className="w-3.5 h-3.5 text-ink-black-400" /> Resend API Key
+              <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1">
+                <Key className="w-3.5 h-3.5 text-indigo-400" /> Resend API Key
               </label>
               <a
                 href="https://resend.com/api-keys"
                 target="_blank"
                 rel="noreferrer"
-                className="text-[9px] font-bold text-ink-black-400 hover:text-ink-black-900 flex items-center gap-0.5"
+                className="text-[9px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-0.5"
               >
                 Get Key for Free <ArrowUpRight className="w-2.5 h-2.5" />
               </a>
@@ -180,22 +180,22 @@ export function SendTestDialog({ isOpen, onClose, code, templateName }: SendTest
               placeholder="re_..."
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              className="h-9 rounded-lg border-ink-black-100 focus-visible:ring-ink-black-200 text-xs text-ink-black-900 font-mono"
+              className="h-9 rounded-lg border-[#1f222e] bg-[#07080b] focus-visible:ring-indigo-500 text-xs text-white placeholder-neutral-500 font-mono"
               required
             />
-            <p className="text-[8px] text-ink-black-400 font-semibold leading-relaxed flex items-start gap-1">
-              <HelpCircle className="w-3 h-3 text-ink-black-400 shrink-0 mt-0.5" />
-              Stored strictly inside your browser's local storage. Stays completely offline and never sent to our servers.
+            <p className="text-[8px] text-neutral-400 font-semibold leading-relaxed flex items-start gap-1">
+              <HelpCircle className="w-3 h-3 text-neutral-500 shrink-0 mt-0.5" />
+              Stored strictly inside your browser&apos;s local storage. Stays completely offline and never sent to our servers.
             </p>
           </div>
 
           {/* Buttons row */}
-          <div className="flex gap-2 pt-2 border-t border-ink-black-100 mt-4">
+          <div className="flex gap-2 pt-2 border-t border-[#1f222e] mt-4">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="flex-grow h-9 rounded-lg text-[9px] font-bold uppercase tracking-wider border-ink-black-100"
+              className="flex-grow h-9 rounded-lg text-[9px] font-bold uppercase tracking-wider border-[#1f222e] bg-[#12141c] hover:bg-[#1f222e] text-neutral-300 hover:text-white"
             >
               Cancel
             </Button>
@@ -203,7 +203,7 @@ export function SendTestDialog({ isOpen, onClose, code, templateName }: SendTest
               type="submit"
               disabled={isSending}
               isLoading={isSending}
-              className="flex-grow h-9 rounded-lg text-[9px] font-bold uppercase tracking-wider bg-ink-black-900 hover:bg-ink-black-800 text-white"
+              className="flex-grow h-9 rounded-lg text-[9px] font-bold uppercase tracking-wider bg-indigo-600 hover:bg-indigo-500 text-white border-none"
             >
               Send Test Email
             </Button>

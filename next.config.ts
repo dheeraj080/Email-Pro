@@ -1,6 +1,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,
@@ -20,18 +21,6 @@ const nextConfig: NextConfig = {
     ],
   },
   transpilePackages: ['motion'],
-  rewrites: async () => {
-    return [
-      {
-        source: '/api/v1/:path*',
-        destination: 'http://localhost:5000/api/v1/:path*',
-      },
-      {
-        source: '/api/analytics/:path*',
-        destination: 'http://localhost:5000/api/analytics/:path*',
-      },
-    ];
-  },
   webpack: (config, {dev}) => {
     // HMR configuration for local development environment
     // Allows disabling file watching via environment variable

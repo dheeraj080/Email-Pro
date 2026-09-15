@@ -1,65 +1,44 @@
 import React from 'react';
 import * as EmailComponents from '@react-email/components';
-import { transform } from 'sucrase';
+import {
+  isRawHtml,
+  compileEmailElement,
+  evaluateTemplate,
+  extractComponent,
+  transpileCode as transpileJSX,
+} from './template-compiler';
 
-export function transpileJSX(code: string): string {
-  try {
-    const transpiledCode = transform(code, {
-      transforms: ['jsx', 'typescript', 'imports'],
-      jsxRuntime: 'classic',
-    }).code;
+export { transpileJSX };
 
-    const wrappedCode = `
-      var exports = {};
-      var module = { exports: exports };
-      ${transpiledCode}
-      return module.exports.default || module.exports;
-    `;
+function getClientMockedComponents() {
+  const mocked = {
+    ...EmailComponents,
+    Html: ({ children }: any) => React.createElement(React.Fragment, null, children),
+    Head: ({ children }: any) => React.createElement(React.Fragment, null, children),
+    Body: ({ children, className, style }: any) => React.createElement('div', { 
+      className: `email-body-preview ${className || ''}`,
+      style: { width: '100%', minHeight: '100%', ...style }
+    }, children),
+    Preview: () => null,
+    Tailwind: ({ children }: any) => React.createElement(React.Fragment, null, children),
+  };
 
-    return wrappedCode;
-  } catch (error) {
-    console.error('Transpilation error:', error);
-    throw error;
-  }
+  return new Proxy(mocked, {
+    get: (target, prop) => {
+      if (prop in target) return (target as any)[prop];
+      return (EmailComponents as any)[prop];
+    }
+  });
 }
 
 export function compileTemplate(code: string, templates: any[] = []): any {
   try {
-    const transpiled = transpileJSX(code);
-    const mockedComponents = {
-      ...EmailComponents,
-      Html: ({ children }: any) => React.createElement(React.Fragment, null, children),
-      Head: ({ children }: any) => React.createElement(React.Fragment, null, children),
-      Body: ({ children, className, style }: any) => React.createElement('div', { 
-        className: `email-body-preview ${className || ''}`,
-        style: { width: '100%', minHeight: '100%', ...style }
-      }, children),
-      Preview: () => null,
-      Tailwind: ({ children }: any) => React.createElement(React.Fragment, null, children),
-    };
-
-    const scope = {
-      React,
-      ...mockedComponents,
-      html: ({ children }: any) => React.createElement(React.Fragment, null, children),
-      body: ({ children }: any) => React.createElement('div', null, children),
-      head: () => null,
-      process: { env: { VERCEL_URL: 'react.email' } },
-      require: (name: string) => {
-        if (name === 'react') return React;
-        if (name === '@react-email/components' || name === 'react-email') {
-          return mockedComponents;
-        }
-        return {};
-      }
-    };
-
-    const keys = Object.keys(scope);
-    const values = Object.values(scope);
-    const wrappedFn = new Function(...keys, 'exports', 'module', transpiled + '; return module.exports.default || module.exports;');
-    const exports = {};
-    const module = { exports };
-    return wrappedFn(...values, exports, module);
+    const mockedComponents = getClientMockedComponents();
+    const result = evaluateTemplate(code, {
+      emailComponents: mockedComponents,
+      templates,
+    });
+    return extractComponent(result) || {};
   } catch (error) {
     console.error('Failed to compile dependency:', error);
     return {};
@@ -69,136 +48,18 @@ export function compileTemplate(code: string, templates: any[] = []): any {
 export function renderEmailToReact(code: string, templates: any[] = []): React.ReactElement | null {
   try {
     // If it looks like raw HTML, don't try to transpile it as React
-    if (code.trim().startsWith('<!DOCTYPE') || code.trim().startsWith('<html')) {
+    if (isRawHtml(code)) {
       return React.createElement('div', { 
         dangerouslySetInnerHTML: { __html: code },
         className: 'legacy-html-preview'
       });
     }
 
-    const transpiled = transpileJSX(code);
-    
-    const mockedComponents = {
-      ...EmailComponents,
-      Html: ({ children }: any) => React.createElement(React.Fragment, null, children),
-      Head: ({ children }: any) => React.createElement(React.Fragment, null, children),
-      Body: ({ children, className, style }: any) => React.createElement('div', { 
-        className: `email-body-preview ${className || ''}`,
-        style: { width: '100%', minHeight: '100%', ...style }
-      }, children),
-      Preview: () => null,
-      Tailwind: ({ children }: any) => React.createElement(React.Fragment, null, children),
-    };
-
-    // Create a local scope for components
-    const scope = {
-      React,
-      ...mockedComponents,
-      // Handle cases where people might use lowercase tags if transpiler allows
-      html: ({ children }: any) => React.createElement(React.Fragment, null, children),
-      body: ({ children }: any) => React.createElement('div', null, children),
-      head: () => null,
-      process: {
-        env: {
-          VERCEL_URL: 'react.email',
-        }
-      },
-      require: (name: string) => {
-        if (name === 'react') return React;
-        if (name === '@react-email/components' || name === 'react-email') {
-          return new Proxy(mockedComponents, {
-            get: (target, prop) => {
-              if (prop in target) return (target as any)[prop];
-              return (EmailComponents as any)[prop];
-            }
-          });
-        }
-        
-        // Resolve relative imports from the workspace templates registry
-        if (name.startsWith('./') || name.startsWith('../')) {
-          const cleanName = name.replace(/^\.\/?/, '').replace(/^\.\.\/?/, '').replace(/\.(ts|tsx|js|jsx)$/, '');
-          const template = templates.find(t => 
-            t.id === cleanName || 
-            t.name?.toLowerCase() === cleanName.toLowerCase()
-          );
-          if (template) {
-            return compileTemplate(template.code, templates);
-          }
-          
-          // Pre-styled high-fidelity Barebones fallback configuration if not present
-          if (name.includes('theme') || name.includes('fonts')) {
-            return {
-              barebonesBoxedTailwindConfig: {
-                theme: {
-                  extend: {
-                    colors: {
-                      bg: '#ffffff',
-                      'bg-2': '#f4f4f5',
-                      fg: '#18181b',
-                      'fg-2': '#71717a',
-                      'fg-3': '#a1a1aa',
-                      'fg-inverted': '#ffffff',
-                    },
-                    fontSize: {
-                      'font-11': '11px',
-                      'font-13': '13px',
-                      'font-16': '16px',
-                      'font-28': '28px',
-                    }
-                  }
-                }
-              },
-              BarebonesFonts: () => React.createElement('style', {
-                dangerouslySetInnerHTML: {
-                  __html: `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); body { font-family: 'Inter', sans-serif !important; }`
-                }
-              })
-            };
-          }
-        }
-        return {};
-      }
-    };
-
-    // Use Function constructor to evaluate code safely in browser
-    const keys = Object.keys(scope);
-    const values = Object.values(scope);
-    const renderFn = new Function(...keys, transpiled);
-    
-    let result = renderFn(...values);
-    let Component = result;
-
-    // Handle extraction from exports object
-    if (Component && typeof Component === 'object' && !React.isValidElement(Component)) {
-      if ((Component as any).default) {
-        Component = (Component as any).default;
-      } else {
-        // Find something that looks like a component
-        const componentKey = Object.keys(Component).find(key => {
-          if (key === '__esModule') return false;
-          const val = (Component as any)[key];
-          return typeof val === 'function' || (val && typeof val === 'object' && (val.$$typeof || val.render || val.type));
-        });
-        if (componentKey) {
-          Component = (Component as any)[componentKey];
-        }
-      }
-    }
-    
-    if (typeof Component === 'function' || (Component && typeof Component === 'object' && !React.isValidElement(Component))) {
-      try {
-        return React.createElement(Component as any);
-      } catch (e) {
-        // Already an element or invalid
-      }
-    }
-    
-    if (Component && typeof Component === 'object' && !React.isValidElement(Component) && Object.keys(Component).length === 0) {
-      console.warn('Rendered result is an empty object, possibly failed to find export');
-      return null;
-    }
-
-    return Component;
+    const mockedComponents = getClientMockedComponents();
+    return compileEmailElement(code, {
+      emailComponents: mockedComponents,
+      templates,
+    });
   } catch (error) {
     console.error('Render error:', error);
     return null;

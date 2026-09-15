@@ -13,17 +13,17 @@ interface AnalyticsViewProps {
 export const AnalyticsView = React.memo(function AnalyticsView({ metrics, isAnalyzing }: AnalyticsViewProps) {
   if (isAnalyzing && !metrics) {
     return (
-      <div className="h-full flex items-center justify-center bg-white">
+      <div className="h-full flex items-center justify-center bg-[#07080b]">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 text-powder-blue-500 animate-spin" />
-          <p className="text-xs font-bold uppercase tracking-widest text-ink-black-400">Analyzing Email Performance...</p>
+          <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+          <p className="text-xs font-bold uppercase tracking-widest text-neutral-400">Analyzing Email Performance...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar bg-white">
+    <div className="h-full overflow-y-auto custom-scrollbar bg-[#07080b]">
       <div className="max-w-5xl mx-auto p-12">
         <AnalyticsDashboard metrics={metrics} isAnalyzing={isAnalyzing} />
       </div>

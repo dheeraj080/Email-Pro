@@ -36,6 +36,18 @@ export const EMAIL_SNIPPETS = [
     code: `<Hr className="border-slate-200 my-6" />`
   },
   {
+    name: 'Promo Badge Box',
+    icon: Copy,
+    description: 'Highlighted promo code callout box',
+    code: `<Section className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-5 my-6 text-center">\n  <Text className="text-xs font-bold text-indigo-600 uppercase tracking-wider m-0">Exclusive Offer</Text>\n  <Text className="text-xl font-extrabold text-slate-900 my-1">Save 25% Today</Text>\n  <Text className="text-xs text-indigo-700 m-0 font-mono font-bold bg-white inline-block px-3 py-1 rounded border border-indigo-200">PROMO2026</Text>\n</Section>`
+  },
+  {
+    name: 'Order Line Item',
+    icon: AlignLeft,
+    description: 'Receipt table row structure',
+    code: `<Section className="bg-slate-50 border border-slate-200 rounded-xl p-4 my-6">\n  <Row className="border-b border-slate-200 pb-2 mb-2">\n    <Column className="text-xs font-bold text-slate-700">Item</Column>\n    <Column className="text-xs font-bold text-slate-700 text-right">Price</Column>\n  </Row>\n  <Row className="py-1">\n    <Column className="text-xs text-slate-600">EmailPro Pro Subscription</Column>\n    <Column className="text-xs font-semibold text-slate-800 text-right">$49.00</Column>\n  </Row>\n</Section>`
+  },
+  {
     name: 'Social Links',
     icon: Share2,
     description: 'Footer network redirection row',
@@ -72,31 +84,31 @@ export function SnippetsPicker({ onInsert }: SnippetsPickerProps) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold text-ink-black-500 hover:text-ink-black-900 transition-colors",
-          isOpen && "text-ink-black-950 bg-ink-black-50"
+          "flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold text-neutral-400 hover:text-white transition-colors",
+          isOpen && "text-white bg-[#12141c]"
         )}
         title="Insert pre-designed visual email block snippets at cursor"
       >
-        <PlusSquare className="w-3.5 h-3.5 text-ink-black-400" />
+        <PlusSquare className="w-3.5 h-3.5 text-indigo-400" />
         <span>Insert</span>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 bottom-full mb-1.5 w-60 bg-white border border-slate-200 rounded-xl shadow-xl p-3.5 z-[200] animate-in fade-in slide-in-from-bottom-1 duration-200">
-          <div className="text-[8px] font-black uppercase tracking-wider text-slate-400 mb-2">Boilerplate Snippets</div>
+        <div className="absolute right-0 bottom-full mb-1.5 w-60 bg-[#0c0d12] border border-[#1f222e] rounded-xl shadow-2xl p-3.5 z-[200] animate-in fade-in slide-in-from-bottom-1 duration-200">
+          <div className="text-[8px] font-black uppercase tracking-wider text-neutral-400 mb-2">Boilerplate Snippets</div>
           <div className="space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar">
             {EMAIL_SNIPPETS.map((snippet) => (
               <button
                 key={snippet.name}
                 onClick={() => handleSelectSnippet(snippet.code)}
-                className="w-full p-2 rounded-lg border border-slate-50 hover:border-slate-200/60 bg-slate-50/50 hover:bg-slate-50 flex items-start gap-2.5 transition-all text-left group"
+                className="w-full p-2 rounded-lg border border-[#1f222e] bg-[#07080b] hover:bg-[#12141c] hover:border-indigo-500/40 flex items-start gap-2.5 transition-all text-left group"
               >
-                <div className="w-7 h-7 rounded-md bg-white border border-slate-100 flex items-center justify-center text-slate-500 group-hover:text-slate-800 shadow-sm shrink-0">
+                <div className="w-7 h-7 rounded-md bg-[#12141c] border border-[#1f222e] flex items-center justify-center text-indigo-400 group-hover:text-indigo-300 shadow-xs shrink-0">
                   <snippet.icon className="w-4 h-4 stroke-[1.5]" />
                 </div>
                 <div>
-                  <h5 className="font-bold text-[10px] text-slate-700 tracking-tight leading-none group-hover:text-slate-900 mt-0.5">{snippet.name}</h5>
-                  <p className="text-[8px] text-slate-400 font-semibold mt-1 leading-none">{snippet.description}</p>
+                  <h5 className="font-bold text-[10px] text-neutral-200 tracking-tight leading-none group-hover:text-white mt-0.5">{snippet.name}</h5>
+                  <p className="text-[8px] text-neutral-400 font-semibold mt-1 leading-none">{snippet.description}</p>
                 </div>
               </button>
             ))}

@@ -187,9 +187,9 @@ function TemplateCard({ template, isActive, onSelect, onZoom, preview, isLoading
   };
 
   const complexityColors = {
-    Simple: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-    Medium: 'bg-amber-50 text-amber-600 border-amber-100',
-    Advanced: 'bg-indigo-50 text-indigo-600 border-indigo-100'
+    Simple: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    Medium: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    Advanced: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
   };
 
   return (
@@ -198,20 +198,20 @@ function TemplateCard({ template, isActive, onSelect, onZoom, preview, isLoading
       <div 
         onClick={() => onSelect(template)}
         className={cn(
-          "aspect-[16/11] bg-white relative overflow-hidden rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col shadow-sm",
+          "aspect-[16/11] bg-[#07080b] relative overflow-hidden rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col shadow-sm",
           isActive 
-            ? "border-neutral-900 ring-1 ring-neutral-900 shadow-md" 
-            : "border-neutral-200/60 hover:border-neutral-300 hover:shadow-md"
+            ? "border-indigo-500 ring-1 ring-indigo-500 shadow-md" 
+            : "border-[#1f222e] hover:border-neutral-700 hover:shadow-md"
         )}
       >
         {/* Safari Top Bar Header */}
-        <div className="h-7 bg-neutral-50 border-b border-neutral-200/50 px-3 flex items-center justify-between shrink-0">
+        <div className="h-7 bg-[#0c0d12] border-b border-[#1f222e] px-3 flex items-center justify-between shrink-0">
           <div className="flex gap-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-neutral-300" />
-            <div className="w-1.5 h-1.5 rounded-full bg-neutral-300" />
-            <div className="w-1.5 h-1.5 rounded-full bg-neutral-300" />
+            <div className="w-1.5 h-1.5 rounded-full bg-neutral-700" />
+            <div className="w-1.5 h-1.5 rounded-full bg-neutral-700" />
+            <div className="w-1.5 h-1.5 rounded-full bg-neutral-700" />
           </div>
-          <div className="bg-white border border-neutral-200/40 rounded px-2.5 py-0.5 text-[8px] text-neutral-400 font-mono tracking-wide truncate max-w-[120px]">
+          <div className="bg-[#07080b] border border-[#1f222e] rounded px-2.5 py-0.5 text-[8px] text-neutral-400 font-mono tracking-wide truncate max-w-[120px]">
             {template.id}.tsx
           </div>
           <div className="w-4" />
@@ -220,8 +220,8 @@ function TemplateCard({ template, isActive, onSelect, onZoom, preview, isLoading
         {/* Viewport Frame */}
         <div className="flex-1 bg-white relative overflow-hidden">
           {isLoading ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
-              <div className="w-4 h-4 rounded-full border-2 border-neutral-100 border-t-neutral-800 animate-spin" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-white">
+              <div className="w-4 h-4 rounded-full border-2 border-neutral-200 border-t-neutral-800 animate-spin" />
               <span className="text-[8px] font-bold text-neutral-400 uppercase tracking-widest">Compiling</span>
             </div>
           ) : preview ? (
@@ -234,20 +234,20 @@ function TemplateCard({ template, isActive, onSelect, onZoom, preview, isLoading
               />
             </div>
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-neutral-300">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-neutral-400 bg-white">
               <Mail className="w-7 h-7 stroke-[1.2]" />
               <span className="text-[8px] font-bold uppercase tracking-widest text-neutral-400">No Preview</span>
             </div>
           )}
 
           {/* Action card buttons floating on hover */}
-          <div className="absolute inset-0 bg-neutral-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+          <div className="absolute inset-0 bg-[#07080b]/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
             <button 
               onClick={(e) => {
                 e.stopPropagation();
                 onSelect(template);
               }}
-              className="bg-white hover:bg-neutral-50 text-neutral-900 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300"
             >
               Use Blueprint
             </button>
@@ -256,7 +256,7 @@ function TemplateCard({ template, isActive, onSelect, onZoom, preview, isLoading
                 e.stopPropagation();
                 onZoom(template);
               }}
-              className="bg-neutral-900 hover:bg-neutral-800 text-white p-2 rounded-full shadow-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300"
+              className="bg-[#12141c] hover:bg-[#1f222e] text-white p-2 rounded-full shadow-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 border border-[#1f222e]"
               title="Inspect Simulator"
             >
               <Eye className="w-4 h-4" />
@@ -264,7 +264,7 @@ function TemplateCard({ template, isActive, onSelect, onZoom, preview, isLoading
           </div>
 
           {isActive && (
-            <div className="absolute top-2 right-2 bg-neutral-950 text-white p-1 rounded-full shadow-md z-10">
+            <div className="absolute top-2 right-2 bg-indigo-600 text-white p-1 rounded-full shadow-md z-10">
               <Check className="w-3.5 h-3.5" />
             </div>
           )}
@@ -276,7 +276,7 @@ function TemplateCard({ template, isActive, onSelect, onZoom, preview, isLoading
         <div className="flex items-start justify-between gap-2">
           <h4 
             onClick={() => onSelect(template)}
-            className="font-bold text-[13px] text-neutral-900 tracking-tight hover:text-indigo-600 transition-colors cursor-pointer truncate"
+            className="font-bold text-[13px] text-white tracking-tight hover:text-indigo-400 transition-colors cursor-pointer truncate"
           >
             {meta.name}
           </h4>
@@ -308,6 +308,15 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
   
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const [loadingPreviews, setLoadingPreviews] = useState<Record<string, boolean>>({});
+  const [isGalleryLoading, setIsGalleryLoading] = useState(true);
+
+  useEffect(() => {
+    setIsGalleryLoading(true);
+    const timer = setTimeout(() => {
+      setIsGalleryLoading(false);
+    }, 700);
+    return () => clearTimeout(timer);
+  }, [activeCategory, searchQuery]);
 
   const loadingRefs = React.useRef<Record<string, boolean>>({});
   const loadedRefs = React.useRef<Record<string, boolean>>({});
@@ -373,21 +382,21 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-neutral-950/20 backdrop-blur-md"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-[#07080b]/80 backdrop-blur-md"
     >
       <motion.div
         initial={{ scale: 0.98, opacity: 0, y: 12 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.98, opacity: 0, y: 12 }}
-        className="bg-white w-full max-w-[95vw] xl:max-w-7xl h-full max-h-[88vh] rounded-[32px] shadow-2xl flex overflow-hidden border border-neutral-200/50"
+        className="bg-[#0c0d12] w-full max-w-[95vw] xl:max-w-7xl h-full max-h-[88vh] rounded-[32px] shadow-2xl flex overflow-hidden border border-[#1f222e] text-neutral-300"
       >
         
         {/* SIDEBAR CATEGORY EXPLORER */}
-        <div className="w-[240px] bg-neutral-50/80 border-r border-neutral-200/50 p-6 flex flex-col justify-between shrink-0 hidden sm:flex">
+        <div className="w-[240px] bg-[#07080b] border-r border-[#1f222e] p-6 flex flex-col justify-between shrink-0 hidden sm:flex">
           <div className="space-y-7">
             <div className="flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-neutral-800" />
-              <h3 className="font-bold text-xs tracking-wider uppercase text-neutral-800">Blueprints</h3>
+              <Sliders className="w-4 h-4 text-indigo-400" />
+              <h3 className="font-bold text-xs tracking-wider uppercase text-white">Blueprints</h3>
             </div>
             
             <div className="space-y-1">
@@ -403,8 +412,8 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                   className={cn(
                     "w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all",
                     activeCategory === item.id 
-                      ? "bg-neutral-900 text-white shadow-sm"
-                      : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-200/40"
+                      ? "bg-indigo-600 text-white shadow-sm"
+                      : "text-neutral-400 hover:text-white hover:bg-[#12141c]"
                   )}
                 >
                   <span className="flex items-center gap-2.5">
@@ -414,8 +423,8 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                   <span className={cn(
                     "text-[9px] font-bold px-1.5 py-0.5 rounded-full border",
                     activeCategory === item.id
-                      ? "bg-neutral-800 text-white border-neutral-700"
-                      : "bg-white text-neutral-400 border-neutral-200/60"
+                      ? "bg-indigo-700 text-white border-indigo-500"
+                      : "bg-[#12141c] text-neutral-400 border-[#1f222e]"
                   )}>
                     {getCategoryCount(item.id as any)}
                   </span>
@@ -424,34 +433,34 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
             </div>
           </div>
 
-          <div className="bg-neutral-100/60 border border-neutral-200/60 rounded-2xl p-4 space-y-3.5">
+          <div className="bg-[#12141c] border border-[#1f222e] rounded-2xl p-4 space-y-3.5">
             <div className="flex items-center gap-1.5 text-[9px] font-black uppercase text-neutral-400">
-              <Info className="w-3 h-3 text-neutral-400" /> COMPILER METRICS
+              <Info className="w-3 h-3 text-indigo-400" /> COMPILER METRICS
             </div>
-            <div className="space-y-2 text-[10px] font-semibold text-neutral-500">
+            <div className="space-y-2 text-[10px] font-semibold text-neutral-400">
               <div className="flex justify-between">
                 <span>Output Format:</span>
-                <span className="text-neutral-800 font-bold">Inlined CSS</span>
+                <span className="text-white font-bold">Inlined CSS</span>
               </div>
               <div className="flex justify-between">
                 <span>Size Control:</span>
-                <span className="text-neutral-800 font-bold">102KB Warn</span>
+                <span className="text-white font-bold">102KB Warn</span>
               </div>
               <div className="flex justify-between">
                 <span>Core Framework:</span>
-                <span className="text-neutral-800 font-bold">React Email</span>
+                <span className="text-white font-bold">React Email</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* MAIN BLUEPRINTS LIST CONTAINER */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#07080b]">
           
           {/* Top Search Toolbar */}
-          <div className="px-8 py-5 border-b border-neutral-200/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white shrink-0">
+          <div className="px-8 py-5 border-b border-[#1f222e] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0c0d12] shrink-0">
             <div>
-              <h3 className="font-black text-xl text-neutral-900 tracking-tight leading-none">Select Blueprint</h3>
+              <h3 className="font-black text-xl text-white tracking-tight leading-none">Select Blueprint</h3>
               <p className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider mt-1.5">Open source React templates for inlining</p>
             </div>
 
@@ -463,13 +472,13 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   icon={<Search className="w-3.5 h-3.5 text-neutral-400" />}
-                  className="h-9 bg-neutral-50 rounded-full border-neutral-200/60 focus-visible:ring-neutral-200 text-xs text-neutral-900 placeholder-neutral-400 pl-9"
+                  className="h-9 bg-[#07080b] rounded-full border-[#1f222e] focus-visible:ring-indigo-500 text-xs text-white placeholder-neutral-500 pl-9"
                 />
               </div>
 
               <button
                 onClick={onClose}
-                className="w-8.5 h-8.5 rounded-full border border-neutral-200 bg-white flex items-center justify-center text-neutral-400 hover:text-neutral-800 transition-all hover:bg-neutral-50"
+                className="w-8.5 h-8.5 rounded-full border border-[#1f222e] bg-[#12141c] flex items-center justify-center text-neutral-400 hover:text-white transition-all hover:bg-[#1f222e]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -477,9 +486,46 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
           </div>
 
           {/* Catalog grid body */}
-          <div className="flex-grow overflow-y-auto px-8 py-8 bg-[#FAFBFB] custom-scrollbar">
+          <div className="flex-grow overflow-y-auto px-8 py-8 bg-[#07080b] custom-scrollbar animate-fade-in">
             
-            {filteredTemplates.length > 0 ? (
+            {isGalleryLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <div key={idx} className="flex flex-col relative">
+                    {/* Visual frame mock styling matching TemplateCard */}
+                    <div className="aspect-[16/11] bg-[#07080b] relative overflow-hidden rounded-2xl border border-[#1f222e] flex flex-col shadow-sm">
+                      {/* Safari Top Bar Header */}
+                      <div className="h-7 bg-[#0c0d12] border-b border-[#1f222e] px-3 flex items-center justify-between shrink-0">
+                        <div className="flex gap-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-neutral-800" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-neutral-800" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-neutral-800" />
+                        </div>
+                        <div className="bg-[#07080b] border border-[#1f222e] rounded px-3 py-0.5 text-[8px] h-3.5 w-16 bg-neutral-800/40 animate-pulse" />
+                        <div className="w-4" />
+                      </div>
+                      {/* Viewport Frame Skeleton */}
+                      <div className="flex-1 bg-neutral-900/40 relative overflow-hidden p-4 flex flex-col justify-between">
+                        <div className="space-y-2">
+                          <div className="h-2 w-1/4 bg-neutral-800 rounded animate-pulse" />
+                          <div className="h-3 w-5/6 bg-neutral-800 rounded animate-pulse" />
+                          <div className="h-2 w-full bg-neutral-800 rounded animate-pulse" />
+                        </div>
+                        <div className="h-6 w-1/3 bg-neutral-800 rounded-lg animate-pulse" />
+                      </div>
+                    </div>
+                    {/* Metadata line underneath */}
+                    <div className="mt-3.5 pl-0.5 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="h-4 w-2/3 bg-neutral-800 rounded animate-pulse" />
+                        <div className="h-4 w-12 bg-neutral-800 rounded animate-pulse" />
+                      </div>
+                      <div className="h-3 w-1/3 bg-neutral-800 rounded animate-pulse" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredTemplates.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
                 {filteredTemplates.map((template) => (
                   <TemplateCard
@@ -496,12 +542,12 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-28 text-center">
-                <div className="w-12 h-12 bg-white rounded-2xl border border-neutral-200/60 flex items-center justify-center mb-4 text-neutral-400 shadow-sm">
+                <div className="w-12 h-12 bg-[#0c0d12] rounded-2xl border border-[#1f222e] flex items-center justify-center mb-4 text-neutral-400 shadow-sm">
                   <Inbox className="w-5 h-5" />
                 </div>
-                <h4 className="text-sm font-bold text-neutral-800 mb-1">No blueprints matched</h4>
+                <h4 className="text-sm font-bold text-white mb-1">No blueprints matched</h4>
                 <p className="text-xs text-neutral-400 font-medium max-w-xs leading-relaxed">
-                  We couldn't find any email templates matching your query or selected filters. Try another query.
+                  We couldn&apos;t find any email templates matching your query or selected filters. Try another query.
                 </p>
               </div>
             )}
@@ -519,23 +565,23 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-neutral-950/20 backdrop-blur-md flex items-center justify-center p-4 md:p-6"
+            className="fixed inset-0 z-[200] bg-[#07080b]/80 backdrop-blur-md flex items-center justify-center p-4 md:p-6"
           >
             <motion.div
               initial={{ scale: 0.98, opacity: 0, y: 12 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.98, opacity: 0, y: 12 }}
-              className="bg-white w-full max-w-5xl h-full max-h-[82vh] rounded-[28px] overflow-hidden flex flex-col shadow-2xl border border-neutral-200/50"
+              className="bg-[#0c0d12] w-full max-w-5xl h-full max-h-[82vh] rounded-[28px] overflow-hidden flex flex-col shadow-2xl border border-[#1f222e] text-neutral-300"
             >
               
               {/* SIMULATOR MODAL BAR HEADER */}
-              <div className="px-6 py-4 border-b border-neutral-200/50 flex justify-between items-center bg-white shrink-0">
+              <div className="px-6 py-4 border-b border-[#1f222e] flex justify-between items-center bg-[#0c0d12] shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-neutral-50 border border-neutral-100 flex items-center justify-center text-neutral-700 shadow-2xs">
+                  <div className="w-8 h-8 rounded-lg bg-[#12141c] border border-[#1f222e] flex items-center justify-center text-indigo-400 shadow-xs">
                     <Sliders className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-xs text-neutral-900 uppercase tracking-wide leading-none">
+                    <h4 className="font-bold text-xs text-white uppercase tracking-wide leading-none">
                       {activeZoomMeta.name}
                     </h4>
                     <span className="text-[8px] text-neutral-400 font-black tracking-wider block mt-1.5 uppercase">Interactive Testing Sandbox</span>
@@ -544,7 +590,7 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
 
                 <div className="flex items-center gap-3">
                   {/* Viewport Width toggle controls */}
-                  <div className="flex bg-neutral-50 border border-neutral-200/60 rounded-xl p-0.5 shadow-2xs">
+                  <div className="flex bg-[#07080b] border border-[#1f222e] rounded-xl p-0.5 shadow-xs">
                     {[
                       { id: 'desktop', label: 'Desktop (100%)', icon: <Laptop className="w-3.5 h-3.5" /> },
                       { id: 'tablet', label: 'Tablet (768px)', icon: <Tablet className="w-3.5 h-3.5" /> },
@@ -556,8 +602,8 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                         className={cn(
                           "px-3 py-1.5 rounded-lg transition-all text-[8px] font-black uppercase tracking-wider flex items-center gap-1",
                           zoomPreviewMode === btn.id 
-                            ? "bg-white text-neutral-900 shadow-sm border border-neutral-200/60" 
-                            : "text-neutral-400 hover:text-neutral-600"
+                            ? "bg-[#12141c] text-white shadow-sm border border-[#1f222e]" 
+                            : "text-neutral-400 hover:text-neutral-300"
                         )}
                       >
                         {btn.icon}
@@ -575,8 +621,8 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                     className={cn(
                       "h-8.5 rounded-xl px-4.5 text-[9px] font-bold uppercase tracking-widest transition-all",
                       activeTemplateId === zoomTemplate.id 
-                        ? "bg-neutral-50 text-neutral-400 border border-neutral-200 cursor-not-allowed shadow-none" 
-                        : "bg-neutral-900 hover:bg-neutral-800 text-white shadow-sm"
+                        ? "bg-[#12141c] text-neutral-500 border border-[#1f222e] cursor-not-allowed shadow-none" 
+                        : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm"
                     )}
                   >
                     {activeTemplateId === zoomTemplate.id ? 'Selected' : 'Use Blueprint'}
@@ -584,7 +630,7 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
 
                   <button
                     onClick={() => setZoomTemplate(null)}
-                    className="w-8.5 h-8.5 rounded-full border border-neutral-200 hover:border-neutral-300 bg-white text-neutral-400 hover:text-neutral-800 flex items-center justify-center shadow-2xs p-0 transition-colors"
+                    className="w-8.5 h-8.5 rounded-full border border-[#1f222e] bg-[#12141c] text-neutral-400 hover:text-white flex items-center justify-center p-0 transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -592,20 +638,20 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
               </div>
 
               {/* MODAL MAIN CONTENT DISPLAY (Split columns) */}
-              <div className="flex-1 flex overflow-hidden bg-neutral-50/50">
+              <div className="flex-1 flex overflow-hidden bg-[#07080b]">
                 
                 {/* LEFT: EMAIL RENDER VIEWPORT (Resizeable width) */}
-                <div className="flex-1 flex items-center justify-center p-6 md:p-8 overflow-hidden relative border-r border-neutral-200/50">
+                <div className="flex-1 flex items-center justify-center p-6 md:p-8 overflow-hidden relative border-r border-[#1f222e]">
                   <div 
                     className={cn(
-                      "h-full bg-white shadow-md transition-all duration-300 rounded-2xl overflow-hidden border border-neutral-200 flex flex-col",
+                      "h-full bg-white shadow-md transition-all duration-300 rounded-2xl overflow-hidden border border-[#1f222e] flex flex-col",
                       zoomPreviewMode === 'desktop' && "w-full",
                       zoomPreviewMode === 'tablet' && "w-[560px] max-w-full",
                       zoomPreviewMode === 'mobile' && "w-[360px] max-w-full"
                     )}
                   >
                     {/* Simulator Frame Address block */}
-                    <div className="h-9 bg-neutral-50 border-b border-neutral-100 px-4 flex items-center justify-between text-[9px] text-neutral-400 font-mono">
+                    <div className="h-9 bg-neutral-100 border-b border-neutral-200 px-4 flex items-center justify-between text-[9px] text-neutral-500 font-mono">
                       <span>To: client@sandbox.engine</span>
                       <span>Estimated payload size: {activeZoomMeta.sizeEstimate}</span>
                     </div>
@@ -619,16 +665,16 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                 </div>
 
                 {/* RIGHT: DETAILS METADATA & CODE DRAWER (320px width) */}
-                <div className="w-[320px] bg-white flex flex-col justify-between shrink-0 p-5 overflow-y-auto custom-scrollbar">
+                <div className="w-[320px] bg-[#0c0d12] flex flex-col justify-between shrink-0 p-5 overflow-y-auto custom-scrollbar border-l border-[#1f222e]">
                   
                   <div className="space-y-6">
                     {/* Tab Selection */}
-                    <div className="flex bg-neutral-50 border border-neutral-200/60 rounded-xl p-0.5 shadow-2xs">
+                    <div className="flex bg-[#07080b] border border-[#1f222e] rounded-xl p-0.5 shadow-xs">
                       <button
                         onClick={() => setZoomTab('preview')}
                         className={cn(
                           "flex-1 py-1.5 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5",
-                          zoomTab === 'preview' ? "bg-white text-neutral-900 shadow-sm border border-neutral-200/60" : "text-neutral-400"
+                          zoomTab === 'preview' ? "bg-[#12141c] text-white shadow-sm border border-[#1f222e]" : "text-neutral-400"
                         )}
                       >
                         <Scale className="w-3 h-3" /> Info & Quality
@@ -637,7 +683,7 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                         onClick={() => setZoomTab('code')}
                         className={cn(
                           "flex-1 py-1.5 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5",
-                          zoomTab === 'code' ? "bg-white text-neutral-900 shadow-sm border border-neutral-200/60" : "text-neutral-400"
+                          zoomTab === 'code' ? "bg-[#12141c] text-white shadow-sm border border-[#1f222e]" : "text-neutral-400"
                         )}
                       >
                         <Code className="w-3 h-3" /> React Code
@@ -649,12 +695,12 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                       <div className="space-y-5">
                         <div>
                           <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400 block mb-1">Blueprint Profile</span>
-                          <p className="text-xs text-neutral-500 font-medium leading-relaxed">
+                          <p className="text-xs text-neutral-400 font-medium leading-relaxed">
                             {activeZoomMeta.description}
                           </p>
                         </div>
 
-                        <div className="bg-neutral-50 border border-neutral-200/60 rounded-2xl p-4 space-y-3 shadow-2xs">
+                        <div className="bg-[#07080b] border border-[#1f222e] rounded-2xl p-4 space-y-3 shadow-xs">
                           <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400 block">Accessibility Audits</span>
                           
                           <div className="space-y-2">
@@ -665,9 +711,9 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                               { label: 'Contrast Ratio (AAA)', status: 'Verified', desc: 'High compliance color set' }
                             ].map((audit) => (
                               <div key={audit.label} className="flex items-start gap-2.5">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
                                 <div>
-                                  <div className="text-[10px] font-bold text-neutral-800 leading-none">{audit.label}</div>
+                                  <div className="text-[10px] font-bold text-white leading-none">{audit.label}</div>
                                   <span className="text-[8px] text-neutral-400 font-medium">{audit.desc}</span>
                                 </div>
                               </div>
@@ -675,18 +721,18 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                           </div>
                         </div>
 
-                        <div className="space-y-2 text-[10px] font-semibold text-neutral-500 pl-0.5">
+                        <div className="space-y-2 text-[10px] font-semibold text-neutral-400 pl-0.5">
                           <div className="flex justify-between">
                             <span>Complexity:</span>
-                            <span className="text-neutral-800 font-bold">{activeZoomMeta.complexity}</span>
+                            <span className="text-white font-bold">{activeZoomMeta.complexity}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>Language:</span>
-                            <span className="text-neutral-800 font-bold uppercase">{zoomTemplate.language}</span>
+                            <span className="text-white font-bold uppercase">{zoomTemplate.language}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>Estimated Read Time:</span>
-                            <span className="text-neutral-800 font-bold">{activeZoomMeta.readTime}</span>
+                            <span className="text-white font-bold">{activeZoomMeta.readTime}</span>
                           </div>
                         </div>
                       </div>
@@ -697,9 +743,9 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                           <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400 flex items-center gap-1.5"><FileCode className="w-3.5 h-3.5" /> {zoomTemplate.id}.tsx</span>
                           <button
                             onClick={() => handleCopyCode(zoomTemplate.code)}
-                            className="text-[9px] font-black uppercase tracking-wider text-powder-blue-600 hover:text-powder-blue-700 flex items-center gap-1 transition-colors"
+                            className="text-[9px] font-black uppercase tracking-wider text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
                           >
-                            {copiedCode ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                            {copiedCode ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                             {copiedCode ? 'Copied' : 'Copy code'}
                           </button>
                         </div>
@@ -711,8 +757,8 @@ export default function TemplateShowcase({ onSelect, onClose, activeTemplateId }
                     )}
                   </div>
 
-                  <div className="pt-4 border-t border-neutral-200/50 mt-4 flex items-center gap-2 text-[9px] font-bold text-neutral-400">
-                    <Info className="w-3.5 h-3.5 shrink-0" />
+                  <div className="pt-4 border-t border-[#1f222e] mt-4 flex items-center gap-2 text-[9px] font-bold text-neutral-400">
+                    <Info className="w-3.5 h-3.5 shrink-0 text-indigo-400" />
                     <span>Selected templates sync automatically to your active workspace Monaco Editor.</span>
                   </div>
 

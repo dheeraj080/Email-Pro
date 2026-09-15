@@ -1,48 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-primary: #4f46e5; /* Indigo-600 */
-  --color-brand-bg: #f8fafc;      /* Slate-50 */
-  --color-brand-surface: #ffffff; /* White */
-  --color-brand-text-main: #0f172a; /* Slate-900 */
-  --color-brand-text-secondary: #64748b; /* Slate-500 */
-  --color-brand-border: #e2e8f0;   /* Slate-200 */
+  --color-obsidian-canvas: #07080b;
+  --color-slate-card: #0c0d12;
+  --color-slate-card-hover: #12141c;
+  --color-obsidian-border: #1f222e;
 
-  --color-ink-black-50: #f8fafc;
-  --color-ink-black-100: #f1f5f9;
-  --color-ink-black-200: #e2e8f0;
-  --color-ink-black-300: #cbd5e1;
-  --color-ink-black-400: #94a3b8;
-  --color-ink-black-500: #64748b;
-  --color-ink-black-600: #475569;
-  --color-ink-black-700: #334155;
-  --color-ink-black-800: #1e293b;
-  --color-ink-black-900: #0f172a;
-  --color-ink-black-950: #020617;
+  --color-brand-primary: #6366f1; /* Indigo-500 */
+  --color-brand-bg: #07080b;      /* Rich Obsidian Black */
+  --color-brand-surface: #0c0d12; /* Midnight Slate */
+  --color-brand-surface-hover: #12141c;
+  --color-brand-text-main: #ffffff; /* Crisp text-white */
+  --color-brand-text-secondary: #a3a3a3; /* text-neutral-400 */
+  --color-brand-border: #1f222e;   /* hairline border */
+}
 
-  --color-powder-blue-50: #eef2ff;
-  --color-powder-blue-100: #e0e7ff;
-  --color-powder-blue-200: #c7d2fe;
-  --color-powder-blue-300: #a5b4fc;
-  --color-powder-blue-400: #818cf8;
-  --color-powder-blue-500: #6366f1;
-  --color-powder-blue-600: #4f46e5;
-  --color-powder-blue-700: #4338ca;
-  --color-powder-blue-800: #3730a3;
-  --color-powder-blue-900: #312e81;
-  --color-powder-blue-950: #1e1b4b;
-
-  --color-alabaster-grey-50: #f8fafc;
-  --color-alabaster-grey-100: #f1f5f9;
-  --color-alabaster-grey-200: #e2e8f0;
-  --color-alabaster-grey-300: #cbd5e1;
-  --color-alabaster-grey-400: #94a3b8;
-  --color-alabaster-grey-500: #64748b;
-  --color-alabaster-grey-600: #475569;
-  --color-alabaster-grey-700: #334155;
-  --color-alabaster-grey-800: #1e293b;
-  --color-alabaster-grey-900: #0f172a;
-  --color-alabaster-grey-950: #020617;
+/* Global Dark Obsidian Default */
+html, body {
+  background-color: #07080b !important;
+  color: #d4d4d4 !important;
+  color-scheme: dark;
 }
 
 /* Email Editor Custom Styles */
@@ -61,7 +38,7 @@
 .npm-editor textarea {
   outline: none !important;
   color: transparent !important;
-  caret-color: #fff !important;
+  caret-color: #fbbf24 !important; /* Terminal Amber */
   background: transparent !important;
   -webkit-text-fill-color: transparent !important;
 }
@@ -80,16 +57,16 @@ code[class*="language-"] {
   font-family: inherit !important;
 }
 
-/* Syntax Highlighting Colors - High Contrast VS Code Style */
+/* Cybernetic Monokai Syntax Highlighting Colors */
 .token.comment,
 .token.prolog,
 .token.doctype,
 .token.cdata {
-  color: #6a9955 !important;
+  color: #75715e !important;
 }
 
 .token.punctuation {
-  color: #d4d4d4 !important;
+  color: #f8f8f2 !important;
 }
 
 .token.namespace {
@@ -103,7 +80,7 @@ code[class*="language-"] {
 .token.constant,
 .token.symbol,
 .token.deleted {
-  color: #b5cea8 !important;
+  color: #ae81ff !important;
 }
 
 .token.selector,
@@ -112,7 +89,7 @@ code[class*="language-"] {
 .token.char,
 .token.builtin,
 .token.inserted {
-  color: #ce9178 !important;
+  color: #e6db74 !important;
 }
 
 .token.operator,
@@ -120,33 +97,33 @@ code[class*="language-"] {
 .token.url,
 .language-css .token.string,
 .style .token.string {
-  color: #d4d4d4 !important;
+  color: #f92672 !important;
 }
 
 .token.atrule,
 .token.attr-value,
 .token.keyword {
-  color: #569cd6 !important;
+  color: #f92672 !important;
 }
 
 .token.function,
 .token.class-name {
-  color: #dcdcaa !important;
+  color: #a6e22e !important;
 }
 
 .token.regex,
 .token.important,
 .token.variable {
-  color: #9cdcfe !important;
+  color: #66d9ef !important;
 }
 
 .token.keyword.import,
 .token.keyword.export,
 .token.keyword.default {
-  color: #c586c0 !important;
+  color: #f92672 !important;
 }
 
-/* Minimal Aesthetic Scrollbars - Global */
+/* Custom Scrollbars for Obsidian Dark Mode */
 *::-webkit-scrollbar {
   width: 6px !important;
   height: 6px !important;
@@ -157,7 +134,7 @@ code[class*="language-"] {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: #cbd5e1 !important;
+  background: #262626 !important;
   border-radius: 10px !important;
   border: 1px solid transparent !important;
   background-clip: padding-box !important;
@@ -165,12 +142,69 @@ code[class*="language-"] {
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8 !important;
+  background: #6366f1 !important;
 }
-
 
 /* Firefox Support */
 * {
   scrollbar-width: thin !important;
-  scrollbar-color: #cbd5e1 transparent !important;
+  scrollbar-color: #262626 transparent !important;
+}
+
+/* Apple Design System Translucent Materials & Spring Physics Utilities */
+.apple-glass-panel {
+  background: rgba(12, 13, 18, 0.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.apple-frosted-nav {
+  background: rgba(12, 13, 18, 0.88);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+}
+
+.apple-spring-transition {
+  transition: all 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.apple-press-feedback {
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1), background-color 150ms ease, border-color 150ms ease;
+}
+
+.apple-press-feedback:active {
+  transform: scale(0.97);
+}
+
+/* Apple Optical Display Tracking */
+.apple-display-heading {
+  letter-spacing: -0.022em;
+  line-height: 1.08;
+  font-optical-sizing: auto;
+}
+
+/* Accessibility: Reduced Motion & Transparency Overrides */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .apple-press-feedback:active {
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .apple-glass-panel,
+  .apple-frosted-nav {
+    background: #0c0d12 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }

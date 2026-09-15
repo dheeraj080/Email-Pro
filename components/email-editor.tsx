@@ -11,7 +11,6 @@ import { Panel, Group, Separator } from 'react-resizable-panels';
 
 import { cn } from '@/lib/utils';
 import { ErrorBoundary } from '@/components/error-boundary';
-import TemplateShowcase from '@/components/template-showcase';
 import { Template } from '@/lib/types';
 import { useEmailEditor } from '@/hooks/use-email-editor';
 
@@ -24,6 +23,8 @@ import { AnalyticsView } from './editor/analytics-view';
 import { CreateTemplateDialog } from './editor/create-template-dialog';
 import { HistorySidebar } from './editor/history-sidebar';
 import { SendTestDialog } from './editor/send-test-dialog';
+import { AIAssistantDialog } from './editor/ai-assistant-dialog';
+import { EditorSettingsDialog } from './editor/editor-settings-dialog';
 
 interface EmailEditorProps {
   onBack?: () => void;
@@ -81,8 +82,9 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isHistoryCollapsed, setIsHistoryCollapsed] = useState(true);
   const [isResizing, setIsResizing] = useState(false);
-  const [showShowcase, setShowShowcase] = useState(false);
   const [showSendTest, setShowSendTest] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const handleResize = (e: React.MouseEvent, direction: string) => {
     e.preventDefault();
@@ -133,20 +135,20 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
 
   if (!mounted) {
     return (
-      <div className="flex flex-col h-screen bg-alabaster-grey-50 items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-t-ink-black-900 border-ink-black-100 animate-spin" />
+      <div className="flex flex-col h-screen bg-[#07080b] items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-t-indigo-500 border-[#1f222e] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#F8FAF9] text-neutral-900 overflow-hidden font-sans select-none">
-      <header className="h-16 bg-white/95 backdrop-blur-md border-b border-neutral-200/50 flex items-center justify-between px-6 shrink-0 z-20 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
+    <div className="flex flex-col h-screen bg-[#07080b] text-neutral-300 overflow-hidden font-sans select-none">
+      <header className="h-16 apple-frosted-nav border-b border-[#1f222e] flex items-center justify-between px-6 shrink-0 z-20 shadow-md">
         <div className="flex items-center gap-3">
           {onBack && (
             <button 
               onClick={onBack}
-              className="p-2 hover:bg-neutral-50 rounded-xl transition-all text-neutral-400 hover:text-neutral-800 border border-neutral-200/60 shadow-2xs hover:scale-[1.02] active:scale-[0.98]"
+              className="p-2 hover:bg-[#12141c] rounded-xl transition-all text-neutral-400 hover:text-white border border-[#1f222e] border-t-white/10 shadow-xs hover:scale-[1.02] active:scale-[0.96]"
               title="Back to Landing Page"
             >
               <Home className="w-3.5 h-3.5" />
@@ -154,23 +156,23 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
           )}
           <button 
             onClick={handleToggleSidebar}
-            className="p-2 hover:bg-neutral-50 rounded-xl transition-colors text-neutral-400 hover:text-neutral-800"
+            className="p-2 hover:bg-[#12141c] rounded-xl transition-all text-neutral-400 hover:text-white active:scale-[0.96]"
             title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
             {isSidebarCollapsed ? <PanelLeftOpen className="w-4.5 h-4.5" /> : <PanelLeftClose className="w-4.5 h-4.5" />}
           </button>
           
-          <div className="h-5 w-[1px] bg-neutral-200/80 mx-1" />
+          <div className="h-5 w-[1px] bg-[#1f222e] mx-1" />
           
           <div className="flex items-center gap-2">
-            <div className="w-7.5 h-7.5 bg-neutral-900 rounded-lg flex items-center justify-center text-white font-bold text-[10px] tracking-tight shadow-sm">
+            <div className="w-7.5 h-7.5 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-[10px] tracking-tight shadow-sm">
               EP
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-neutral-900 tracking-tight">Email.Pro</span>
-                <span className="text-neutral-300">/</span>
-                <span className="text-powder-blue-600 bg-powder-blue-50 border border-powder-blue-100/50 px-2 py-0.5 rounded-md font-extrabold text-[9px] uppercase tracking-wider truncate max-w-[150px]">
+                <span className="text-xs font-bold text-white tracking-tight">Email.Pro</span>
+                <span className="text-neutral-600">/</span>
+                <span className="text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md font-extrabold text-[9px] uppercase tracking-wider truncate max-w-[150px]">
                   {activeTemplate.name || 'Untitled'}
                 </span>
               </div>
@@ -185,6 +187,8 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
             onDownload={handleDownload}
             onCopy={handleCopyHTML}
             onSendTest={() => setShowSendTest(true)}
+            onOpenSettings={() => setShowSettings(true)}
+            onOpenAIAssistant={() => setShowAIAssistant(true)}
             copied={copied}
             isExporting={isExporting}
             isRendering={isRendering}
@@ -264,7 +268,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
                     onToggleHistory={handleToggleHistory}
                   />
                 </Panel>
-                <Separator className="w-1.5 bg-alabaster-grey-200 hover:bg-powder-blue-500 transition-colors cursor-col-resize active:bg-powder-blue-600" />
+                <Separator className="w-1.5 bg-[#1f222e] hover:bg-indigo-500 transition-colors cursor-col-resize active:bg-indigo-600" />
                 <Panel defaultSize={50} minSize={20}>
                   <div className="h-full flex overflow-hidden">
                     <div className="flex-1">
@@ -313,21 +317,34 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
       />
 
       <AnimatePresence>
-        {showShowcase && (
-          <TemplateShowcase 
-            onClose={() => setShowShowcase(false)}
-            onSelect={(t) => {
-              handleTemplateChange(t);
-              setShowShowcase(false);
-            }}
-          />
-        )}
         {showSendTest && (
           <SendTestDialog 
             isOpen={showSendTest}
             onClose={() => setShowSendTest(false)}
             code={code}
             templateName={activeTemplate.name || 'Untitled'}
+          />
+        )}
+        {showAIAssistant && (
+          <AIAssistantDialog
+            isOpen={showAIAssistant}
+            onClose={() => setShowAIAssistant(false)}
+            currentCode={code}
+            onApplyCode={(newCode) => {
+              setCode(newCode);
+              performRender(newCode);
+            }}
+          />
+        )}
+        {showSettings && (
+          <EditorSettingsDialog
+            isOpen={showSettings}
+            onClose={() => setShowSettings(false)}
+            currentCode={code}
+            onCodeChange={(newCode) => {
+              setCode(newCode);
+              performRender(newCode);
+            }}
           />
         )}
       </AnimatePresence>

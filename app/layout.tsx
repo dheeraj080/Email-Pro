@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} scroll-smooth`}>
-      <body className="font-sans antialiased text-ink-black-900 bg-white">
+      <body className="font-sans antialiased text-neutral-300 bg-[#07080b] selection:bg-indigo-500/30 selection:text-white min-h-screen">
         <ErrorBoundary>
           {children}
           <Toaster position="top-right" expand={false} richColors />

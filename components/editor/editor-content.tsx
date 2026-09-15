@@ -122,13 +122,13 @@ export const EditorContent = memo(function EditorContent({
   }, []);
 
   return (
-    <div className="h-full flex flex-col bg-white">
-      <div className="flex-1 min-h-0 relative overflow-hidden group/editor border-b border-neutral-200/50">
+    <div className="h-full flex flex-col bg-[#07080b]">
+      <div className="flex-1 min-h-0 relative overflow-hidden group/editor border-b border-[#1f222e]">
         <Editor
           height="100%"
           defaultLanguage={language}
           language={language}
-          theme="light"
+          theme="vs-dark"
           value={code}
           onChange={handleEditorChange}
           onMount={handleEditorDidMount}
@@ -163,13 +163,13 @@ export const EditorContent = memo(function EditorContent({
             }
           } as any}
         />
-        <div className="absolute top-0 right-0 w-32 h-32 bg-powder-blue-500/5 blur-3xl rounded-full pointer-events-none opacity-0 group-hover/editor:opacity-100 transition-opacity" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none opacity-0 group-hover/editor:opacity-100 transition-opacity" />
       </div>
 
       {/* Bottom Status Bar */}
-      <div className="h-9.5 border-t border-neutral-200/80 bg-white px-4 flex items-center justify-between shrink-0 select-none">
+      <div className="h-9.5 border-t border-[#1f222e] bg-[#0c0d12] px-4 flex items-center justify-between shrink-0 select-none">
         <div className="flex items-center gap-3">
-          <div className="flex bg-neutral-100 border border-neutral-200/60 rounded-lg p-0.5 shadow-2xs">
+          <div className="flex bg-[#07080b] border border-[#1f222e] rounded-lg p-0.5 shadow-xs">
             {[
               { id: 'typescript', label: 'TSX' },
               { id: 'javascript', label: 'JSX' },
@@ -181,8 +181,8 @@ export const EditorContent = memo(function EditorContent({
                 className={cn(
                   "px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider transition-all",
                   language === lang.id 
-                    ? "bg-white text-neutral-900 shadow-2xs border border-neutral-200/50" 
-                    : "text-neutral-400 hover:text-neutral-600"
+                    ? "bg-[#12141c] text-white shadow-xs border border-[#1f222e]" 
+                    : "text-neutral-400 hover:text-white"
                 )}
               >
                 {lang.label}
@@ -190,14 +190,14 @@ export const EditorContent = memo(function EditorContent({
             ))}
           </div>
 
-          <div className="h-4 w-[1px] bg-neutral-200" />
+          <div className="h-4 w-[1px] bg-[#1f222e]" />
 
           <button 
             onClick={handleFormatCode}
-            className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-neutral-500 hover:text-neutral-800 transition-colors"
+            className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-neutral-400 hover:text-white transition-colors"
             title="Format Code (Alt+Shift+F)"
           >
-            <Sparkles className="w-3.5 h-3.5 text-neutral-400" />
+            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
             <span>Format</span>
           </button>
 
@@ -206,11 +206,11 @@ export const EditorContent = memo(function EditorContent({
             className={cn(
               "flex items-center gap-1 text-[9px] font-black uppercase tracking-wider transition-colors",
               !isHistoryCollapsed 
-                ? "text-indigo-600 font-extrabold" 
-                : "text-neutral-500 hover:text-neutral-800"
+                ? "text-indigo-400 font-extrabold" 
+                : "text-neutral-400 hover:text-white"
             )}
           >
-            <History className={cn("w-3.5 h-3.5", !isHistoryCollapsed ? "text-indigo-600" : "text-neutral-400")} />
+            <History className={cn("w-3.5 h-3.5", !isHistoryCollapsed ? "text-indigo-400" : "text-neutral-400")} />
             <span>History</span>
           </button>
         </div>

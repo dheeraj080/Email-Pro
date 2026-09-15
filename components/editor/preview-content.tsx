@@ -17,7 +17,10 @@ import {
   Settings,
   Copy,
   Check,
-  FileJson
+  FileJson,
+  Moon,
+  Sun,
+  Variable
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -28,9 +31,10 @@ interface FrameProps {
   children?: React.ReactNode;
   className?: string;
   title?: string;
+  isDarkMode?: boolean;
 }
 
-function Frame({ html, children, className, title }: FrameProps) {
+function Frame({ html, children, className, title, isDarkMode = false }: FrameProps) {
   const [contentRef, setContentRef] = React.useState<HTMLIFrameElement | null>(null);
   const [iframeLoaded, setIframeLoaded] = React.useState(false);
   const mountNode = contentRef?.contentWindow?.document?.body;
@@ -46,7 +50,8 @@ function Frame({ html, children, className, title }: FrameProps) {
       html, body {
         margin: 0;
         padding: 0;
-        background-color: #f8fafc;
+        background-color: ${isDarkMode ? '#121212' : '#f8fafc'};
+        color: ${isDarkMode ? '#f3f4f6' : '#111827'};
         font-family: ui-sans-serif, system-ui, sans-serif;
         overflow-x: hidden;
       }
@@ -59,11 +64,8 @@ function Frame({ html, children, className, title }: FrameProps) {
         background: transparent;
       }
       ::-webkit-scrollbar-thumb {
-        background: #e5e5e5;
+        background: ${isDarkMode ? '#333' : '#e5e5e5'};
         border-radius: 3px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #d4d4d4;
       }
     `;
 
@@ -74,15 +76,23 @@ function Frame({ html, children, className, title }: FrameProps) {
     doc.head.appendChild(style);
     
     setIframeLoaded(true);
-  }, [contentRef, html]);
+  }, [contentRef, html, isDarkMode]);
 
-  // If high-fidelity compiled HTML is ready, render standard srcDoc (100% layout and styles match production)
+  // If high-fidelity compiled HTML is ready, render standard srcDoc
   if (html) {
+    const processedHtml = isDarkMode 
+      ? `<style>
+          html, body { background-color: #121212 !important; color: #f3f4f6 !important; }
+          .bg-white, table.bg-white { background-color: #1e1e28 !important; }
+          p, h1, h2, h3, h4, td, span { color: #e2e8f0 !important; }
+         </style>` + html 
+      : html;
+
     return (
       <iframe 
         title={title} 
         className={className} 
-        srcDoc={html}
+        srcDoc={processedHtml}
         style={{ width: '100%', height: '100%', border: 'none' }}
       />
     );
@@ -149,6 +159,7 @@ export const PreviewContent = React.memo(function PreviewContent({
 }: PreviewContentProps) {
   const [showPresets, setShowPresets] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
+  const [isClientDarkMode, setIsClientDarkMode] = React.useState(false);
   const presetsRef = React.useRef<HTMLDivElement>(null);
   
   const [copiedHtml, setCopiedHtml] = React.useState(false);
@@ -224,28 +235,28 @@ export const PreviewContent = React.memo(function PreviewContent({
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
-      <div className="flex-1 bg-[#F8FAF9] relative overflow-hidden flex flex-col">
+    <div className="h-full flex flex-col bg-[#07080b]">
+      <div className="flex-1 bg-[#07080b] relative overflow-hidden flex flex-col">
         {error && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center p-8 bg-neutral-950/40 backdrop-blur-sm">
-            <div className="max-w-lg w-full bg-[#181818] border border-neutral-800 rounded-2xl p-6 shadow-2xl flex flex-col text-left space-y-4">
-              <div className="flex items-center gap-2 text-red-500">
+          <div className="absolute inset-0 z-50 flex items-center justify-center p-8 bg-neutral-950/80 backdrop-blur-sm">
+            <div className="max-w-lg w-full bg-[#0c0d12] border border-[#1f222e] rounded-2xl p-6 shadow-2xl flex flex-col text-left space-y-4">
+              <div className="flex items-center gap-2 text-rose-400">
                 <AlertCircle className="w-5 h-5" />
                 <span className="text-[10px] font-black uppercase tracking-wider">Transpilation / Build Failure</span>
               </div>
               <div>
                 <h3 className="text-xs font-bold text-white mb-1">Sucrase Parsing Error</h3>
-                <p className="text-[10px] text-neutral-400 font-mono bg-neutral-900/60 p-4 rounded-xl border border-neutral-800 break-all leading-relaxed whitespace-pre-wrap">
+                <p className="text-[10px] text-neutral-300 font-mono bg-[#07080b] p-4 rounded-xl border border-[#1f222e] break-all leading-relaxed whitespace-pre-wrap">
                   {error}
                 </p>
               </div>
-              <div className="flex justify-between items-center pt-2 border-t border-neutral-800/80">
-                <span className="text-[9px] text-neutral-500 font-bold uppercase tracking-wider">Compiler Telemetry</span>
+              <div className="flex justify-between items-center pt-2 border-t border-[#1f222e]">
+                <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Compiler Telemetry</span>
                 <button 
                   onClick={() => window.location.reload()}
-                  className="text-[9px] font-bold text-neutral-400 hover:text-white transition-colors flex items-center gap-1 bg-neutral-800 hover:bg-neutral-700 px-3 py-1.5 rounded-lg border border-neutral-700 shadow-2xs"
+                  className="text-[9px] font-bold text-neutral-300 hover:text-white transition-colors flex items-center gap-1 bg-[#12141c] hover:bg-[#1f222e] px-3 py-1.5 rounded-lg border border-[#1f222e] shadow-xs"
                 >
-                  <RefreshCw className="w-3 h-3 animate-spin" /> Retry Build
+                  <RefreshCw className="w-3 h-3 animate-spin text-indigo-400" /> Retry Build
                 </button>
               </div>
             </div>
@@ -260,7 +271,7 @@ export const PreviewContent = React.memo(function PreviewContent({
                 <div 
                   id={isSplit ? 'preview-container-split' : 'preview-container'}
                   className={cn(
-                    "bg-white shadow-xl relative shrink-0 overflow-hidden border border-neutral-200/80 flex flex-col",
+                    "bg-white shadow-2xl relative shrink-0 overflow-hidden border border-[#1f222e] flex flex-col",
                     !customDimensions && (previewMode === 'mobile' ? "w-[375px] h-[667px] rounded-[24px] transition-all duration-500" : "w-full h-full rounded-[14px] transition-all duration-500")
                   )}
                   style={customDimensions ? {
@@ -270,32 +281,44 @@ export const PreviewContent = React.memo(function PreviewContent({
                   } : {}}
                 >
                   {/* Browser Mock top navigation strip */}
-                  <div className="h-10 bg-neutral-50/80 border-b border-neutral-200/50 px-4 flex items-center justify-between shrink-0 select-none">
+                  <div className="h-10 bg-[#0c0d12] border-b border-[#1f222e] px-4 flex items-center justify-between shrink-0 select-none">
                     <div className="flex gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-neutral-300/85" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-neutral-300/85" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-neutral-300/85" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
                     </div>
 
-                    <div className="flex-1 max-w-[280px] bg-white border border-neutral-200/50 rounded-lg py-1 px-3.5 flex items-center gap-1.5 justify-center shadow-3xs mx-4">
-                      <Lock className="w-3 h-3 text-emerald-500" />
+                    <div className="flex-1 max-w-[280px] bg-[#07080b] border border-[#1f222e] rounded-lg py-1 px-3.5 flex items-center gap-1.5 justify-center shadow-xs mx-4">
+                      <Lock className="w-3 h-3 text-emerald-400" />
                       <span className="text-[9px] font-mono text-neutral-400 truncate tracking-wide">sandbox.email.pro/preview</span>
                     </div>
 
-                    <div className="w-12 flex justify-end">
-                      <RefreshCw className="w-3 h-3 text-neutral-400 hover:text-neutral-700 cursor-pointer transition-colors" />
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setIsClientDarkMode(!isClientDarkMode)}
+                        className={cn(
+                          "px-2 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 transition-all border",
+                          isClientDarkMode 
+                            ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" 
+                            : "bg-[#12141c] text-neutral-400 border-[#1f222e] hover:text-white"
+                        )}
+                        title="Simulate Client Dark Mode rendering"
+                      >
+                        {isClientDarkMode ? <Moon className="w-3 h-3 text-indigo-400" /> : <Sun className="w-3 h-3 text-amber-400" />}
+                        <span className="hidden sm:inline">{isClientDarkMode ? "Dark" : "Light"}</span>
+                      </button>
                     </div>
                   </div>
 
                   {/* Browser body view */}
-                  <div className="flex-1 bg-white relative overflow-hidden">
+                  <div className={cn("flex-1 relative overflow-hidden transition-colors duration-300", isClientDarkMode ? "bg-[#121212]" : "bg-white")}>
                     {/* Render high-fidelity error banner if compilation failed */}
                     {error && (
-                      <div className="absolute top-3 left-3 right-3 z-50 bg-rose-50 border border-rose-200 rounded-xl p-3.5 flex items-start gap-3 shadow-md">
-                        <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                      <div className="absolute top-3 left-3 right-3 z-50 bg-rose-950/90 border border-rose-800 rounded-xl p-3.5 flex items-start gap-3 shadow-md text-white">
+                        <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                         <div className="space-y-1">
-                          <h4 className="text-[10px] font-bold text-rose-800 uppercase tracking-wide">Compilation Error</h4>
-                          <p className="text-[11px] text-rose-750 leading-relaxed font-mono whitespace-pre-wrap">{error}</p>
+                          <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-wide">Compilation Error</h4>
+                          <p className="text-[11px] text-rose-200 leading-relaxed font-mono whitespace-pre-wrap">{error}</p>
                         </div>
                       </div>
                     )}
@@ -303,18 +326,19 @@ export const PreviewContent = React.memo(function PreviewContent({
                     {isMounted && (((!isDirty && previewHtml) || previewComponent)) ? (
                       <Frame 
                         html={(!isDirty && previewHtml) ? previewHtml : undefined}
-                        className="w-full h-full border-none bg-white" 
+                        className="w-full h-full border-none"
+                        isDarkMode={isClientDarkMode}
                         title="Email Preview"
                       >
-                        <div className="w-full min-h-full flex justify-center p-4 md:p-8">
-                          <div className="w-full max-w-full md:max-w-2xl bg-white origin-top" suppressHydrationWarning>
+                        <div className={cn("w-full min-h-full flex justify-center p-4 md:p-8", isClientDarkMode ? "bg-[#121212]" : "bg-white")}>
+                          <div className={cn("w-full max-w-full md:max-w-2xl origin-top rounded-xl", isClientDarkMode ? "bg-[#1e1e28] text-neutral-100" : "bg-white text-neutral-900")} suppressHydrationWarning>
                             {previewComponent}
                           </div>
                         </div>
                       </Frame>
                     ) : (
-                      <div className="flex flex-col items-center justify-center h-full space-y-3 opacity-55">
-                        <div className="w-5 h-5 rounded-full border-2 border-neutral-200 border-t-neutral-800 animate-spin" />
+                      <div className="flex flex-col items-center justify-center h-full space-y-3 opacity-70">
+                        <div className="w-5 h-5 rounded-full border-2 border-neutral-700 border-t-indigo-500 animate-spin" />
                         <span className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Loading render viewport</span>
                       </div>
                     )}
@@ -328,56 +352,56 @@ export const PreviewContent = React.memo(function PreviewContent({
                 </div>
               ) : previewTab === 'html' ? (
                 /* Raw HTML Code Output Display Panel */
-                <div className="w-full h-full bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-xs flex flex-col">
-                  <div className="h-10 bg-neutral-50/80 border-b border-neutral-200/50 px-4 flex items-center justify-between shrink-0 select-none">
+                <div className="w-full h-full bg-[#0c0d12] rounded-2xl border border-[#1f222e] overflow-hidden shadow-xs flex flex-col text-neutral-300">
+                  <div className="h-10 bg-[#07080b] border-b border-[#1f222e] px-4 flex items-center justify-between shrink-0 select-none">
                     <span className="text-[9px] font-black text-neutral-400 uppercase tracking-wider">compiled-output.html</span>
                     <button
                       onClick={handleCopyHtml}
-                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold text-neutral-500 hover:text-neutral-905 hover:bg-neutral-50 transition-all bg-white border border-neutral-200/60 shadow-3xs"
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold text-neutral-300 hover:text-white hover:bg-[#1f222e] transition-all bg-[#12141c] border border-[#1f222e] shadow-xs"
                     >
                       {copiedHtml ? (
                         <>
-                          <Check className="w-3 h-3 text-emerald-500" />
-                          <span className="text-emerald-600">Copied!</span>
+                          <Check className="w-3 h-3 text-emerald-400" />
+                          <span className="text-emerald-400">Copied!</span>
                         </>
                       ) : (
                         <>
-                          <Copy className="w-3 h-3" />
+                          <Copy className="w-3 h-3 text-indigo-400" />
                           <span>Copy HTML</span>
                         </>
                       )}
                     </button>
                   </div>
-                  <div className="flex-1 p-6 overflow-auto custom-scrollbar bg-neutral-50/20">
-                    <pre className="text-[10px] font-mono leading-relaxed text-neutral-600 bg-white p-5 rounded-xl border border-neutral-200/50 whitespace-pre-wrap select-text selection:bg-indigo-100">
+                  <div className="flex-1 p-6 overflow-auto custom-scrollbar bg-[#07080b]">
+                    <pre className="text-[10px] font-mono leading-relaxed text-amber-300/90 bg-[#0c0d12] p-5 rounded-xl border border-[#1f222e] whitespace-pre-wrap select-text selection:bg-indigo-900/60">
                       {previewHtml}
                     </pre>
                   </div>
                 </div>
               ) : (
                 /* JSON Configuration Output Display Panel */
-                <div className="w-full h-full bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-xs flex flex-col">
-                  <div className="h-10 bg-neutral-50/80 border-b border-neutral-200/50 px-4 flex items-center justify-between shrink-0 select-none">
+                <div className="w-full h-full bg-[#0c0d12] rounded-2xl border border-[#1f222e] overflow-hidden shadow-xs flex flex-col text-neutral-300">
+                  <div className="h-10 bg-[#07080b] border-b border-[#1f222e] px-4 flex items-center justify-between shrink-0 select-none">
                     <span className="text-[9px] font-black text-neutral-400 uppercase tracking-wider">configuration.json</span>
                     <button
                       onClick={handleCopyJson}
-                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold text-neutral-500 hover:text-neutral-905 hover:bg-neutral-50 transition-all bg-white border border-neutral-200/60 shadow-3xs"
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold text-neutral-300 hover:text-white hover:bg-[#1f222e] transition-all bg-[#12141c] border border-[#1f222e] shadow-xs"
                     >
                       {copiedJson ? (
                         <>
-                          <Check className="w-3 h-3 text-emerald-500" />
-                          <span className="text-emerald-600">Copied!</span>
+                          <Check className="w-3 h-3 text-emerald-400" />
+                          <span className="text-emerald-400">Copied!</span>
                         </>
                       ) : (
                         <>
-                          <Copy className="w-3 h-3" />
+                          <Copy className="w-3 h-3 text-indigo-400" />
                           <span>Copy JSON</span>
                         </>
                       )}
                     </button>
                   </div>
-                  <div className="flex-1 p-6 overflow-auto custom-scrollbar bg-neutral-50/20">
-                    <pre className="text-[10px] font-mono leading-relaxed text-neutral-600 bg-white p-5 rounded-xl border border-neutral-200/50 whitespace-pre-wrap select-text selection:bg-indigo-100">
+                  <div className="flex-1 p-6 overflow-auto custom-scrollbar bg-[#07080b]">
+                    <pre className="text-[10px] font-mono leading-relaxed text-emerald-300/90 bg-[#0c0d12] p-5 rounded-xl border border-[#1f222e] whitespace-pre-wrap select-text selection:bg-indigo-900/60">
                       {jsonCode}
                     </pre>
                   </div>
@@ -392,10 +416,10 @@ export const PreviewContent = React.memo(function PreviewContent({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute top-4 right-4 bg-white/95 backdrop-blur-md border border-neutral-200 px-3.5 py-1.5 rounded-full shadow-md flex items-center gap-2 z-50 select-none"
+                className="absolute top-4 right-4 bg-[#0c0d12]/95 backdrop-blur-md border border-[#1f222e] px-3.5 py-1.5 rounded-full shadow-md flex items-center gap-2 z-50 select-none"
               >
-                <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-ping shrink-0" />
-                <span className="text-[9px] font-black uppercase tracking-wider text-neutral-800">Compiling Blueprint</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping shrink-0" />
+                <span className="text-[9px] font-black uppercase tracking-wider text-white">Compiling Blueprint</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -403,16 +427,16 @@ export const PreviewContent = React.memo(function PreviewContent({
       </div>
 
       {/* Bottom Status Bar */}
-      <div className="h-9.5 border-t border-neutral-200/80 bg-white px-4 flex items-center justify-between shrink-0 select-none">
+      <div className="h-9.5 border-t border-[#1f222e] bg-[#0c0d12] px-4 flex items-center justify-between shrink-0 select-none">
         <div className="flex items-center gap-3">
-          <div className="flex bg-neutral-100 border border-neutral-200/60 rounded-lg p-0.5 shadow-2xs">
+          <div className="flex bg-[#07080b] border border-[#1f222e] rounded-lg p-0.5 shadow-xs">
             <button
               onClick={() => setPreviewTab('design')}
               className={cn(
                 "px-2.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider transition-all",
                 previewTab === 'design' 
-                  ? "bg-white text-neutral-900 shadow-2xs border border-neutral-200/50" 
-                  : "text-neutral-400 hover:text-neutral-600"
+                  ? "bg-[#12141c] text-white shadow-xs border border-[#1f222e]" 
+                  : "text-neutral-400 hover:text-white"
               )}
             >
               DESIGN
@@ -422,8 +446,8 @@ export const PreviewContent = React.memo(function PreviewContent({
               className={cn(
                 "px-2.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider transition-all",
                 previewTab === 'html' 
-                  ? "bg-white text-neutral-900 shadow-2xs border border-neutral-200/50" 
-                  : "text-neutral-400 hover:text-neutral-600"
+                  ? "bg-[#12141c] text-white shadow-xs border border-[#1f222e]" 
+                  : "text-neutral-400 hover:text-white"
               )}
             >
               HTML
@@ -433,8 +457,8 @@ export const PreviewContent = React.memo(function PreviewContent({
               className={cn(
                 "px-2.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider transition-all",
                 previewTab === 'json' 
-                  ? "bg-white text-neutral-900 shadow-2xs border border-neutral-200/50" 
-                  : "text-neutral-400 hover:text-neutral-600"
+                  ? "bg-[#12141c] text-white shadow-xs border border-[#1f222e]" 
+                  : "text-neutral-400 hover:text-white"
               )}
             >
               JSON
@@ -444,7 +468,7 @@ export const PreviewContent = React.memo(function PreviewContent({
 
         <div className="flex items-center gap-3">
           {customDimensions && (
-            <span className="text-[9px] font-mono font-bold text-neutral-400 bg-neutral-50 border border-neutral-200/50 px-2 py-0.5 rounded-md">
+            <span className="text-[9px] font-mono font-bold text-neutral-400 bg-[#07080b] border border-[#1f222e] px-2 py-0.5 rounded-md">
               {Math.round(customDimensions.width)} × {Math.round(customDimensions.height)} px
             </span>
           )}
@@ -453,12 +477,12 @@ export const PreviewContent = React.memo(function PreviewContent({
             <button 
               onClick={() => setShowPresets(!showPresets)}
               className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold text-neutral-500 hover:text-neutral-950 transition-all bg-transparent uppercase tracking-wider",
-                showPresets && "bg-neutral-100 text-neutral-950"
+                "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold text-neutral-400 hover:text-white transition-all bg-transparent uppercase tracking-wider",
+                showPresets && "bg-[#12141c] text-white"
               )}
               title="Select device size presets"
             >
-              <Smartphone className="w-3.5 h-3.5 text-neutral-400" />
+              <Smartphone className="w-3.5 h-3.5 text-indigo-400" />
               <span>Presets</span>
               <ChevronDown className={cn("w-3 h-3 transition-transform text-neutral-400", showPresets && "rotate-180")} />
             </button>
@@ -469,7 +493,7 @@ export const PreviewContent = React.memo(function PreviewContent({
                   initial={{ opacity: 0, y: 8, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                  className="absolute bottom-full right-0 mb-2 w-48 bg-white border border-neutral-200/60 rounded-xl shadow-lg z-[100] overflow-hidden"
+                  className="absolute bottom-full right-0 mb-2 w-48 bg-[#0c0d12] border border-[#1f222e] rounded-xl shadow-2xl z-[100] overflow-hidden"
                 >
                   <div className="p-1">
                     {DEVICE_PRESETS.map((preset) => (
@@ -479,13 +503,13 @@ export const PreviewContent = React.memo(function PreviewContent({
                           setCustomDimensions({ width: preset.width, height: preset.height });
                           setShowPresets(false);
                         }}
-                        className="w-full flex items-center justify-between px-2.5 py-1.5 hover:bg-neutral-50 rounded-lg transition-colors group"
+                        className="w-full flex items-center justify-between px-2.5 py-1.5 hover:bg-[#12141c] rounded-lg transition-colors group"
                       >
                         <div className="flex items-center gap-2.5">
-                          <preset.icon className="w-3.5 h-3.5 text-neutral-400 group-hover:text-indigo-600" />
-                          <span className="text-[10px] font-bold text-neutral-600 truncate">{preset.name}</span>
+                          <preset.icon className="w-3.5 h-3.5 text-neutral-400 group-hover:text-indigo-400" />
+                          <span className="text-[10px] font-bold text-neutral-300 group-hover:text-white truncate">{preset.name}</span>
                         </div>
-                        <span className="text-[8px] font-mono text-neutral-400">{preset.width}×{preset.height}</span>
+                        <span className="text-[8px] font-mono text-neutral-500">{preset.width}×{preset.height}</span>
                       </button>
                     ))}
                   </div>
@@ -494,14 +518,14 @@ export const PreviewContent = React.memo(function PreviewContent({
             </AnimatePresence>
           </div>
 
-          <div className="h-4 w-[1px] bg-neutral-200" />
+          <div className="h-4 w-[1px] bg-[#1f222e]" />
 
-          <div className="flex items-center bg-neutral-100 border border-neutral-200/60 rounded-lg p-0.5 shadow-2xs">
+          <div className="flex items-center bg-[#07080b] border border-[#1f222e] rounded-lg p-0.5 shadow-xs">
             <button 
               onClick={() => { setPreviewMode('mobile'); setCustomDimensions(null); }}
               className={cn(
                 "p-1 rounded-md transition-all",
-                previewMode === 'mobile' && !customDimensions ? "bg-white text-neutral-900 shadow-2xs border border-neutral-200/50" : "text-neutral-400 hover:text-neutral-600"
+                previewMode === 'mobile' && !customDimensions ? "bg-[#12141c] text-white shadow-xs border border-[#1f222e]" : "text-neutral-400 hover:text-white"
               )}
               title="Standard Mobile Viewport"
             >
@@ -511,7 +535,7 @@ export const PreviewContent = React.memo(function PreviewContent({
               onClick={() => { setPreviewMode('desktop'); setCustomDimensions(null); }}
               className={cn(
                 "p-1 rounded-md transition-all",
-                previewMode === 'desktop' && !customDimensions ? "bg-white text-neutral-900 shadow-2xs border border-neutral-200/50" : "text-neutral-400 hover:text-neutral-600"
+                previewMode === 'desktop' && !customDimensions ? "bg-[#12141c] text-white shadow-xs border border-[#1f222e]" : "text-neutral-400 hover:text-white"
               )}
               title="Standard Desktop Viewport"
             >
@@ -522,7 +546,7 @@ export const PreviewContent = React.memo(function PreviewContent({
           {customDimensions && (
             <button 
               onClick={() => setCustomDimensions(null)}
-              className="p-1 text-red-500 hover:bg-red-50 rounded-lg border border-red-100 transition-colors"
+              className="p-1 text-rose-400 hover:bg-rose-500/10 rounded-lg border border-rose-500/20 transition-colors"
               title="Reset view back to standard viewport"
             >
               <Trash2 className="w-3.5 h-3.5" />
