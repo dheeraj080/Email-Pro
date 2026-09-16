@@ -202,18 +202,23 @@ export const PreviewContent = React.memo(function PreviewContent({
         )}
 
         <div className="flex-1 relative overflow-hidden">
-          <div className="absolute inset-0 overflow-auto custom-scrollbar p-6 md:p-8">
+          <div className="absolute inset-0 overflow-y-auto custom-scrollbar p-6 md:p-8">
             <div className="h-full w-full flex items-center justify-center">
               {previewTab === 'design' ? (
                 /* Sleek browser window simulation wrapper */
                 <div 
                   id={isSplit ? 'preview-container-split' : 'preview-container'}
                   className={cn(
-                    "bg-white shadow-2xl relative shrink-0 overflow-hidden border border-[#1f222e] flex flex-col",
-                    !customDimensions && (previewMode === 'mobile' ? "w-[375px] h-[667px] rounded-[24px] transition-all duration-500" : "w-full h-full rounded-[14px] transition-all duration-500")
+                    "bg-white shadow-2xl relative shrink-0 overflow-hidden border border-[#1f222e] flex flex-col max-h-full max-w-full",
+                    !customDimensions && (
+                      previewMode === 'mobile' 
+                        ? "w-[375px] max-h-[calc(100vh-160px)] h-[667px] rounded-[24px] transition-all duration-500" 
+                        : "w-full h-full rounded-[14px] transition-all duration-500"
+                    )
                   )}
                   style={customDimensions ? {
                     width: `${customDimensions.width}px`,
+                    maxHeight: '100%',
                     height: `${customDimensions.height}px`,
                     borderRadius: customDimensions.width < 450 ? '24px' : '14px'
                   } : {}}
@@ -221,9 +226,7 @@ export const PreviewContent = React.memo(function PreviewContent({
                   {/* Browser Mock top navigation strip */}
                   <div className="h-10 bg-[#0c0d12] border-b border-[#1f222e] px-4 flex items-center justify-between shrink-0 select-none">
                     <div className="flex gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
+
                     </div>
 
                     <div className="flex-1 max-w-[280px] bg-[#07080b] border border-[#1f222e] rounded-lg py-1 px-3.5 flex items-center gap-1.5 justify-center shadow-xs mx-4">

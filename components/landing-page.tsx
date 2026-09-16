@@ -24,7 +24,8 @@ import {
   Terminal
 } from 'lucide-react';
 
-import TemplateShowcase, { OFFICIAL_REACT_EMAIL_METRICS } from './template-showcase';
+import { OFFICIAL_REACT_EMAIL_METRICS } from './showcase/metrics';
+import TemplateShowcase from './showcase/template-showcase';
 import { Template } from '@/lib/types';
 import { TEMPLATES } from '@/lib/templates';
 
