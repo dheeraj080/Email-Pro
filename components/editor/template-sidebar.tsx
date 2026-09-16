@@ -153,7 +153,9 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
               : "text-neutral-500 group-hover:text-neutral-300"
           )} />
         </div>
-        <div className="flex-1 min-w-0 flex items-baseline justify-between gap-1.5 mr-6">
+
+        {/* Dynamic right padding: expands on hover to clear the absolute buttons */}
+        <div className="flex-1 min-w-0 flex items-center justify-between gap-1.5 transition-all group-hover:pr-16">
           <span className="text-xs truncate">
             {template.name}
           </span>
@@ -161,7 +163,9 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
             {isHtml ? '.html' : '.tsx'}
           </span>
         </div>
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200 z-10">
+
+        {/* Absolute action overlay with solid background blur to cover text tail cleanly */}
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 bg-[#12141c] pl-1 rounded-md">
           <button
             type="button"
             onClick={(e) => {
@@ -336,15 +340,6 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
             )}
           </AnimatePresence>
         </section>
-      </div>
-
-      <div className="bg-[#07080b] border border-[#1f222e] rounded-xl p-3.5 space-y-2.5 shadow-xs select-none">
-        <div className="flex items-center gap-1.5 text-[8px] font-black uppercase tracking-wider text-indigo-400">
-          <FileCode className="w-3 h-3 text-indigo-400" /> workspace engine
-        </div>
-        <p className="text-[9px] text-neutral-400 font-medium leading-relaxed">
-          Files are organized into directories. Export the workspace to download folders.
-        </p>
       </div>
     </div>
   );
