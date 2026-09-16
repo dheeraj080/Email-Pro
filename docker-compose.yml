@@ -1,0 +1,67 @@
+# Email.Pro Secure Production Architecture
+# Docker Compose with Isolated Renderer Service
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - RENDERER_MODE=container
+      - RENDERER_URL=http://renderer:3001
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      renderer:
+        condition: service_healthy
+    networks:
+      - public-network
+      - internal-render-network
+    restart: unless-stopped
+
+  renderer:
+    build:
+      context: ./renderer
+      dockerfile: Dockerfile
+    # Security: No public ports exposed to host. Only internal network access.
+    expose:
+      - "3001"
+    # Security: Non-root UID execution
+    user: "1001:1001"
+    # Security: Immutable read-only root filesystem
+    read_only: true
+    # Security: Minimal non-executable tmpfs for temporary scratch
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    # Security: Drop all Linux capabilities
+    cap_drop:
+      - ALL
+    # Security: Prevent privilege escalation
+    security_opt:
+      - no-new-privileges:true
+    # Security: Process and memory bounds
+    pids_limit: 50
+    mem_limit: 512m
+    cpus: 1.0
+    # Security: ZERO application secrets in environment
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      internal-render-network:
+    restart: unless-stopped
+
+networks:
+  public-network:
+    driver: bridge
+  internal-render-network:
+    driver: bridge
+    internal: true # STRICT: No outbound internet access from renderer

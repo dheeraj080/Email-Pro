@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Template } from '@/lib/types';
 import { TEMPLATES } from '@/lib/templates';
 import { exportToHTML } from '@/lib/render-email';
@@ -13,7 +13,6 @@ export function useEmailEditor(initialTemplate?: Template) {
   const [code, setCode] = useState(activeTemplate.code);
   const [history, setHistory] = useState<Record<string, { id: string; timestamp: number; code: string }[]>>({});
   const [previewHtml, setPreviewHtml] = useState<string>('');
-  const [previewComponent, setPreviewComponent] = useState<React.ReactNode>(null);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [customDimensions, setCustomDimensions] = useState<{ width: number; height: number } | null>(null);
   const [view, setView] = useState<'split' | 'editor' | 'preview' | 'analytics'>('split');
@@ -30,6 +29,8 @@ export function useEmailEditor(initialTemplate?: Template) {
   const [newTemplateFolder, setNewTemplateFolder] = useState('');
   const [lastSaved, setLastSaved] = useState<number | null>(null);
   const [isDirty, setIsDirty] = useState(false);
+
+  const renderSeqRef = useRef(0);
 
   // Load saved templates, active template, and history from local storage on mount
   useEffect(() => {
@@ -114,53 +115,38 @@ export function useEmailEditor(initialTemplate?: Template) {
   }, [history, mounted]);
 
   const performRender = useCallback(async (codeToRender: string, currentLanguage?: string) => {
-    // Only call server-side render if we actually need the HTML
+    const seq = ++renderSeqRef.current;
     setIsRendering(true);
     try {
       const html = await exportToHTML(codeToRender, currentLanguage || language, activeTemplate.id, templates);
-      setPreviewHtml(html);
-      setError(null);
+      if (seq === renderSeqRef.current) {
+        setPreviewHtml(html);
+        setError(null);
+        setIsDirty(false);
+      }
       return true;
     } catch (err: any) {
-      console.error('Preview error:', err);
-      setError(err.message || 'An error occurred while rendering');
+      if (seq === renderSeqRef.current) {
+        console.error('Preview error:', err);
+        setError(err.message || 'An error occurred while rendering');
+      }
       return false;
     } finally {
-      setIsRendering(false);
+      if (seq === renderSeqRef.current) {
+        setIsRendering(false);
+      }
     }
   }, [language, activeTemplate.id, templates]);
 
-  // Fast local React rendering for visual preview
-  useEffect(() => {
-    if (!mounted) return;
-
-    const timeout = setTimeout(() => {
-      try {
-        const { renderEmailToReact } = require('@/lib/render-email');
-        const Component = renderEmailToReact(code, templates);
-        setPreviewComponent(Component);
-        setError(null);
-      } catch (err: any) {
-        console.warn('Local render error:', err);
-        // Don't set error state yet, as the server-side might handle it better 
-        // or we don't want to flicker errors while typing
-      }
-    }, 100); // Very fast debounce for local render
-
-    return () => clearTimeout(timeout);
-  }, [code, templates, mounted]);
-
-  // Debounced background compilation for high-fidelity production styling
+  // Single debounced background compilation for authoritative server rendering
   useEffect(() => {
     if (!mounted) return;
     
     setIsDirty(true);
 
     const timeout = setTimeout(() => {
-      performRender(code, language).then(() => {
-        setIsDirty(false);
-      });
-    }, 500);
+      performRender(code, language);
+    }, 400);
 
     return () => clearTimeout(timeout);
   }, [code, language, mounted, performRender]);
@@ -398,7 +384,6 @@ export function useEmailEditor(initialTemplate?: Template) {
     setCode,
     history,
     previewHtml,
-    previewComponent,
     previewMode,
     setPreviewMode,
     customDimensions,

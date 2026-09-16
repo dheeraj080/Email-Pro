@@ -1,36 +1,44 @@
 import { NextResponse } from 'next/server';
-import { render } from '@react-email/render';
-import * as EmailComponents from '@react-email/components';
-import { isRawHtml, compileEmailElement } from '@/lib/template-compiler';
+import { isRawHtml } from '@/lib/template-compiler';
+import { rendererClient } from '@/lib/renderer-client';
 
 export async function POST(req: Request) {
   try {
-    const { code, language, templates = [] } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { code, language, templates = [] } = body;
 
-    if (!code) {
-      return NextResponse.json({ error: 'Code is required' }, { status: 400 });
+    if (!code || typeof code !== 'string') {
+      return NextResponse.json({ error: 'Valid code string is required' }, { status: 400 });
     }
 
     if (language === 'html' || isRawHtml(code)) {
       return NextResponse.json({ html: code });
     }
 
-    const element = compileEmailElement(code, {
-      emailComponents: EmailComponents,
-      templates,
-    });
-
-    if (!element) {
-      throw new Error('Could not find a valid React component in the provided code.');
-    }
-
-    const html = await render(element);
+    const html = await rendererClient.render(code, templates);
     return NextResponse.json({ html });
   } catch (error: any) {
-    console.error('Render error:', error);
+    const rawMessage = error && error.message ? error.message : 'Failed to render email template';
+    // Sanitize any server filesystem paths or stack traces from error messages
+    const sanitizedError = rawMessage
+      .replace(/\/app\/[^\s:]+/g, '[internal]')
+      .replace(/\/root\/[^\s:]+/g, '[internal]')
+      .replace(/\/home\/[^\s:]+/g, '[internal]');
+
+    let status = error.status || 422;
+    if (!error.status) {
+      if (sanitizedError.includes('timed out')) {
+        status = 504;
+      } else if (sanitizedError.includes('queue limit') || sanitizedError.includes('busy')) {
+        status = 429;
+      } else if (sanitizedError.includes('unavailable') || sanitizedError.includes('failed closed')) {
+        status = 503;
+      }
+    }
+
     return NextResponse.json(
-      { error: error.message || 'Failed to render email template' },
-      { status: 500 }
+      { error: sanitizedError },
+      { status }
     );
   }
 }

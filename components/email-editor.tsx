@@ -40,7 +40,6 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
     setCode,
     history,
     previewHtml,
-    previewComponent,
     previewMode,
     setPreviewMode,
     customDimensions,
@@ -241,7 +240,6 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
             ) : view === 'preview' ? (
               <PreviewContent 
                 previewHtml={previewHtml}
-                previewComponent={previewComponent}
                 previewMode={previewMode}
                 setPreviewMode={setPreviewMode}
                 previewTab={previewTab}
@@ -274,7 +272,6 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
                     <div className="flex-1">
                       <PreviewContent 
                         previewHtml={previewHtml}
-                        previewComponent={previewComponent}
                         previewMode={previewMode}
                         setPreviewMode={setPreviewMode}
                         previewTab={previewTab}

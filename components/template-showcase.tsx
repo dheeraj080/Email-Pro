@@ -46,7 +46,7 @@ interface TemplateCardProps {
   onLoadPreview: (id: string, code: string, language?: 'typescript' | 'javascript' | 'html') => void;
 }
 
-interface MetricDetails {
+export interface MetricDetails {
   name: string;
   category: 'Curated' | 'Brand Recreation' | 'Barebones';
   readTime: string;
@@ -56,7 +56,7 @@ interface MetricDetails {
   description: string;
 }
 
-const OFFICIAL_REACT_EMAIL_METRICS: Record<string, MetricDetails> = {
+export const OFFICIAL_REACT_EMAIL_METRICS: Record<string, MetricDetails> = {
   'welcome': {
     name: 'Stripe / Developer Onboarding',
     category: 'Brand Recreation',

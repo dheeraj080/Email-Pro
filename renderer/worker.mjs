@@ -1,33 +1,74 @@
+import { register } from 'node:module';
+import { render } from '@react-email/render';
+import * as EmailComponents from '@react-email/components';
 import React from 'react';
 import { transform } from 'sucrase';
 
-export interface CompileOptions {
-  emailComponents: any;
-  templates?: any[];
+// Register Node.js ESM customization hook to eliminate dynamic import escape
+const loaderCode = `
+const ALLOWED_SPECIFIERS = new Set([
+  'react-dom/server',
+  'react-dom/server.edge',
+  'react-dom/server.browser',
+]);
+
+export async function resolve(specifier, context, nextResolve) {
+  if (ALLOWED_SPECIFIERS.has(specifier)) {
+    return nextResolve(specifier, context);
+  }
+  throw new Error('BLOCKED_DYNAMIC_IMPORT: Import of "' + specifier + '" is strictly forbidden in template rendering.');
+}
+`;
+register('data:text/javascript,' + encodeURIComponent(loaderCode), import.meta.url);
+
+const ipcProcess = process;
+const realSend = ipcProcess.send ? ipcProcess.send.bind(ipcProcess) : null;
+
+// Deep-frozen safe mock process
+const safeProcess = Object.freeze({
+  env: Object.freeze({
+    VERCEL_URL: 'react.email',
+    NODE_ENV: 'production',
+  }),
+  platform: 'email-pro',
+  arch: 'unknown',
+  version: 'v0.0.0',
+  pid: -1,
+  cwd: () => '/app',
+  uptime: () => 0,
+});
+
+// Strip network APIs and dangerous globals inside the worker
+try {
+  delete globalThis.fetch;
+  delete globalThis.WebSocket;
+  delete globalThis.XMLHttpRequest;
+  delete globalThis.process;
+  globalThis.process = safeProcess;
+  Object.defineProperty(globalThis, 'eval', {
+    value: function() {
+      throw new Error('DYNAMIC_EXECUTION_BLOCKED: eval() is disabled in template renderer.');
+    },
+    writable: false,
+    configurable: false,
+  });
+} catch (e) {
+  // Ignore
 }
 
-/**
- * Checks if a code snippet represents raw HTML rather than JSX/TSX.
- */
-export function isRawHtml(code: string): boolean {
-  const trimmed = code.trim();
+function isRawHtml(code) {
+  const trimmed = (code || '').trim();
   return trimmed.startsWith('<!DOCTYPE') || trimmed.startsWith('<html');
 }
 
-/**
- * Transforms JSX/TypeScript/ES imports into CJS-compatible JavaScript.
- */
-export function transpileCode(code: string): string {
+function transpileCode(code) {
   return transform(code, {
     transforms: ['jsx', 'typescript', 'imports'],
     jsxRuntime: 'classic',
   }).code;
 }
 
-/**
- * Fallback theme configuration for templates referencing barebones theme/fonts.
- */
-export const BAREBONES_FALLBACK_THEME = {
+const BAREBONES_FALLBACK_THEME = {
   barebonesBoxedTailwindConfig: {
     theme: {
       extend: {
@@ -57,13 +98,7 @@ export const BAREBONES_FALLBACK_THEME = {
     }),
 };
 
-/**
- * Resolves relative imports against the workspace templates collection.
- */
-export function resolveTemplateImport(
-  name: string,
-  templates: any[] = []
-): any | null {
+function resolveTemplateImport(name, templates = []) {
   if (!name.startsWith('./') && !name.startsWith('../')) {
     return null;
   }
@@ -80,10 +115,7 @@ export function resolveTemplateImport(
   return template || null;
 }
 
-/**
- * Extracts a React component from evaluated CJS module exports.
- */
-export function extractComponent(exportsValue: any): any {
+function extractComponent(exportsValue) {
   let Component = exportsValue;
   if (Component && typeof Component === 'object' && !React.isValidElement(Component)) {
     if (Component.default) {
@@ -105,10 +137,7 @@ export function extractComponent(exportsValue: any): any {
   return Component;
 }
 
-/**
- * Converts a component definition or element into a valid React element.
- */
-export function toReactElement(Component: any): React.ReactElement | null {
+function toReactElement(Component) {
   if (React.isValidElement(Component)) {
     return Component;
   }
@@ -118,9 +147,6 @@ export function toReactElement(Component: any): React.ReactElement | null {
   return null;
 }
 
-/**
- * Forbidden Node.js built-in modules that must not be imported by untrusted template code.
- */
 const FORBIDDEN_MODULES = new Set([
   'fs',
   'child_process',
@@ -154,15 +180,12 @@ const FORBIDDEN_MODULES = new Set([
   'zlib',
 ]);
 
-/**
- * Evaluates template code using CJS evaluation in an isolated scope.
- */
-export function evaluateTemplate(
-  code: string,
-  options: CompileOptions,
-  moduleCache: Map<string, any> = new Map(),
-  depth: number = 0
-): any {
+function evaluateTemplate(
+  code,
+  templates = [],
+  moduleCache = new Map(),
+  depth = 0
+) {
   if (depth > 10) {
     throw new Error('Template dependency depth exceeded maximum limit (10).');
   }
@@ -172,23 +195,28 @@ export function evaluateTemplate(
 
   const transpiledCode = transpileCode(code);
 
-  const customRequire = (name: string): any => {
+  const customRequire = (name) => {
     if (name === 'react') {
       return React;
     }
     if (name === '@react-email/components' || name === 'react-email') {
-      return options.emailComponents;
+      return EmailComponents;
     }
     if (FORBIDDEN_MODULES.has(name) || name.startsWith('node:')) {
       throw new Error(`Disallowed module import: "${name}"`);
     }
     if (name.startsWith('./') || name.startsWith('../')) {
-      const template = resolveTemplateImport(name, options.templates || []);
+      const template = resolveTemplateImport(name, templates);
       if (template) {
         if (moduleCache.has(template.id)) {
           return moduleCache.get(template.id);
         }
-        const compiledDep = evaluateTemplate(template.code, options, moduleCache, depth + 1);
+        const compiledDep = evaluateTemplate(
+          template.code,
+          templates,
+          moduleCache,
+          depth + 1
+        );
         moduleCache.set(template.id, compiledDep);
         return compiledDep;
       }
@@ -208,10 +236,9 @@ export function evaluateTemplate(
     pid: -1,
   });
 
-  const exportsObj: Record<string, any> = {};
+  const exportsObj = {};
   const moduleObj = { exports: exportsObj };
 
-  // CommonJS wrapper function using new Function
   const wrappedCode = `
     var React = arguments[0];
     var EmailComponents = arguments[1];
@@ -228,26 +255,57 @@ export function evaluateTemplate(
   `;
 
   const runner = new Function(wrappedCode);
-  const result = runner(
+  return runner(
     React,
-    options.emailComponents,
+    EmailComponents,
     customRequire,
     exportsObj,
     moduleObj,
     processMock
   );
-
-  return result;
 }
 
-/**
- * Compiles template code and returns a ready-to-render ReactElement, or null on failure.
- */
-export function compileEmailElement(
-  code: string,
-  options: CompileOptions
-): React.ReactElement | null {
-  const exportsResult = evaluateTemplate(code, options);
+function compileEmailElement(code, templates = []) {
+  const exportsResult = evaluateTemplate(code, templates);
   const Component = extractComponent(exportsResult);
   return toReactElement(Component);
+}
+
+// Single-use execution: Listen for exactly one message, render, send result, then exit.
+ipcProcess.once('message', async (msg) => {
+  if (!msg || typeof msg !== 'object') {
+    ipcProcess.exit(1);
+    return;
+  }
+  const { id, code, templates = [] } = msg;
+
+  try {
+    if (isRawHtml(code)) {
+      if (realSend) realSend({ id, success: true, html: code });
+      ipcProcess.exit(0);
+      return;
+    }
+
+    const element = compileEmailElement(code, templates);
+    if (!element) {
+      throw new Error('Could not find a valid React component in the provided code.');
+    }
+
+    const html = await render(element);
+    if (realSend) realSend({ id, success: true, html });
+    ipcProcess.exit(0);
+  } catch (error) {
+    const rawMessage = error && error.message ? error.message : String(error);
+    const sanitized = rawMessage
+      .replace(/\/(?:etc|proc|sys|var|usr|dev|app|root|home|tmp)\/[^\s:]+/gi, '[internal]')
+      .replace(/node:[^\s:]+/g, '[internal]');
+
+    if (realSend) realSend({ id, success: false, error: sanitized });
+    ipcProcess.exit(1);
+  }
+});
+
+// Signal readiness to dispatcher
+if (realSend) {
+  realSend({ type: 'ready' });
 }

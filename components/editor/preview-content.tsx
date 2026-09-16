@@ -24,97 +24,36 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
-import { createPortal } from 'react-dom';
 
 interface FrameProps {
   html?: string;
-  children?: React.ReactNode;
   className?: string;
   title?: string;
   isDarkMode?: boolean;
 }
 
-function Frame({ html, children, className, title, isDarkMode = false }: FrameProps) {
-  const [contentRef, setContentRef] = React.useState<HTMLIFrameElement | null>(null);
-  const [iframeLoaded, setIframeLoaded] = React.useState(false);
-  const mountNode = contentRef?.contentWindow?.document?.body;
+function Frame({ html = '', className, title, isDarkMode = false }: FrameProps) {
+  const processedHtml = isDarkMode 
+    ? `<style>
+        html, body { background-color: #121212 !important; color: #f3f4f6 !important; }
+        .bg-white, table.bg-white { background-color: #1e1e28 !important; }
+        p, h1, h2, h3, h4, td, span { color: #e2e8f0 !important; }
+       </style>` + html 
+    : html;
 
-  React.useEffect(() => {
-    if (html || !contentRef) return;
-    const doc = contentRef.contentWindow?.document;
-    if (!doc) return;
-
-    // Standard styling reset inside the React portal sandbox
-    const style = doc.createElement('style');
-    style.innerHTML = `
-      html, body {
-        margin: 0;
-        padding: 0;
-        background-color: ${isDarkMode ? '#121212' : '#f8fafc'};
-        color: ${isDarkMode ? '#f3f4f6' : '#111827'};
-        font-family: ui-sans-serif, system-ui, sans-serif;
-        overflow-x: hidden;
-      }
-      /* Custom scrollbars inside iframe */
-      ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: ${isDarkMode ? '#333' : '#e5e5e5'};
-        border-radius: 3px;
-      }
-    `;
-
-    // Inject Tailwind Play CDN for high-fidelity rendering inside React portal
-    const script = doc.createElement('script');
-    script.src = "https://cdn.tailwindcss.com";
-    doc.head.appendChild(script);
-    doc.head.appendChild(style);
-    
-    setIframeLoaded(true);
-  }, [contentRef, html, isDarkMode]);
-
-  // If high-fidelity compiled HTML is ready, render standard srcDoc
-  if (html) {
-    const processedHtml = isDarkMode 
-      ? `<style>
-          html, body { background-color: #121212 !important; color: #f3f4f6 !important; }
-          .bg-white, table.bg-white { background-color: #1e1e28 !important; }
-          p, h1, h2, h3, h4, td, span { color: #e2e8f0 !important; }
-         </style>` + html 
-      : html;
-
-    return (
-      <iframe 
-        title={title} 
-        className={className} 
-        srcDoc={processedHtml}
-        style={{ width: '100%', height: '100%', border: 'none' }}
-      />
-    );
-  }
-
-  // Fallback to instant client-side portal rendering while compiling
   return (
     <iframe 
       title={title} 
       className={className} 
-      ref={setContentRef}
-      onLoad={() => setIframeLoaded(true)}
+      srcDoc={processedHtml}
       style={{ width: '100%', height: '100%', border: 'none' }}
-    >
-      {mountNode && iframeLoaded && createPortal(children, mountNode)}
-    </iframe>
+      sandbox="allow-same-origin"
+    />
   );
 }
 
 interface PreviewContentProps {
   previewHtml: string;
-  previewComponent: React.ReactNode;
   previewMode: 'desktop' | 'mobile';
   setPreviewMode: (mode: 'desktop' | 'mobile') => void;
   previewTab: 'design' | 'html' | 'json';
@@ -142,7 +81,6 @@ const DEVICE_PRESETS = [
 
 export const PreviewContent = React.memo(function PreviewContent({
   previewHtml,
-  previewComponent,
   previewMode,
   setPreviewMode,
   previewTab,
@@ -242,10 +180,10 @@ export const PreviewContent = React.memo(function PreviewContent({
             <div className="max-w-lg w-full bg-[#0c0d12] border border-[#1f222e] rounded-2xl p-6 shadow-2xl flex flex-col text-left space-y-4">
               <div className="flex items-center gap-2 text-rose-400">
                 <AlertCircle className="w-5 h-5" />
-                <span className="text-[10px] font-black uppercase tracking-wider">Transpilation / Build Failure</span>
+                <span className="text-[10px] font-black uppercase tracking-wider">Template Render Failure</span>
               </div>
               <div>
-                <h3 className="text-xs font-bold text-white mb-1">Sucrase Parsing Error</h3>
+                <h3 className="text-xs font-bold text-white mb-1">Template Compilation Error</h3>
                 <p className="text-[10px] text-neutral-300 font-mono bg-[#07080b] p-4 rounded-xl border border-[#1f222e] break-all leading-relaxed whitespace-pre-wrap">
                   {error}
                 </p>
@@ -323,19 +261,13 @@ export const PreviewContent = React.memo(function PreviewContent({
                       </div>
                     )}
 
-                    {isMounted && (((!isDirty && previewHtml) || previewComponent)) ? (
+                    {isMounted && previewHtml ? (
                       <Frame 
-                        html={(!isDirty && previewHtml) ? previewHtml : undefined}
+                        html={previewHtml}
                         className="w-full h-full border-none"
                         isDarkMode={isClientDarkMode}
                         title="Email Preview"
-                      >
-                        <div className={cn("w-full min-h-full flex justify-center p-4 md:p-8", isClientDarkMode ? "bg-[#121212]" : "bg-white")}>
-                          <div className={cn("w-full max-w-full md:max-w-2xl origin-top rounded-xl", isClientDarkMode ? "bg-[#1e1e28] text-neutral-100" : "bg-white text-neutral-900")} suppressHydrationWarning>
-                            {previewComponent}
-                          </div>
-                        </div>
-                      </Frame>
+                      />
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full space-y-3 opacity-70">
                         <div className="w-5 h-5 rounded-full border-2 border-neutral-700 border-t-indigo-500 animate-spin" />
