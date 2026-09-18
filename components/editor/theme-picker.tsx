@@ -79,18 +79,18 @@ export function ThemePicker({ currentCode, onCodeChange }: ThemePickerProps) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold text-neutral-400 hover:text-white transition-colors",
-          isOpen && "text-white bg-[#12141c]"
+          "flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold text-fg-muted hover:text-fg transition-colors",
+          isOpen && "text-fg bg-surface-raised"
         )}
         title="Choose dynamic template brand theme color"
       >
-        <Palette className="w-3.5 h-3.5 text-indigo-400" />
+        <Palette className="w-3.5 h-3.5 text-accent" />
         <span>Theme</span>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 bottom-full mb-1.5 w-44 bg-[#0c0d12] border border-[#1f222e] rounded-xl shadow-2xl p-3.5 z-[200] animate-in fade-in slide-in-from-bottom-1 duration-200">
-          <div className="text-[8px] font-black uppercase tracking-wider text-neutral-400 mb-2">Accent Syncer</div>
+        <div className="absolute right-0 bottom-full mb-1.5 w-44 bg-surface border border-border-base rounded-xl shadow-2xl p-3.5 z-[200] animate-in fade-in slide-in-from-bottom-1 duration-200">
+          <div className="text-[8px] font-black uppercase tracking-wider text-fg-muted mb-2">Accent Syncer</div>
           <div className="grid grid-cols-3 gap-2">
             {THEME_PALETTES.map((theme) => (
               <button
@@ -99,8 +99,8 @@ export function ThemePicker({ currentCode, onCodeChange }: ThemePickerProps) {
                 className={cn(
                   "h-10 rounded-lg flex flex-col items-center justify-center relative border transition-all duration-200 hover:scale-105 active:scale-95",
                   activeThemeName === theme.name 
-                    ? "border-indigo-500/60 bg-[#12141c]" 
-                    : "border-[#1f222e] bg-[#07080b] hover:border-neutral-600"
+                    ? "border-accent/60 bg-accent/10" 
+                    : "border-border-base bg-surface-raised hover:border-border-strong"
                 )}
                 title={theme.label}
               >
@@ -108,9 +108,9 @@ export function ThemePicker({ currentCode, onCodeChange }: ThemePickerProps) {
                   className="w-4 h-4 rounded-full shadow-inner shrink-0" 
                   style={{ backgroundColor: theme.hex }}
                 />
-                <span className="text-[7px] font-bold text-neutral-400 mt-1 uppercase tracking-wide">{theme.name}</span>
+                <span className="text-[7px] font-bold text-fg-muted mt-1 uppercase tracking-wide">{theme.name}</span>
                 {activeThemeName === theme.name && (
-                  <div className="absolute -top-1.5 -right-1.5 bg-indigo-500 text-white rounded-full p-0.5 shadow-sm">
+                  <div className="absolute -top-1.5 -right-1.5 bg-accent text-accent-fg rounded-full p-0.5 shadow-sm">
                     <Check className="w-2 h-2" />
                   </div>
                 )}

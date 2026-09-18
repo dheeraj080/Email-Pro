@@ -7,6 +7,9 @@ import { welcomeV2Template } from './templates/welcome-v2';
 import { shippingConfirmationTemplate } from './templates/shipping-confirmation';
 import { techSummitTemplate } from './templates/tech-summit';
 import { legacyHtmlTemplate } from './templates/legacy-html';
+import { blankReactEmailTemplate, blankHtmlEmailTemplate } from './templates/blank';
+
+export { blankReactEmailTemplate, blankHtmlEmailTemplate };
 
 export const DEFAULT_TEMPLATE = welcomeTemplate;
 

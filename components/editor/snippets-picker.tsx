@@ -84,31 +84,31 @@ export function SnippetsPicker({ onInsert }: SnippetsPickerProps) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold text-neutral-400 hover:text-white transition-colors",
-          isOpen && "text-white bg-[#12141c]"
+          "flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold text-fg-muted hover:text-fg transition-colors",
+          isOpen && "text-fg bg-surface-raised"
         )}
         title="Insert pre-designed visual email block snippets at cursor"
       >
-        <PlusSquare className="w-3.5 h-3.5 text-indigo-400" />
+        <PlusSquare className="w-3.5 h-3.5 text-accent" />
         <span>Insert</span>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 bottom-full mb-1.5 w-60 bg-[#0c0d12] border border-[#1f222e] rounded-xl shadow-2xl p-3.5 z-[200] animate-in fade-in slide-in-from-bottom-1 duration-200">
-          <div className="text-[8px] font-black uppercase tracking-wider text-neutral-400 mb-2">Boilerplate Snippets</div>
+        <div className="absolute right-0 bottom-full mb-1.5 w-60 bg-surface border border-border-base rounded-xl shadow-2xl p-3.5 z-[200] animate-in fade-in slide-in-from-bottom-1 duration-200">
+          <div className="text-[8px] font-black uppercase tracking-wider text-fg-muted mb-2">Boilerplate Snippets</div>
           <div className="space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar">
             {EMAIL_SNIPPETS.map((snippet) => (
               <button
                 key={snippet.name}
                 onClick={() => handleSelectSnippet(snippet.code)}
-                className="w-full p-2 rounded-lg border border-[#1f222e] bg-[#07080b] hover:bg-[#12141c] hover:border-indigo-500/40 flex items-start gap-2.5 transition-all text-left group"
+                className="w-full p-2 rounded-lg border border-border-base bg-surface-raised hover:bg-surface-hover hover:border-accent/40 flex items-start gap-2.5 transition-all text-left group"
               >
-                <div className="w-7 h-7 rounded-md bg-[#12141c] border border-[#1f222e] flex items-center justify-center text-indigo-400 group-hover:text-indigo-300 shadow-xs shrink-0">
+                <div className="w-7 h-7 rounded-md bg-surface border border-border-base flex items-center justify-center text-accent group-hover:text-accent-hover shadow-xs shrink-0">
                   <snippet.icon className="w-4 h-4 stroke-[1.5]" />
                 </div>
                 <div>
-                  <h5 className="font-bold text-[10px] text-neutral-200 tracking-tight leading-none group-hover:text-white mt-0.5">{snippet.name}</h5>
-                  <p className="text-[8px] text-neutral-400 font-semibold mt-1 leading-none">{snippet.description}</p>
+                  <h5 className="font-bold text-[10px] text-fg-secondary tracking-tight leading-none group-hover:text-fg mt-0.5">{snippet.name}</h5>
+                  <p className="text-[8px] text-fg-muted font-semibold mt-1 leading-none">{snippet.description}</p>
                 </div>
               </button>
             ))}

@@ -11,27 +11,27 @@ export function Input({ label, error, icon, className, ...props }: InputProps) {
   return (
     <div className="space-y-1.5 w-full">
       {label && (
-        <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-fg-muted ml-1">
           {label}
         </label>
       )}
       <div className="relative group">
         {icon && (
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-500 group-focus-within:text-indigo-400 transition-colors">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-fg-muted group-focus-within:text-accent transition-colors">
             {icon}
           </div>
         )}
         <input
           className={cn(
-            'w-full bg-[#07080b] border border-[#1f222e] rounded-xl py-2.5 px-4 text-xs text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-neutral-500',
+            'w-full bg-surface-raised border border-border-base rounded-xl py-2.5 px-4 text-xs text-fg focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all placeholder:text-fg-muted',
             icon && 'pl-11',
-            error && 'border-rose-500 focus:ring-rose-500/20 focus:border-rose-500',
+            error && 'border-danger focus:ring-danger/20 focus:border-danger',
             className
           )}
           {...props}
         />
       </div>
-      {error && <p className="text-[10px] font-bold text-rose-400 ml-1">{error}</p>}
+      {error && <p className="text-[10px] font-bold text-danger ml-1">{error}</p>}
     </div>
   );
 }

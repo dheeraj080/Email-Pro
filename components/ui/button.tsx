@@ -16,11 +16,11 @@ export function Button({
   ...props 
 }: ButtonProps) {
   const variants = {
-    primary: 'bg-indigo-600 text-white hover:bg-indigo-500 border border-indigo-500/80 border-t-white/20 shadow-md active:scale-[0.97] transition-all duration-150 cubic-bezier(0.2,0,0,1)',
-    secondary: 'bg-[#12141c] text-indigo-400 border border-[#1f222e] border-t-white/10 hover:bg-indigo-500/10 hover:border-indigo-500/50 shadow-sm active:scale-[0.97] transition-all duration-150 cubic-bezier(0.2,0,0,1)',
-    outline: 'bg-[#0c0d12] border border-[#1f222e] border-t-white/10 text-white hover:bg-[#12141c] hover:border-neutral-700 shadow-sm active:scale-[0.97] transition-all duration-150 cubic-bezier(0.2,0,0,1)',
-    ghost: 'text-neutral-400 hover:text-white hover:bg-[#12141c] active:scale-[0.97] transition-all duration-150 cubic-bezier(0.2,0,0,1)',
-    danger: 'bg-rose-600 text-white hover:bg-rose-500 border border-rose-500/80 border-t-white/20 shadow-md active:scale-[0.97] transition-all duration-150 cubic-bezier(0.2,0,0,1)',
+    primary: 'bg-accent text-accent-fg hover:bg-accent-hover shadow-sm active:scale-[0.97] transition-all duration-150',
+    secondary: 'bg-surface-raised text-accent border border-border-base hover:bg-surface-hover hover:border-accent/40 shadow-xs active:scale-[0.97] transition-all duration-150',
+    outline: 'bg-surface border border-border-base text-fg hover:bg-surface-hover hover:border-border-strong shadow-xs active:scale-[0.97] transition-all duration-150',
+    ghost: 'text-fg-muted hover:text-fg hover:bg-surface-hover active:scale-[0.97] transition-all duration-150',
+    danger: 'bg-danger text-white hover:bg-danger/90 shadow-sm active:scale-[0.97] transition-all duration-150',
   };
 
   const sizes = {
