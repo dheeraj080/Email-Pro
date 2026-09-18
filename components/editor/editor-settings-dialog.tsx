@@ -309,7 +309,7 @@ export function EditorSettingsDialog({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-[#07080b]/80 backdrop-blur-md"
+          className="absolute inset-0 bg-backdrop backdrop-blur-md"
           onClick={onClose}
         />
 
@@ -319,19 +319,19 @@ export function EditorSettingsDialog({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
           transition={{ duration: 0.2 }}
-          className="relative w-full max-w-lg bg-[#0c0d12] border border-[#1f222e] rounded-3xl overflow-hidden shadow-2xl z-[260] my-auto"
+          className="relative w-full max-w-lg bg-surface border border-border-base rounded-3xl overflow-hidden shadow-2xl z-[260] my-auto text-fg"
         >
           {/* Header */}
-          <div className="p-6 border-b border-[#1f222e] flex items-center justify-between bg-[#12141c]/40">
+          <div className="p-6 border-b border-border-base flex items-center justify-between bg-surface-raised/40">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center justify-center text-indigo-400 shadow-inner">
+              <div className="w-10 h-10 bg-accent/10 border border-accent/20 rounded-2xl flex items-center justify-center text-accent shadow-inner">
                 <Settings2 className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold tracking-tight text-white flex items-center gap-2">
+                <h3 className="text-base font-semibold tracking-tight text-fg flex items-center gap-2">
                   Branding Settings
                 </h3>
-                <p className="text-[10px] font-medium text-neutral-400">
+                <p className="text-xs font-normal text-fg-muted">
                   Configure global color variables and brand templates in real-time.
                 </p>
               </div>
@@ -341,10 +341,10 @@ export function EditorSettingsDialog({
               variant="outline"
               size="sm"
               onClick={handleReset}
-              className="h-8 px-2.5 rounded-lg border-[#1f222e] hover:border-neutral-700 bg-transparent text-neutral-400 hover:text-white flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider"
+              className="h-8 px-2.5 rounded-lg border-border-base hover:border-border-strong bg-transparent text-fg-muted hover:text-fg flex items-center gap-1 text-xs font-medium"
               title="Reset theme colors to default"
             >
-              <RotateCcw className="w-3 h-3" />
+              <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset</span>
             </Button>
           </div>
@@ -352,8 +352,8 @@ export function EditorSettingsDialog({
           <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
             {/* Presets Grid */}
             <div className="space-y-3">
-              <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 flex items-center gap-1.5">
-                <Palette className="w-3.5 h-3.5 text-indigo-400" />
+              <span className="text-xs font-medium text-fg-muted flex items-center gap-1.5">
+                <Palette className="w-3.5 h-3.5 text-accent" />
                 <span>Brand Presets</span>
               </span>
 
@@ -366,16 +366,16 @@ export function EditorSettingsDialog({
                       onClick={() => handlePresetSelect(preset)}
                       className={`group p-2.5 rounded-2xl border text-left flex flex-col justify-between h-20 transition-all duration-200 relative hover:scale-[1.02] active:scale-[0.98] ${
                         active
-                          ? 'border-indigo-500/70 bg-indigo-500/5'
-                          : 'border-[#1f222e] bg-[#07080b]/80 hover:border-neutral-600'
+                          ? 'border-accent/70 bg-accent/10 text-fg'
+                          : 'border-border-base bg-surface-raised hover:border-border-strong text-fg-muted hover:text-fg'
                       }`}
                     >
                       <div className="flex items-center justify-between w-full">
-                        <span className="text-[9px] font-bold text-neutral-300 group-hover:text-white leading-tight uppercase tracking-wider truncate max-w-[90%]">
+                        <span className="text-xs font-medium text-fg-secondary group-hover:text-fg leading-tight truncate max-w-[90%]">
                           {preset.name}
                         </span>
                         {active && (
-                          <div className="bg-indigo-500 text-white rounded-full p-0.5 shadow-sm scale-75">
+                          <div className="bg-accent text-accent-fg rounded-full p-0.5 shadow-xs scale-75">
                             <Check className="w-3 h-3" />
                           </div>
                         )}
@@ -384,22 +384,22 @@ export function EditorSettingsDialog({
                       {/* Swatches block */}
                       <div className="flex gap-1 items-center mt-2">
                         <div
-                          className="w-4 h-4 rounded-full border border-[#1f222e] shadow-sm"
+                          className="w-4 h-4 rounded-full border border-border-base shadow-xs"
                           style={{ backgroundColor: preset.primary }}
                           title={`Primary: ${preset.primary}`}
                         />
                         <div
-                          className="w-3.5 h-3.5 rounded-full border border-[#1f222e] shadow-sm"
+                          className="w-3.5 h-3.5 rounded-full border border-border-base shadow-xs"
                           style={{ backgroundColor: preset.secondary }}
                           title={`Secondary: ${preset.secondary}`}
                         />
                         <div
-                          className="w-3 h-3 rounded-full border border-[#1f222e] shadow-sm"
+                          className="w-3 h-3 rounded-full border border-border-base shadow-xs"
                           style={{ backgroundColor: preset.background }}
                           title={`Background: ${preset.background}`}
                         />
                         <div
-                          className="w-3 h-3 rounded-full border border-[#1f222e] shadow-sm"
+                          className="w-3 h-3 rounded-full border border-border-base shadow-xs"
                           style={{ backgroundColor: preset.surface }}
                           title={`Surface: ${preset.surface}`}
                         />
@@ -412,19 +412,19 @@ export function EditorSettingsDialog({
 
             {/* Custom Color Pickers */}
             <div className="space-y-4 pt-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 flex items-center gap-1.5">
-                <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+              <span className="text-xs font-medium text-fg-muted flex items-center gap-1.5">
+                <Sliders className="w-3.5 h-3.5 text-accent" />
                 <span>Custom Color Specifiers</span>
               </span>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* 1. Primary Accent */}
-                <div className="space-y-2 bg-[#07080b]/50 p-3 rounded-2xl border border-[#1f222e]">
-                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest block pl-1">
+                <div className="space-y-2 bg-surface-raised p-3 rounded-2xl border border-border-base">
+                  <label className="text-xs font-medium text-fg-muted block pl-1">
                     Primary Accent
                   </label>
                   <div className="flex items-center gap-2">
-                    <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-[#1f222e] shrink-0 shadow-sm">
+                    <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-border-base shrink-0 shadow-xs">
                       <input
                         type="color"
                         value={colors.primary}
@@ -436,18 +436,18 @@ export function EditorSettingsDialog({
                       value={colors.primary}
                       onChange={(e) => handleColorChange('primary', e.target.value)}
                       placeholder="#6366f1"
-                      className="bg-[#07080b] border-[#1f222e] font-mono h-10"
+                      className="bg-surface border-border-base font-mono h-10 text-fg"
                     />
                   </div>
                 </div>
 
                 {/* 2. Secondary Accent */}
-                <div className="space-y-2 bg-[#07080b]/50 p-3 rounded-2xl border border-[#1f222e]">
-                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest block pl-1">
+                <div className="space-y-2 bg-surface-raised p-3 rounded-2xl border border-border-base">
+                  <label className="text-xs font-medium text-fg-muted block pl-1">
                     Secondary Accent
                   </label>
                   <div className="flex items-center gap-2">
-                    <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-[#1f222e] shrink-0 shadow-sm">
+                    <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-border-base shrink-0 shadow-xs">
                       <input
                         type="color"
                         value={colors.secondary}
@@ -459,18 +459,18 @@ export function EditorSettingsDialog({
                       value={colors.secondary}
                       onChange={(e) => handleColorChange('secondary', e.target.value)}
                       placeholder="#4f46e5"
-                      className="bg-[#07080b] border-[#1f222e] font-mono h-10"
+                      className="bg-surface border-border-base font-mono h-10 text-fg"
                     />
                   </div>
                 </div>
 
                 {/* 3. Page Background */}
-                <div className="space-y-2 bg-[#07080b]/50 p-3 rounded-2xl border border-[#1f222e]">
-                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest block pl-1">
+                <div className="space-y-2 bg-surface-raised p-3 rounded-2xl border border-border-base">
+                  <label className="text-xs font-medium text-fg-muted block pl-1">
                     Page Background
                   </label>
                   <div className="flex items-center gap-2">
-                    <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-[#1f222e] shrink-0 shadow-sm">
+                    <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-border-base shrink-0 shadow-xs">
                       <input
                         type="color"
                         value={colors.background}
@@ -482,18 +482,18 @@ export function EditorSettingsDialog({
                       value={colors.background}
                       onChange={(e) => handleColorChange('background', e.target.value)}
                       placeholder="#f8fafc"
-                      className="bg-[#07080b] border-[#1f222e] font-mono h-10"
+                      className="bg-surface border-border-base font-mono h-10 text-fg"
                     />
                   </div>
                 </div>
 
                 {/* 4. Container Surface */}
-                <div className="space-y-2 bg-[#07080b]/50 p-3 rounded-2xl border border-[#1f222e]">
-                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest block pl-1">
+                <div className="space-y-2 bg-surface-raised p-3 rounded-2xl border border-border-base">
+                  <label className="text-xs font-medium text-fg-muted block pl-1">
                     Card / Container Surface
                   </label>
                   <div className="flex items-center gap-2">
-                    <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-[#1f222e] shrink-0 shadow-sm">
+                    <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-border-base shrink-0 shadow-xs">
                       <input
                         type="color"
                         value={colors.surface}
@@ -505,18 +505,18 @@ export function EditorSettingsDialog({
                       value={colors.surface}
                       onChange={(e) => handleColorChange('surface', e.target.value)}
                       placeholder="#ffffff"
-                      className="bg-[#07080b] border-[#1f222e] font-mono h-10"
+                      className="bg-surface border-border-base font-mono h-10 text-fg"
                     />
                   </div>
                 </div>
 
                 {/* 5. Core Typography */}
-                <div className="space-y-2 bg-[#07080b]/50 p-3 rounded-2xl border border-[#1f222e] sm:col-span-2">
-                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest block pl-1">
+                <div className="space-y-2 bg-surface-raised p-3 rounded-2xl border border-border-base sm:col-span-2">
+                  <label className="text-xs font-medium text-fg-muted block pl-1">
                     Typography / Text Color
                   </label>
                   <div className="flex items-center gap-2">
-                    <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-[#1f222e] shrink-0 shadow-sm">
+                    <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-border-base shrink-0 shadow-xs">
                       <input
                         type="color"
                         value={colors.text}
@@ -528,7 +528,7 @@ export function EditorSettingsDialog({
                       value={colors.text}
                       onChange={(e) => handleColorChange('text', e.target.value)}
                       placeholder="#0f172a"
-                      className="bg-[#07080b] border-[#1f222e] font-mono h-10"
+                      className="bg-surface border-border-base font-mono h-10 text-fg"
                     />
                   </div>
                 </div>
@@ -536,22 +536,22 @@ export function EditorSettingsDialog({
             </div>
 
             {/* Explanatory Banner */}
-            <div className="bg-[#12141c] rounded-2xl p-4.5 border border-[#1f222e] flex gap-3 shadow-inner">
-              <AlertCircle className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
+            <div className="bg-surface-raised rounded-2xl p-4.5 border border-border-base flex gap-3 shadow-inner">
+              <AlertCircle className="w-5 h-5 text-accent shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <span className="text-[11px] font-bold text-white block">Automated CSS variables regeneration</span>
-                <p className="text-[10px] font-medium text-neutral-400 leading-relaxed">
-                  These choices compile directly to <strong>:root CSS variables</strong> inside the template&apos;s <code className="text-indigo-400">&lt;style&gt;</code> block and configure Tailwind&apos;s <code className="text-indigo-400">brand</code> theme extend block. Standard layout tags will inherit changes automatically!
+                <span className="text-xs font-semibold text-fg block">Automated CSS variables regeneration</span>
+                <p className="text-xs font-normal text-fg-muted leading-relaxed">
+                  These choices compile directly to <strong>:root CSS variables</strong> inside the template&apos;s <code className="text-accent">&lt;style&gt;</code> block and configure Tailwind&apos;s <code className="text-accent">brand</code> theme extend block. Standard layout tags will inherit changes automatically!
                 </p>
               </div>
             </div>
           </div>
 
           {/* Footer Action */}
-          <div className="p-6 border-t border-[#1f222e] bg-[#12141c]/40 flex gap-3">
+          <div className="p-6 border-t border-border-base bg-surface-raised/40 flex gap-3">
             <Button
               onClick={onClose}
-              className="w-full h-11 bg-indigo-600 hover:bg-indigo-500 text-white font-bold uppercase tracking-wider rounded-xl border-none text-[11px]"
+              className="w-full h-11 bg-accent hover:bg-accent-hover text-accent-fg font-medium rounded-xl border-none text-sm"
             >
               Save Branding Settings
             </Button>

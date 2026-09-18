@@ -2,21 +2,20 @@
 
 import React, { useState } from 'react';
 import {
-  LayoutGrid,
   ChevronRight,
   Search,
   Check,
-  FileCode,
   Plus,
   Trash2,
   Folder,
   FolderDown,
-  FolderInput
+  FolderInput,
+  Mail,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { Template } from '@/lib/types';
-import { Input } from '@/components/ui/input';
 
 interface FolderNode {
   name: string;
@@ -46,9 +45,9 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
   onDownloadWorkspace,
   onMoveTemplate,
   isCollapsed,
+  onToggleCollapse
 }: TemplateSidebarProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSectionCollapsed, setIsSectionCollapsed] = useState(false);
   const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
 
   // Auto-expand folder path up to active template on mount/change
@@ -126,6 +125,8 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
 
   const renderTemplateRow = (template: Template) => {
     const isHtml = template.language === 'html';
+    const isActive = activeTemplate.id === template.id;
+
     return (
       <div
         key={template.id}
@@ -139,70 +140,62 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
         role="button"
         tabIndex={0}
         className={cn(
-          "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all group relative border cursor-pointer select-none",
-          activeTemplate.id === template.id
-            ? "bg-[#12141c] border-[#1f222e] shadow-xs text-white font-bold"
-            : "bg-transparent hover:bg-[#12141c]/50 text-neutral-400 hover:text-white border-transparent"
+          "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-colors group relative cursor-pointer select-none border",
+          isActive
+            ? "bg-accent-muted border-accent-border text-fg font-medium"
+            : "border-transparent hover:bg-surface-hover text-fg-secondary hover:text-fg"
         )}
       >
-        <div className="relative flex-shrink-0">
-          <FileCode className={cn(
-            "w-4 h-4 transition-colors",
-            activeTemplate.id === template.id
-              ? (isHtml ? "text-amber-400" : "text-indigo-400")
-              : "text-neutral-500 group-hover:text-neutral-300"
-          )} />
-        </div>
-
-        {/* Dynamic right padding: expands on hover to clear the absolute buttons */}
-        <div className="flex-1 min-w-0 flex items-center justify-between gap-1.5 transition-all group-hover:pr-16">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          {isActive ? (
+            <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
+          ) : (
+            <Mail className="w-3.5 h-3.5 text-fg-muted shrink-0 group-hover:text-fg-secondary transition-colors" />
+          )}
           <span className="text-xs truncate">
             {template.name}
           </span>
-          <span className="text-[8px] font-mono text-neutral-500 uppercase font-black tracking-wider shrink-0 select-none">
-            {isHtml ? '.html' : '.tsx'}
-          </span>
         </div>
 
-        {/* Absolute action overlay with solid background blur to cover text tail cleanly */}
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 bg-[#12141c] pl-1 rounded-md">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              const newFolder = window.prompt(
-                `Enter folder path to move "${template.name}" to (e.g. Transactional/Auth, leave blank to move to Root):`,
-                template.folder || ""
-              );
-              if (newFolder !== null) {
-                onMoveTemplate(template.id, newFolder);
-              }
-            }}
-            className="p-1 rounded-md text-neutral-400 hover:text-white hover:bg-[#1f222e] transition-all"
-            title="Move Template to Folder"
-          >
-            <FolderInput className="w-3 h-3" />
-          </button>
-          {templates.length > 1 && (
+        <div className="flex items-center gap-1.5 shrink-0 ml-2">
+          <span className="text-[10px] font-mono text-fg-muted lowercase opacity-70 group-hover:opacity-100 transition-opacity">
+            {isHtml ? 'html' : 'tsx'}
+          </span>
+
+          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                if (window.confirm(`Are you sure you want to delete "${template.name}"?`)) {
-                  onDeleteTemplate(template.id);
+                const newFolder = window.prompt(
+                  `Move "${template.name}" to folder (e.g. Transactional/Auth, or blank for Root):`,
+                  template.folder || ""
+                );
+                if (newFolder !== null) {
+                  onMoveTemplate(template.id, newFolder);
                 }
               }}
-              className="p-1 rounded-md text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all"
-              title="Delete Template"
+              className="p-1 rounded text-fg-muted hover:text-fg hover:bg-surface-elevated transition-colors"
+              title="Move to folder"
             >
-              <Trash2 className="w-3 h-3" />
+              <FolderInput className="w-3 h-3" />
             </button>
-          )}
-          {activeTemplate.id === template.id && (
-            <div className="text-emerald-400 p-1">
-              <Check className="w-3 h-3" />
-            </div>
-          )}
+            {templates.length > 1 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (window.confirm(`Delete "${template.name}"?`)) {
+                    onDeleteTemplate(template.id);
+                  }
+                }}
+                className="p-1 rounded text-fg-muted hover:text-danger hover:bg-danger-bg transition-colors"
+                title="Delete template"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -210,22 +203,19 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
 
   const renderFolderNode = (node: FolderNode, depth = 0) => {
     const isRoot = node.path === '';
-    const isCollapsed = collapsedFolders[node.path] === true;
-    
+    const isFolderCollapsed = collapsedFolders[node.path] === true;
     const sortedSubfolders = Object.values(node.subfolders).sort((a, b) => a.name.localeCompare(b.name));
     
     if (isRoot) {
       return (
-        <div key="root-folder" className="space-y-3">
-          {/* Render subfolders first */}
+        <div key="root-folder" className="space-y-1">
           {sortedSubfolders.map(subnode => renderFolderNode(subnode, depth))}
           
-          {/* Render root templates */}
           {node.templates.length > 0 && (
-            <div className="space-y-1 pt-1">
+            <div className="space-y-0.5 pt-1">
               {sortedSubfolders.length > 0 && (
-                <div className="px-2 py-1.5 text-[8px] font-black uppercase tracking-widest text-neutral-500">
-                  Root Files
+                <div className="px-2.5 py-1 text-[10px] font-medium text-fg-muted uppercase tracking-wider">
+                  Root
                 </div>
               )}
               {node.templates.map(template => renderTemplateRow(template))}
@@ -236,35 +226,35 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
     }
     
     return (
-      <div key={node.path} className="space-y-1">
+      <div key={node.path} className="space-y-0.5">
         <button
+          type="button"
           onClick={() => toggleFolder(node.path)}
-          className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-[#12141c] text-left transition-all"
+          className="w-full flex items-center justify-between px-2 py-1 rounded-md text-fg-secondary hover:text-fg hover:bg-surface-hover text-left transition-colors"
         >
-          <div className="flex items-center gap-2">
-            <Folder className="w-3.5 h-3.5 text-indigo-400 fill-indigo-400/10" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-300">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Folder className="w-3.5 h-3.5 text-fg-muted shrink-0" />
+            <span className="text-xs font-medium text-fg-secondary truncate">
               {node.name}
             </span>
-            <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-[#12141c] text-neutral-400 border border-[#1f222e] font-mono">
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <span className="text-[10px] text-fg-muted font-mono">
               {countTemplates(node)}
             </span>
+            <ChevronRight className={cn("w-3 h-3 transition-transform text-fg-muted", !isFolderCollapsed && "rotate-90")} />
           </div>
-          <ChevronRight className={cn("w-3 h-3 transition-transform text-neutral-500", !isCollapsed && "rotate-90")} />
         </button>
         
         <AnimatePresence>
-          {!isCollapsed && (
+          {!isFolderCollapsed && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="pl-2 border-l border-[#1f222e] ml-3.5 space-y-1 overflow-hidden"
+              className="pl-3 ml-2 border-l border-border-subtle space-y-0.5 overflow-hidden"
             >
-              {/* Recursively render child subfolders */}
               {sortedSubfolders.map(subnode => renderFolderNode(subnode, depth + 1))}
-              
-              {/* Render templates in this folder */}
               {node.templates.map(template => renderTemplateRow(template))}
             </motion.div>
           )}
@@ -274,73 +264,79 @@ export const TemplateSidebar = React.memo(function TemplateSidebar({
   };
 
   return (
-    <div className="w-64 p-5 space-y-6 shrink-0 overflow-y-auto custom-scrollbar border-r border-[#1f222e] bg-[#0c0d12] flex flex-col justify-between h-full text-neutral-300">
-      <div className="space-y-6">
-        <div className="relative">
-          <Input
-            placeholder="Search templates..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            icon={<Search className="w-4 h-4 text-neutral-500" />}
-            className="h-9.5 bg-[#07080b] rounded-xl border-[#1f222e] focus-visible:ring-indigo-500 placeholder-neutral-500 text-xs text-white pl-9.5 shadow-xs"
-          />
-        </div>
+    <>
+      {/* Mobile Backdrop Overlay */}
+      <div
+        className="fixed inset-0 bg-backdrop z-30 md:hidden backdrop-blur-xs"
+        onClick={onToggleCollapse}
+        aria-hidden="true"
+      />
 
-        <section className="space-y-4">
-          <div
-            className="flex items-center justify-between px-1 cursor-pointer group/header"
-            onClick={() => setIsSectionCollapsed(!isSectionCollapsed)}
-          >
-            <div className="flex items-center gap-2">
-              <motion.div
-                animate={{ rotate: isSectionCollapsed ? 0 : 90 }}
-                className="text-neutral-500"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </motion.div>
-              <h3 className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Templates</h3>
-            </div>
-
-            <div className="flex items-center gap-1 transition-all">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDownloadWorkspace();
-                }}
-                className="p-1 hover:bg-[#12141c] rounded-lg transition-colors text-neutral-400 hover:text-white"
-                title="Download Workspace Folders (.zip)"
-              >
-                <FolderDown className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCreateTemplate();
-                }}
-                className="p-1 text-neutral-400 transition-colors hover:text-white"
-                title="Create Template"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </button>
-            </div>
+      <aside className="w-60 md:w-56 lg:w-60 shrink-0 border-r border-border-base bg-surface flex flex-col justify-between h-full text-fg select-none z-40 md:static fixed inset-y-0 left-0 shadow-2xl md:shadow-none transition-colors">
+        {/* Top: Library Search & Action */}
+        <div className="p-3 space-y-3 flex-1 overflow-y-auto custom-scrollbar">
+          <div className="flex items-center justify-between pb-1 md:hidden">
+            <span className="text-xs font-semibold text-fg">Template Library</span>
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              className="p-1 rounded text-fg-muted hover:text-fg"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
-          <AnimatePresence>
-            {!isSectionCollapsed && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="space-y-3 overflow-hidden"
-              >
-                {renderFolderNode(templateTree)}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </section>
-      </div>
-    </div>
+          <div className="space-y-2">
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-fg-muted absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search templates..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-8 bg-surface-raised hover:bg-surface-hover focus:bg-surface-elevated border border-border-subtle focus:border-border-strong rounded-lg text-xs text-fg placeholder:text-fg-muted pl-8 pr-2.5 outline-none transition-colors"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={onCreateTemplate}
+              className="w-full flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-lg bg-surface-raised hover:bg-surface-hover border border-border-base text-xs font-medium text-fg transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5 text-accent" />
+              <span>New Email</span>
+            </button>
+          </div>
+
+          <div className="pt-2">
+            <div className="flex items-center justify-between px-1 mb-1.5">
+              <span className="text-[11px] font-medium text-fg-muted">
+                Templates
+              </span>
+              <span className="text-[10px] text-fg-muted font-mono">
+                {templates.length}
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              {renderFolderNode(templateTree)}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer: Workspace Archive */}
+        <div className="p-3 border-t border-border-base shrink-0">
+          <button
+            type="button"
+            onClick={onDownloadWorkspace}
+            className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-fg-muted hover:text-fg hover:bg-surface-hover rounded-lg transition-colors"
+            title="Download Workspace Archive (.zip)"
+          >
+            <FolderDown className="w-3.5 h-3.5 text-fg-muted" />
+            <span className="truncate">Download Workspace (.zip)</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 });

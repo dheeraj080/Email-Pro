@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { 
   Home,
   PanelLeftClose,
@@ -25,6 +25,11 @@ import { HistorySidebar } from './editor/history-sidebar';
 import { SendTestDialog } from './editor/send-test-dialog';
 import { AIAssistantDialog } from './editor/ai-assistant-dialog';
 import { EditorSettingsDialog } from './editor/editor-settings-dialog';
+import { DraftRecoveryBanner } from './editor/draft-recovery-banner';
+import { UnsavedChangesDialog } from './editor/unsaved-changes-dialog';
+import { KeyboardShortcutsDialog } from './editor/keyboard-shortcuts-dialog';
+import { ToastContainer } from './editor/toast-container';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 interface EmailEditorProps {
   onBack?: () => void;
@@ -75,7 +80,19 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
     handleDeleteTemplate,
     handleMoveTemplate,
     isDirty,
-    performRender
+    performRender,
+    qualityReport,
+    // Phase 15 additions
+    hasUnsavedChanges,
+    pendingDraftRecovery,
+    handleRestoreDraft,
+    handleDiscardDraft,
+    pendingSwitchTemplate,
+    confirmSwitchSaveRevision,
+    confirmSwitchDiscard,
+    cancelSwitch,
+    toast,
+    hideToast
   } = useEmailEditor(initialTemplate);
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -84,6 +101,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
   const [showSendTest, setShowSendTest] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   const handleResize = (e: React.MouseEvent, direction: string) => {
     e.preventDefault();
@@ -132,62 +150,136 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
   const handleToggleHistory = useCallback(() => setIsHistoryCollapsed(prev => !prev), []);
   const handleToggleSidebar = useCallback(() => setIsSidebarCollapsed(prev => !prev), []);
 
+  const handleOpenQuality = useCallback(() => {
+    if (view === 'editor') {
+      setView('split');
+    }
+    setPreviewTab('quality');
+  }, [view, setView, setPreviewTab]);
+
+  // Global Keyboard Shortcuts (Phase 15I)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + S -> Save version & update draft
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handleSaveVersion();
+        return;
+      }
+
+      // Ctrl/Cmd + Enter -> Force authoritative re-render
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleForceRender();
+        return;
+      }
+
+      // Ctrl/Cmd + P -> Cycle view (split -> editor -> preview -> split)
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p' && !e.shiftKey) {
+        e.preventDefault();
+        setView(prev => {
+          if (prev === 'split') return 'editor';
+          if (prev === 'editor') return 'preview';
+          return 'split';
+        });
+        return;
+      }
+
+      // Ctrl/Cmd + Shift + Q -> Open Quality tab
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'q') {
+        e.preventDefault();
+        handleOpenQuality();
+        return;
+      }
+
+      // ? -> Open keyboard shortcuts dialog when not focused in input/textarea
+      const target = e.target as HTMLElement;
+      const isInputFocused = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+      if (e.key === '?' && !isInputFocused) {
+        e.preventDefault();
+        setShowShortcuts(prev => !prev);
+        return;
+      }
+
+      // Escape -> close dialogs
+      if (e.key === 'Escape') {
+        setShowShortcuts(false);
+        setShowSendTest(false);
+        setShowAIAssistant(false);
+        setShowSettings(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleSaveVersion, handleForceRender, setView, handleOpenQuality]);
+
+  const handleSafeBack = () => {
+    if (hasUnsavedChanges) {
+      const confirmLeave = window.confirm(
+        'You have unsaved changes in this email template. Are you sure you want to return to the home screen?'
+      );
+      if (!confirmLeave) return;
+    }
+    if (onBack) onBack();
+  };
+
   if (!mounted) {
     return (
-      <div className="flex flex-col h-screen bg-[#07080b] items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-t-indigo-500 border-[#1f222e] animate-spin" />
+      <div className="flex flex-col h-screen bg-bg-app items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-t-accent border-border-base animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#07080b] text-neutral-300 overflow-hidden font-sans select-none">
-      <header className="h-16 apple-frosted-nav border-b border-[#1f222e] flex items-center justify-between px-6 shrink-0 z-20 shadow-md">
-        <div className="flex items-center gap-3">
+    <div className="flex flex-col h-screen bg-bg-app text-fg overflow-hidden font-sans select-none transition-colors">
+      <header className="h-14 bg-surface/95 backdrop-blur-md border-b border-border-base flex items-center justify-between px-3 sm:px-5 shrink-0 z-20">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {onBack && (
             <button 
-              onClick={onBack}
-              className="p-2 hover:bg-[#12141c] rounded-xl transition-all text-neutral-400 hover:text-white border border-[#1f222e] border-t-white/10 shadow-xs hover:scale-[1.02] active:scale-[0.96]"
+              onClick={handleSafeBack}
+              className="p-1.5 text-fg-muted hover:text-fg rounded-lg hover:bg-surface-hover transition-colors shrink-0"
               title="Back to Landing Page"
             >
-              <Home className="w-3.5 h-3.5" />
+              <Home className="w-4 h-4" />
             </button>
           )}
           <button 
             onClick={handleToggleSidebar}
-            className="p-2 hover:bg-[#12141c] rounded-xl transition-all text-neutral-400 hover:text-white active:scale-[0.96]"
-            title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            className="p-1.5 text-fg-muted hover:text-fg rounded-lg hover:bg-surface-hover transition-colors shrink-0"
+            title={isSidebarCollapsed ? "Show Template Library" : "Hide Template Library"}
           >
-            {isSidebarCollapsed ? <PanelLeftOpen className="w-4.5 h-4.5" /> : <PanelLeftClose className="w-4.5 h-4.5" />}
+            {isSidebarCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
           </button>
           
-          <div className="h-5 w-[1px] bg-[#1f222e] mx-1" />
+          <div className="h-4 w-[1px] bg-border-base mx-0.5 shrink-0" />
           
-          <div className="flex items-center gap-2">
-            <div className="w-7.5 h-7.5 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-[10px] tracking-tight shadow-sm">
-              EP
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-white tracking-tight">Email.Pro</span>
-                <span className="text-neutral-600">/</span>
-                <span className="text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md font-extrabold text-[9px] uppercase tracking-wider truncate max-w-[150px]">
-                  {activeTemplate.name || 'Untitled'}
-                </span>
-              </div>
-            </div>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-xs font-semibold text-fg-secondary tracking-tight hidden md:inline">
+              Email.Pro
+            </span>
+            <span className="text-border-strong hidden md:inline font-light">/</span>
+            <span className="text-xs sm:text-sm font-medium text-fg truncate max-w-[140px] sm:max-w-[260px]">
+              {activeTemplate.name || 'Untitled'}
+            </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <ThemeToggle />
           <EditorToolbar 
             templateName={activeTemplate.name || 'Untitled'}
             onSave={handleSaveVersion}
             onDownload={handleDownload}
+            onDownloadWorkspace={handleDownloadWorkspace}
             onCopy={handleCopyHTML}
             onSendTest={() => setShowSendTest(true)}
             onOpenSettings={() => setShowSettings(true)}
+            onOpenShortcuts={() => setShowShortcuts(true)}
             onOpenAIAssistant={() => setShowAIAssistant(true)}
+            qualityReport={qualityReport}
+            onOpenQuality={handleOpenQuality}
             copied={copied}
             isExporting={isExporting}
             isRendering={isRendering}
@@ -195,9 +287,17 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
             onViewChange={setView}
             onForceRender={handleForceRender}
             lastSaved={lastSaved}
+            hasUnsavedChanges={hasUnsavedChanges}
           />
         </div>
       </header>
+
+      {/* Local Draft Recovery Notification Banner */}
+      <DraftRecoveryBanner 
+        draft={pendingDraftRecovery} 
+        onRestore={handleRestoreDraft} 
+        onDiscard={handleDiscardDraft} 
+      />
 
       <main className="flex-1 flex min-h-0 relative">
         <TemplateSidebar 
@@ -215,7 +315,12 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
         <div className="flex-1 flex flex-col min-w-0">
           <ErrorBoundary>
             {view === 'analytics' ? (
-              <AnalyticsView metrics={metrics} isAnalyzing={isAnalyzing} />
+              <AnalyticsView 
+                metrics={metrics} 
+                qualityReport={qualityReport} 
+                isAnalyzing={isAnalyzing} 
+                onBackToEditor={() => setView('split')}
+              />
             ) : view === 'editor' ? (
               <div className="flex-1 min-h-0 flex overflow-hidden">
                 <div className="flex-1 flex flex-col">
@@ -253,6 +358,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
                 onResize={handleResize}
                 activeTemplate={activeTemplate}
                 currentCode={code}
+                qualityReport={qualityReport}
               />
             ) : (
               <Group orientation="horizontal">
@@ -266,7 +372,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
                     onToggleHistory={handleToggleHistory}
                   />
                 </Panel>
-                <Separator className="w-1.5 bg-[#1f222e] hover:bg-indigo-500 transition-colors cursor-col-resize active:bg-indigo-600" />
+                <Separator className="w-1 bg-border-base hover:bg-accent/50 transition-colors cursor-col-resize active:bg-accent" />
                 <Panel defaultSize={50} minSize={20}>
                   <div className="h-full flex overflow-hidden">
                     <div className="flex-1">
@@ -285,6 +391,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
                         onResize={handleResize}
                         activeTemplate={activeTemplate}
                         currentCode={code}
+                        qualityReport={qualityReport}
                       />
                     </div>
                     {!isHistoryCollapsed && (
@@ -303,6 +410,7 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
         </div>
       </main>
 
+      {/* Dialogs & Overlays */}
       <CreateTemplateDialog 
         isOpen={isCreating}
         onClose={() => setIsCreating(false)}
@@ -311,6 +419,25 @@ export default function EmailEditor({ onBack, initialTemplate }: EmailEditorProp
         setName={setNewTemplateName}
         folder={newTemplateFolder}
         setFolder={setNewTemplateFolder}
+      />
+
+      <UnsavedChangesDialog
+        isOpen={!!pendingSwitchTemplate}
+        currentTemplate={activeTemplate}
+        targetTemplate={pendingSwitchTemplate}
+        onSaveAndSwitch={confirmSwitchSaveRevision}
+        onDiscardAndSwitch={confirmSwitchDiscard}
+        onCancel={cancelSwitch}
+      />
+
+      <KeyboardShortcutsDialog
+        isOpen={showShortcuts}
+        onClose={() => setShowShortcuts(false)}
+      />
+
+      <ToastContainer
+        toast={toast}
+        onDismiss={hideToast}
       />
 
       <AnimatePresence>

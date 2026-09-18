@@ -1,10 +1,25 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Template } from '@/lib/types';
-import { TEMPLATES } from '@/lib/templates';
+import { TEMPLATES, blankReactEmailTemplate, blankHtmlEmailTemplate } from '@/lib/templates';
 import { exportToHTML } from '@/lib/render-email';
 import { analyzeEmail, EmailMetrics } from '@/lib/analytics-utils';
+import { auditEmailQuality, EmailQualityReport, sanitizeRenderError } from '@/lib/email-quality';
+import { 
+  saveDraft, 
+  loadDraft, 
+  clearDraft, 
+  isCodeDirty, 
+  EmailDraft 
+} from '@/lib/draft-storage';
+
+export interface ToastNotification {
+  id: string;
+  title: string;
+  message?: string;
+  type: 'success' | 'info' | 'error' | 'warning';
+}
 
 export function useEmailEditor(initialTemplate?: Template) {
   const [mounted, setMounted] = useState(false);
@@ -16,11 +31,20 @@ export function useEmailEditor(initialTemplate?: Template) {
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [customDimensions, setCustomDimensions] = useState<{ width: number; height: number } | null>(null);
   const [view, setView] = useState<'split' | 'editor' | 'preview' | 'analytics'>('split');
-  const [language, setLanguage] = useState<'typescript' | 'javascript' | 'html'>('typescript');
-  const [previewTab, setPreviewTab] = useState<'design' | 'html' | 'json'>('design');
+  const [language, setLanguage] = useState<'typescript' | 'javascript' | 'html'>(
+    (initialTemplate?.language as any) || TEMPLATES[0].language || 'typescript'
+  );
+  const [previewTab, setPreviewTab] = useState<'design' | 'html' | 'json' | 'quality'>('design');
   const [isRendering, setIsRendering] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [metrics, setMetrics] = useState<EmailMetrics | null>(null);
+
+  // Authoritative static quality analysis derived immediately from compiled HTML
+  const qualityReport: EmailQualityReport | null = useMemo(() => {
+    if (!previewHtml) return null;
+    return auditEmailQuality(previewHtml);
+  }, [previewHtml]);
+
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -30,9 +54,59 @@ export function useEmailEditor(initialTemplate?: Template) {
   const [lastSaved, setLastSaved] = useState<number | null>(null);
   const [isDirty, setIsDirty] = useState(false);
 
+  // Phase 15 Unsaved Work Protection & Recovery States
+  const [pendingDraftRecovery, setPendingDraftRecovery] = useState<EmailDraft | null>(null);
+  const [pendingSwitchTemplate, setPendingSwitchTemplate] = useState<Template | null>(null);
+  const [toast, setToast] = useState<ToastNotification | null>(null);
+
+  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
   const renderSeqRef = useRef(0);
 
-  // Load saved templates, active template, and history from local storage on mount
+  const showToast = useCallback((title: string, message?: string, type: 'success' | 'info' | 'error' | 'warning' = 'info') => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+    const newToast: ToastNotification = {
+      id: Math.random().toString(36).substring(7),
+      title,
+      message,
+      type
+    };
+    setToast(newToast);
+    toastTimerRef.current = setTimeout(() => {
+      setToast(null);
+    }, 3500);
+  }, []);
+
+  const hideToast = useCallback(() => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+    setToast(null);
+  }, []);
+
+  // Compute whether user has unsaved modifications compared to active template baseline
+  const hasUnsavedChanges = useMemo(() => {
+    return isCodeDirty(code, activeTemplate.code);
+  }, [code, activeTemplate.code]);
+
+  // Prevent accidental browser closure / reload when unsaved changes exist
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // Load saved templates, active template, history, and check for draft recovery on mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
@@ -46,10 +120,11 @@ export function useEmailEditor(initialTemplate?: Template) {
       localStorage.removeItem('email_pro_history');
       localStorage.setItem('email_pro_templates_version', currentVersion);
       
+      const targetTmpl = initialTemplate || TEMPLATES[0];
       setTemplates(TEMPLATES);
-      setActiveTemplate(TEMPLATES[0]);
-      setCode(TEMPLATES[0].code);
-      setLanguage(TEMPLATES[0].language || 'typescript');
+      setActiveTemplate(targetTmpl);
+      setCode(targetTmpl.code);
+      setLanguage(targetTmpl.language || 'typescript');
       setMounted(true);
       return;
     }
@@ -58,18 +133,20 @@ export function useEmailEditor(initialTemplate?: Template) {
     const savedActiveId = localStorage.getItem('email_pro_active_template_id');
     const savedHistory = localStorage.getItem('email_pro_history');
 
+    let loadedTemplates = TEMPLATES;
+    let chosenTemplate = initialTemplate || TEMPLATES[0];
+
     if (savedTemplates) {
       try {
         const parsed = JSON.parse(savedTemplates);
-        setTemplates(parsed);
-        
-        if (savedActiveId) {
-          const active = parsed.find((t: any) => t.id === savedActiveId);
-          if (active) {
-            setActiveTemplate(active);
-            setCode(active.code);
-            if (active.language) {
-              setLanguage(active.language);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          loadedTemplates = parsed;
+          setTemplates(parsed);
+          
+          if (!initialTemplate && savedActiveId) {
+            const active = parsed.find((t: any) => t.id === savedActiveId);
+            if (active) {
+              chosenTemplate = active;
             }
           }
         }
@@ -86,31 +163,53 @@ export function useEmailEditor(initialTemplate?: Template) {
       }
     }
 
-    setMounted(true);
-  }, []);
+    setActiveTemplate(chosenTemplate);
+    setCode(chosenTemplate.code);
+    if (chosenTemplate.language) {
+      setLanguage(chosenTemplate.language);
+    }
 
-  // Autosave when code or active template changes
+    // Check for existing local draft recovery
+    const savedDraft = loadDraft();
+    if (savedDraft && savedDraft.templateId === chosenTemplate.id) {
+      if (isCodeDirty(savedDraft.code, chosenTemplate.code)) {
+        setPendingDraftRecovery(savedDraft);
+      }
+    }
+
+    setMounted(true);
+  }, [initialTemplate]);
+
+  // Debounced Local Draft Persistence (Phase 15D)
   useEffect(() => {
     if (!mounted) return;
 
     const timeout = setTimeout(() => {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('email_pro_templates', JSON.stringify(templates.map(t => 
-          t.id === activeTemplate.id ? { ...t, code } : t
-        )));
-        localStorage.setItem('email_pro_active_template_id', activeTemplate.id);
+      if (hasUnsavedChanges) {
+        saveDraft({
+          templateId: activeTemplate.id,
+          code,
+          language
+        });
         setLastSaved(Date.now());
+      } else {
+        // If code is back to template baseline, remove draft
+        clearDraft();
       }
-    }, 1000);
+    }, 800);
 
     return () => clearTimeout(timeout);
-  }, [code, templates, activeTemplate.id, mounted]);
+  }, [code, language, activeTemplate.id, hasUnsavedChanges, mounted]);
 
   // Save history to local storage when history state changes
   useEffect(() => {
     if (!mounted) return;
     if (typeof window !== 'undefined') {
-      localStorage.setItem('email_pro_history', JSON.stringify(history));
+      try {
+        localStorage.setItem('email_pro_history', JSON.stringify(history));
+      } catch (err) {
+        console.warn('Failed to save history to localStorage:', err);
+      }
     }
   }, [history, mounted]);
 
@@ -127,8 +226,9 @@ export function useEmailEditor(initialTemplate?: Template) {
       return true;
     } catch (err: any) {
       if (seq === renderSeqRef.current) {
-        console.error('Preview error:', err);
-        setError(err.message || 'An error occurred while rendering');
+        console.error('Preview render failure:', err);
+        const cleanMessage = sanitizeRenderError(err?.message || String(err));
+        setError(cleanMessage);
       }
       return false;
     } finally {
@@ -157,7 +257,7 @@ export function useEmailEditor(initialTemplate?: Template) {
     const handleAnalysis = async () => {
       setIsAnalyzing(true);
       try {
-        const results = await analyzeEmail(code);
+        const results = await analyzeEmail(code, previewHtml);
         setMetrics(results);
       } catch (err) {
         console.error('Analysis error:', err);
@@ -170,39 +270,106 @@ export function useEmailEditor(initialTemplate?: Template) {
       const timeout = setTimeout(handleAnalysis, 1000);
       return () => clearTimeout(timeout);
     }
-  }, [code, view, mounted]);
+  }, [code, previewHtml, view, mounted]);
 
+  // Template Switching with Unsaved Work Protection (Phase 15C & 15G)
   const handleTemplateChange = (template: Template) => {
-    setTemplates(prev => prev.map(t => t.id === activeTemplate.id ? { ...t, code } : t));
+    if (template.id === activeTemplate.id) return;
+
+    if (hasUnsavedChanges) {
+      // Prompt user with options: Save revision & switch, discard & switch, or cancel
+      setPendingSwitchTemplate(template);
+    } else {
+      // Clean template switch
+      executeTemplateSwitch(template);
+    }
+  };
+
+  const executeTemplateSwitch = (template: Template) => {
+    clearDraft();
     setActiveTemplate(template);
     setCode(template.code);
     if (template.language) {
       setLanguage(template.language);
     }
     setError(null);
-    setPreviewTab('design');
+    setPendingSwitchTemplate(null);
+    setPendingDraftRecovery(null);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('email_pro_active_template_id', template.id);
+    }
+  };
+
+  const confirmSwitchSaveRevision = () => {
+    if (!pendingSwitchTemplate) return;
+    // Save current version to history
+    handleSaveVersion();
+    showToast('Revision saved', `Saved a version for ${activeTemplate.name}`, 'success');
+    executeTemplateSwitch(pendingSwitchTemplate);
+  };
+
+  const confirmSwitchDiscard = () => {
+    if (!pendingSwitchTemplate) return;
+    showToast('Changes discarded', `Switched to ${pendingSwitchTemplate.name}`, 'info');
+    executeTemplateSwitch(pendingSwitchTemplate);
+  };
+
+  const cancelSwitch = () => {
+    setPendingSwitchTemplate(null);
+  };
+
+  // Draft Recovery Handlers (Phase 15E)
+  const handleRestoreDraft = () => {
+    if (!pendingDraftRecovery) return;
+    setCode(pendingDraftRecovery.code);
+    if (pendingDraftRecovery.language) {
+      setLanguage(pendingDraftRecovery.language);
+    }
+    setPendingDraftRecovery(null);
+    showToast('Draft restored', 'Restored your previous unsaved edits', 'success');
+  };
+
+  const handleDiscardDraft = () => {
+    clearDraft();
+    setPendingDraftRecovery(null);
+    showToast('Draft discarded', 'Reverted to the clean template baseline', 'info');
   };
 
   const handleCreateTemplate = () => {
     setIsCreating(true);
     setNewTemplateName('');
+    setNewTemplateFolder('');
   };
 
-  const confirmCreateTemplate = (folderName?: string) => {
+  // Blank email and starter support (Phase 15H)
+  const confirmCreateTemplate = (
+    folderName?: string, 
+    starterType: 'blank-tsx' | 'blank-html' | 'current' = 'blank-tsx'
+  ) => {
     if (!newTemplateName.trim()) {
       setIsCreating(false);
       return;
     }
 
-    setTemplates(prev => prev.map(t => t.id === activeTemplate.id ? { ...t, code } : t));
-
     const id = newTemplateName.toLowerCase().replace(/\s+/g, '-');
     const folderToUse = folderName !== undefined ? folderName : newTemplateFolder;
+    
+    let starterCode = blankReactEmailTemplate;
+    let starterLanguage: 'typescript' | 'javascript' | 'html' = 'typescript';
+
+    if (starterType === 'blank-html') {
+      starterCode = blankHtmlEmailTemplate;
+      starterLanguage = 'html';
+    } else if (starterType === 'current') {
+      starterCode = code;
+      starterLanguage = language;
+    }
+
     const newTemplate: Template = {
       id: `${id}-${Date.now()}`,
-      name: newTemplateName,
-      code: language === 'html' ? '<!-- New HTML Template -->' : TEMPLATES[0].code,
-      language: language,
+      name: newTemplateName.trim(),
+      code: starterCode,
+      language: starterLanguage,
       folder: folderToUse.trim() ? folderToUse.trim() : undefined
     };
 
@@ -210,18 +377,24 @@ export function useEmailEditor(initialTemplate?: Template) {
       const updated = [...prev, newTemplate];
       if (typeof window !== 'undefined') {
         localStorage.setItem('email_pro_templates', JSON.stringify(updated));
+        localStorage.setItem('email_pro_active_template_id', newTemplate.id);
       }
       return updated;
     });
+
+    clearDraft();
     setActiveTemplate(newTemplate);
     setCode(newTemplate.code);
+    setLanguage(newTemplate.language || 'typescript');
     setIsCreating(false);
     setNewTemplateName('');
     setNewTemplateFolder('');
+    showToast('Template created', `Created ${newTemplate.name}`, 'success');
   };
 
   const handleReset = () => {
-    if (window.confirm('This will reset all templates and delete your drafts. Are you sure?')) {
+    if (typeof window !== 'undefined' && window.confirm('This will reset all templates and delete local drafts. Are you sure?')) {
+      clearDraft();
       localStorage.removeItem('email_pro_templates');
       localStorage.removeItem('email_pro_active_template_id');
       localStorage.removeItem('email_pro_history');
@@ -241,22 +414,27 @@ export function useEmailEditor(initialTemplate?: Template) {
       ...prev,
       [activeTemplate.id]: [newVersion, ...(prev[activeTemplate.id] || [])].slice(0, 50)
     }));
+    setLastSaved(Date.now());
+    showToast('Revision saved', `Revision stored in session history`, 'success');
   };
 
   const handleRevertVersion = (versionCode: string) => {
-    if (window.confirm('Are you sure you want to revert to this version? Current changes will be replaced.')) {
+    if (typeof window !== 'undefined' && window.confirm('Revert editor code to this revision? Current edits will be replaced.')) {
       setCode(versionCode);
+      showToast('Reverted revision', 'Loaded previous code state', 'info');
     }
   };
 
   const handleCopyHTML = async () => {
     try {
-      const html = await exportToHTML(code);
+      const html = previewHtml || await exportToHTML(code, language, activeTemplate.id, templates);
       await navigator.clipboard.writeText(html);
       setCopied(true);
+      showToast('HTML copied', 'Compiled HTML copied to clipboard', 'success');
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Copy to Clipboard error:', err);
+      showToast('Copy failed', err?.message || 'Failed to copy to clipboard', 'error');
     }
   };
 
@@ -283,7 +461,6 @@ export function useEmailEditor(initialTemplate?: Template) {
   }, [activeTemplate.id]);
 
   const handleDeleteTemplate = useCallback((templateId: string) => {
-    // Prevent deleting the only remaining template
     if (templates.length <= 1) {
       alert("You cannot delete the only remaining template in your workspace.");
       return;
@@ -292,21 +469,13 @@ export function useEmailEditor(initialTemplate?: Template) {
     const updated = templates.filter(t => t.id !== templateId);
     setTemplates(updated);
     
-    // Save to local storage
     if (typeof window !== 'undefined') {
       localStorage.setItem('email_pro_templates', JSON.stringify(updated));
     }
     
-    // If the active template was deleted, switch to the first remaining template
     if (activeTemplate.id === templateId) {
       const nextActive = updated[0];
-      setActiveTemplate(nextActive);
-      setCode(nextActive.code);
-      setLanguage(nextActive.language || 'typescript');
-      
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('email_pro_active_template_id', nextActive.id);
-      }
+      executeTemplateSwitch(nextActive);
     }
   }, [templates, activeTemplate.id]);
 
@@ -316,7 +485,6 @@ export function useEmailEditor(initialTemplate?: Template) {
       const JSZip = (await import('jszip')).default;
       const zip = new JSZip();
 
-      // Group templates by folder and add them to the zip
       for (const t of templates) {
         const templateCode = t.id === activeTemplate.id ? code : t.code;
         const fileName = `${t.name.toLowerCase().replace(/\s+/g, '-')}.html`;
@@ -349,8 +517,10 @@ export function useEmailEditor(initialTemplate?: Template) {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch (err) {
+      showToast('Workspace exported', `Downloaded zip containing ${templates.length} templates`, 'success');
+    } catch (err: any) {
       console.error('Workspace export error:', err);
+      showToast('Export failed', err?.message || 'Could not bundle workspace', 'error');
     } finally {
       setIsExporting(false);
     }
@@ -359,18 +529,21 @@ export function useEmailEditor(initialTemplate?: Template) {
   const handleDownload = async () => {
     setIsExporting(true);
     try {
-      const html = await exportToHTML(code);
+      const html = previewHtml || await exportToHTML(code, language, activeTemplate.id, templates);
       const blob = new Blob([html], { type: 'text/html' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${activeTemplate.name.toLowerCase().replace(/\s+/g, '-')}.html`;
+      const fileName = `${activeTemplate.name.toLowerCase().replace(/\s+/g, '-')}.html`;
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch (err) {
+      showToast('File exported', `Downloaded ${fileName}`, 'success');
+    } catch (err: any) {
       console.error('Export error:', err);
+      showToast('Export failed', err?.message || 'Could not export HTML', 'error');
     } finally {
       setIsExporting(false);
     }
@@ -419,6 +592,19 @@ export function useEmailEditor(initialTemplate?: Template) {
     handleDeleteTemplate,
     handleMoveTemplate,
     isDirty,
-    performRender
+    performRender,
+    qualityReport,
+    // Phase 15 additions
+    hasUnsavedChanges,
+    pendingDraftRecovery,
+    handleRestoreDraft,
+    handleDiscardDraft,
+    pendingSwitchTemplate,
+    confirmSwitchSaveRevision,
+    confirmSwitchDiscard,
+    cancelSwitch,
+    toast,
+    showToast,
+    hideToast
   };
 }

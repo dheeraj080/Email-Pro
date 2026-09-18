@@ -52,9 +52,26 @@ node scripts/test-security-boundary.mjs
 
 # Phase 10 API edge cases, race simulation, and client bundle audit
 node scripts/test-phase10-regression.mjs
+
+# Phase 14 static email quality & accessibility suite
+node scripts/test-phase14-quality.mjs
+
+# Phase 15 authoring workflow & draft persistence suite
+node scripts/test-phase15-workflow.mjs
 ```
 
+## Phase 16 — Production Readiness Audit Status
+* **Docker Runtime Verification**: `DOCKER RUNTIME VERIFICATION: NOT AVAILABLE` (Docker daemon unavailable in execution container; verified configuration files, multi-stage Dockerfile, healthchecks, and internal networks).
+* **Adversarial Security Audit**: 40/40 tests PASSED.
+* **Process Boundary Isolation**: 17/17 tests PASSED.
+* **Phase 10 API Regression**: 16/16 tests PASSED.
+* **Phase 14 Quality Audit**: 15/15 tests PASSED.
+* **Phase 15 Authoring & Draft Tests**: 14/14 tests PASSED.
+* **Secure Renderer Verification**: 19/19 tests PASSED against live Next.js endpoint and direct renderer service.
+* **Fail-Closed Production Safety**: Validated `NODE_ENV=production` rejects `RENDERER_MODE=local` and fails closed on connection failure.
+* **Resource Limits & Recovery**: 2500ms hard execution timeout, 500KB input limit, 2MB output limit, 128MB old-space-size verified. Immediate worker replacement on crash or timeout.
+
 ## Known Limitations
-* **Docker Runtime in Dev Sandbox**: Docker runtime isolation cannot be tested live in development environments where the Docker daemon is absent.
+* **Docker Runtime in Dev Sandbox**: Docker runtime isolation cannot be tested live in development environments where the Docker daemon is absent (`DOCKER RUNTIME VERIFICATION: NOT AVAILABLE`).
 * **Hook Concurrency Testing**: Race protection is verified via algorithmic regression testing rather than mounted headless React DOM tests.
 * **Local Renderer Dependencies**: `sucrase` and `@react-email/render` remain in root `package.json` to power the local disposable worker path during development.

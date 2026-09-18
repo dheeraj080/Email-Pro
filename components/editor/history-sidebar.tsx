@@ -5,8 +5,7 @@ import {
   History, 
   RotateCcw,
   Clock,
-  Archive,
-  Save
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -21,57 +20,57 @@ export const HistorySidebar = React.memo(function HistorySidebar({
   history,
   onRevert,
   isCollapsed,
+  onToggleCollapse
 }: HistorySidebarProps) {
   if (isCollapsed) return null;
 
   return (
-    <div className="w-64 border-l border-[#1f222e] bg-[#0c0d12] flex flex-col h-full select-none text-neutral-300">
-      <div className="p-5 border-b border-[#1f222e] bg-[#07080b]">
-        <div className="flex items-center justify-between mb-1.5">
-          <div className="flex items-center gap-2">
-            <History className="w-3.5 h-3.5 text-indigo-400" />
-            <h3 className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Version History</h3>
-          </div>
-          <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full bg-[#12141c] border border-[#1f222e] text-indigo-400 font-mono">
+    <div className="w-56 border-l border-border-base bg-surface flex flex-col h-full select-none text-fg shrink-0">
+      <div className="h-9 px-3 border-b border-border-base bg-surface flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <History className="w-3.5 h-3.5 text-accent" />
+          <span className="text-xs font-medium text-fg">History</span>
+          <span className="text-[10px] text-fg-muted font-mono ml-1">
             {history.length}
           </span>
         </div>
-        <p className="text-[9px] text-neutral-400 leading-normal font-medium">Auto-saved versions from this editing session.</p>
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          className="p-1 rounded text-fg-muted hover:text-fg hover:bg-surface-hover transition-colors"
+          title="Close history"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4 space-y-2.5 custom-scrollbar bg-[#0c0d12]">
+      <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
         {history.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 px-4 text-center space-y-3 opacity-50">
-            <div className="w-10 h-10 rounded-2xl bg-[#07080b] border border-[#1f222e] flex items-center justify-center text-neutral-400 shadow-xs">
-              <Clock className="w-4 h-4 text-indigo-400" />
-            </div>
-            <div>
-              <p className="text-[9px] font-black uppercase tracking-wider text-neutral-400">No revisions yet</p>
-              <span className="text-[8px] text-neutral-500 font-medium leading-normal block mt-1">Updates will save automatically.</span>
-            </div>
+          <div className="flex flex-col items-center justify-center py-16 px-3 text-center space-y-2 opacity-50">
+            <Clock className="w-5 h-5 text-fg-muted" />
+            <p className="text-xs text-fg font-medium">No revisions yet</p>
+            <span className="text-[10px] text-fg-muted leading-normal">
+              Edits save automatically as you type.
+            </span>
           </div>
         ) : (
           history.map((version) => (
             <button
               key={version.id}
+              type="button"
               onClick={() => onRevert(version.code)}
-              className="w-full text-left p-3.5 bg-[#07080b] rounded-xl border border-[#1f222e] hover:border-indigo-500/50 shadow-xs transition-all group relative flex items-center justify-between gap-3"
+              className="w-full text-left px-2.5 py-2 rounded-lg bg-surface-raised hover:bg-surface-hover border border-border-base transition-colors group flex items-center justify-between gap-2"
             >
               <div className="min-w-0">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <span className="text-[10px] font-bold text-white font-mono">
-                    {new Date(version.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                  <span className="text-[8px] text-neutral-400 font-medium font-mono">
-                    ({Math.round(version.code.length / 102.4) / 10} KB)
-                  </span>
+                <div className="text-xs font-medium text-fg font-mono">
+                  {new Date(version.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                 </div>
-                <div className="text-[8px] text-neutral-400 font-black uppercase tracking-wider">
-                  {new Date(version.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                <div className="text-[10px] text-fg-muted">
+                  {new Date(version.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' })} · {Math.round(version.code.length / 102.4) / 10} KB
                 </div>
               </div>
-              <div className="p-1.5 rounded-lg bg-[#12141c] border border-[#1f222e] text-indigo-400 opacity-0 group-hover:opacity-100 transition-all shadow-xs scale-90 group-hover:scale-100 shrink-0">
-                <RotateCcw className="w-3.5 h-3.5" />
+              <div className="p-1 rounded text-fg-muted group-hover:text-accent transition-colors opacity-0 group-hover:opacity-100 shrink-0" title="Revert to this revision">
+                <RotateCcw className="w-3 h-3" />
               </div>
             </button>
           ))

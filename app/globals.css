@@ -1,25 +1,269 @@
 @import "tailwindcss";
 
-@theme {
-  --color-obsidian-canvas: #07080b;
-  --color-slate-card: #0c0d12;
-  --color-slate-card-hover: #12141c;
-  --color-obsidian-border: #1f222e;
+:root {
+  /* =========================================================================
+     Email.Pro Design System — Dark Mode (Default)
+     Layered Charcoal & Slate Surfaces with High-Legibility Contrast
+     ========================================================================= */
+  --bg-app: #15171b;
+  --bg-subtle: #181b21;
 
-  --color-brand-primary: #6366f1; /* Indigo-500 */
-  --color-brand-bg: #07080b;      /* Rich Obsidian Black */
-  --color-brand-surface: #0c0d12; /* Midnight Slate */
-  --color-brand-surface-hover: #12141c;
-  --color-brand-text-main: #ffffff; /* Crisp text-white */
-  --color-brand-text-secondary: #a3a3a3; /* text-neutral-400 */
-  --color-brand-border: #1f222e;   /* hairline border */
+  --surface: #1b1e24;
+  --surface-raised: #22262e;
+  --surface-elevated: #292e37;
+  --surface-hover: #2b303b;
+
+  --fg: #f2f4f7;
+  --fg-secondary: #b8bec8;
+  --fg-muted: #858d99;
+  --fg-disabled: #575e6a;
+
+  --border-subtle: #242932;
+  --border-base: #303642;
+  --border-strong: #3d4554;
+
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-muted: rgba(99, 102, 241, 0.12);
+  --accent-border: rgba(99, 102, 241, 0.28);
+  --accent-fg: #ffffff;
+
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.10);
+  --success-border: rgba(16, 185, 129, 0.25);
+  --success-fg: #34d399;
+
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.10);
+  --warning-border: rgba(245, 158, 11, 0.25);
+  --warning-fg: #fbbf24;
+
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.10);
+  --danger-border: rgba(239, 68, 68, 0.25);
+  --danger-fg: #f87171;
+
+  --info: #38bdf8;
+  --info-bg: rgba(56, 189, 248, 0.10);
+  --info-border: rgba(56, 189, 248, 0.25);
+  --info-fg: #7dd3fc;
+
+  --editor-bg: #1b1e24;
+  --editor-surface: #20242b;
+  --editor-fg: #f2f4f7;
+
+  --preview-bg: #181b21;
+  --preview-surface: #ffffff;
+
+  color-scheme: dark;
 }
 
-/* Global Dark Obsidian Default */
-html, body {
-  background-color: #07080b !important;
-  color: #d4d4d4 !important;
+[data-theme="dark"], .dark {
+  --bg-app: #15171b;
+  --bg-subtle: #181b21;
+
+  --surface: #1b1e24;
+  --surface-raised: #22262e;
+  --surface-elevated: #292e37;
+  --surface-hover: #2b303b;
+
+  --fg: #f2f4f7;
+  --fg-secondary: #b8bec8;
+  --fg-muted: #858d99;
+  --fg-disabled: #575e6a;
+
+  --border-subtle: #242932;
+  --border-base: #303642;
+  --border-strong: #3d4554;
+
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-muted: rgba(99, 102, 241, 0.12);
+  --accent-border: rgba(99, 102, 241, 0.28);
+  --accent-fg: #ffffff;
+
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.10);
+  --success-border: rgba(16, 185, 129, 0.25);
+  --success-fg: #34d399;
+
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.10);
+  --warning-border: rgba(245, 158, 11, 0.25);
+  --warning-fg: #fbbf24;
+
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.10);
+  --danger-border: rgba(239, 68, 68, 0.25);
+  --danger-fg: #f87171;
+
+  --info: #38bdf8;
+  --info-bg: rgba(56, 189, 248, 0.10);
+  --info-border: rgba(56, 189, 248, 0.25);
+  --info-fg: #7dd3fc;
+
+  --editor-bg: #1b1e24;
+  --editor-surface: #20242b;
+  --editor-fg: #f2f4f7;
+
+  --preview-bg: #181b21;
+  --preview-surface: #ffffff;
+
   color-scheme: dark;
+}
+
+[data-theme="light"], .light {
+  /* =========================================================================
+     Email.Pro Design System — Light Mode
+     Cool Off-White Background, Clean White Surfaces & Soft Slate Borders
+     ========================================================================= */
+  --bg-app: #f5f6f8;
+  --bg-subtle: #eceef2;
+
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-elevated: #ffffff;
+  --surface-hover: #f0f2f5;
+
+  --fg: #17191d;
+  --fg-secondary: #5f6672;
+  --fg-muted: #858c97;
+  --fg-disabled: #b0b6c0;
+
+  --border-subtle: #e8eaef;
+  --border-base: #e2e5ea;
+  --border-strong: #cbd1da;
+
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-muted: rgba(79, 70, 229, 0.08);
+  --accent-border: rgba(79, 70, 229, 0.22);
+  --accent-fg: #ffffff;
+
+  --success: #059669;
+  --success-bg: rgba(5, 150, 105, 0.08);
+  --success-border: rgba(5, 150, 105, 0.22);
+  --success-fg: #047857;
+
+  --warning: #d97706;
+  --warning-bg: rgba(217, 119, 6, 0.08);
+  --warning-border: rgba(217, 119, 6, 0.22);
+  --warning-fg: #b45309;
+
+  --danger: #dc2626;
+  --danger-bg: rgba(220, 38, 38, 0.08);
+  --danger-border: rgba(220, 38, 38, 0.22);
+  --danger-fg: #b91c1c;
+
+  --info: #0284c7;
+  --info-bg: rgba(2, 132, 199, 0.08);
+  --info-border: rgba(2, 132, 199, 0.22);
+  --info-fg: #0369a1;
+
+  --editor-bg: #ffffff;
+  --editor-surface: #fafafa;
+  --editor-fg: #17191d;
+
+  --preview-bg: #eceef2;
+  --preview-surface: #ffffff;
+
+  color-scheme: light;
+}
+
+@theme {
+  --color-bg-app: var(--bg-app);
+  --color-bg-subtle: var(--bg-subtle);
+
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
+
+  --color-fg: var(--fg);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-disabled: var(--fg-disabled);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-base: var(--border-base);
+  --color-border-strong: var(--border-strong);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-muted: var(--accent-muted);
+  --color-accent-border: var(--accent-border);
+  --color-accent-fg: var(--accent-fg);
+
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-success-border: var(--success-border);
+  --color-success-fg: var(--success-fg);
+
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-border: var(--warning-border);
+  --color-warning-fg: var(--warning-fg);
+
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-border: var(--danger-border);
+  --color-danger-fg: var(--danger-fg);
+
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-info-border: var(--info-border);
+  --color-info-fg: var(--info-fg);
+
+  --color-editor-bg: var(--editor-bg);
+  --color-editor-surface: var(--editor-surface);
+  --color-editor-fg: var(--editor-fg);
+
+  --color-preview-bg: var(--preview-bg);
+  --color-preview-surface: var(--preview-surface);
+
+  /* Maintain backward compatibility with email brand variables */
+  --color-brand-primary: #6366f1;
+  --color-brand-bg: #07080b;
+  --color-brand-surface: #0c0d12;
+  --color-brand-surface-hover: #12141c;
+  --color-brand-text-main: #ffffff;
+  --color-brand-text-secondary: #a3a3a3;
+  --color-brand-border: #1f222e;
+}
+
+/* Global Default Styles */
+html, body {
+  background-color: var(--bg-app) !important;
+  color: var(--fg) !important;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Custom Scrollbars */
+*::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--border-base) !important;
+  border-radius: 10px !important;
+  border: 1px solid transparent !important;
+  background-clip: padding-box !important;
+  transition: background 0.2s ease !important;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong) !important;
+}
+
+/* Firefox Support */
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--border-base) transparent !important;
 }
 
 /* Email Editor Custom Styles */

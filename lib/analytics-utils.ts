@@ -1,4 +1,5 @@
 import { exportToHTML } from './render-email';
+import { auditEmailQuality, EmailQualityReport, calculateEmailSize } from './email-quality';
 
 export interface AccessibilityIssue {
   id: string;
@@ -9,21 +10,34 @@ export interface AccessibilityIssue {
 }
 
 export interface EmailMetrics {
+  // Authoritative measurements (UTF-8 bytes & DOM counts)
   sizeKb: number;
   linesOfCode: number;
-  complexityScore: number;
   linkCount: number;
   imageCount: number;
+  accessibilityIssues: AccessibilityIssue[];
+  accessibilityScore: number;
+  
+  // Quality Report integration
+  qualityReport?: EmailQualityReport;
+
+  // Heuristic / Estimated Metrics (Documented as non-authoritative heuristics)
+  complexityScore: number;
   spamRisk: 'low' | 'medium' | 'high';
   readabilityScore: number;
   estimatedOpenRate: number;
   estimatedClickRate: number;
-  accessibilityIssues: AccessibilityIssue[];
-  accessibilityScore: number;
 }
 
-export const analyzeEmail = async (code: string): Promise<EmailMetrics> => {
-  const html = await exportToHTML(code);
+/**
+ * Analyzes an email template.
+ * Authoritative measurements (byte size, Gmail clipping proximity, static quality checks)
+ * are derived directly from the compiled HTML payload.
+ * Performance/spam metrics are clearly identified as heuristic estimates.
+ */
+export const analyzeEmail = async (code: string, preRenderedHtml?: string): Promise<EmailMetrics> => {
+  const html = preRenderedHtml || await exportToHTML(code);
+  const qualityReport = auditEmailQuality(html);
   
   // Accessibility check via axe-core
   let accessibilityIssues: AccessibilityIssue[] = [];
@@ -66,30 +80,29 @@ export const analyzeEmail = async (code: string): Promise<EmailMetrics> => {
     }
   }
 
-  // Size calculation
-  const bytes = new TextEncoder().encode(html).length;
-  const sizeKb = parseFloat((bytes / 1024).toFixed(2));
+  // Authoritative UTF-8 size calculation via TextEncoder
+  const sizeKb = qualityReport.size.kb;
   
   // Basic content analysis
   const linesOfCode = code.split('\n').length;
-  const linkCount = (html.match(/<a\s/g) || []).length;
-  const imageCount = (html.match(/<img\s/g) || []).length;
+  const linkCount = qualityReport.metadata.linkCount;
+  const imageCount = qualityReport.metadata.imageCount;
   
-  // Complexity score (arbitrary logic)
+  // Heuristic complexity score (node density estimate)
   const tagCount = (html.match(/<[a-z0-9]+/gi) || []).length;
   const complexityScore = Math.min(100, Math.round((tagCount / 50) * 100));
   
-  // Mock spam risk analysis
+  // Heuristic keyword match (indicative estimate only)
   const spamKeywords = ['free', 'money', 'guaranteed', 'win', 'urgent', '!!!'];
   const spamMatches = spamKeywords.filter(word => html.toLowerCase().includes(word)).length;
   let spamRisk: 'low' | 'medium' | 'high' = 'low';
   if (spamMatches > 3) spamRisk = 'high';
   else if (spamMatches > 1) spamRisk = 'medium';
   
-  // Readability (mocked)
+  // Heuristic readability estimate
   const readabilityScore = Math.max(0, 100 - (complexityScore / 2));
   
-  // Performance-based estimates (mocked)
+  // Heuristic performance-based estimates
   const estimatedOpenRate = Math.max(15, 45 - (spamMatches * 5));
   const estimatedClickRate = Math.max(1, 10 - (complexityScore / 20));
 
@@ -104,6 +117,7 @@ export const analyzeEmail = async (code: string): Promise<EmailMetrics> => {
     estimatedOpenRate,
     estimatedClickRate,
     accessibilityIssues,
-    accessibilityScore
+    accessibilityScore,
+    qualityReport
   };
 };
