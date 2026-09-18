@@ -96,9 +96,7 @@ export default function LandingPage({
               className="flex items-center gap-2.5 text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-lg"
               aria-label="Email.Pro Home"
             >
-              <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center font-black text-base shadow-sm group-hover:bg-emerald-600 transition-colors">
-                ⚡
-              </div>
+              
               <span className="font-black text-xl tracking-tight text-fg">
                 Email<span className="text-emerald-500">.Pro</span>
               </span>
@@ -217,13 +215,10 @@ export default function LandingPage({
           
           {/* Left Column: Product Positioning & Action */}
           <div className="lg:col-span-6 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border-base text-[11px] font-mono font-medium text-fg-secondary">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>React Email &amp; Inlined HTML Studio</span>
-            </div>
+            
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-fg leading-[1.05]">
-              Craft bulletproof emails with code-level precision.
+              React component to pixel-perfect email in real time.
             </h1>
 
             <p className="text-sm sm:text-base text-fg-muted leading-relaxed max-w-xl font-normal">
@@ -345,9 +340,7 @@ export default function LandingPage({
                     <div className="space-y-3">
                       <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
                         <div className="flex items-center gap-1.5">
-                          <div className="w-5 h-5 rounded bg-accent text-white flex items-center justify-center text-[10px] font-black">
-                            ⚡
-                          </div>
+                          
                           <span className="text-xs font-black tracking-tight text-neutral-900">Email.Pro</span>
                         </div>
                         <span className="text-[9px] font-mono text-neutral-400 uppercase">Onboarding</span>
@@ -680,9 +673,7 @@ export default function LandingPage({
           {/* Top Brand & Actions Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-8 border-b border-border-base">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center font-black text-sm">
-                ⚡
-              </div>
+              
               <span className="font-black text-lg text-fg">Email<span className="text-emerald-500">.Pro</span></span>
               <span className="text-[11px] text-fg-muted ml-2 font-mono">v0.1.0</span>
             </div>
